@@ -5,6 +5,10 @@ from datetime import datetime
 
 import sys 
 
+# pip install scikit-image
+# pip install keras
+# pip install tensorflow
+
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
@@ -26,15 +30,15 @@ if (True):
     pathImg = 'img/' + dt_string 
     Path(pathImg).mkdir(parents=True, exist_ok=True) 
     
-    myGene = trainGenerator(10, 'data/train', 'image', 'label', data_gen_args, target_size=(256, 256),save_to_dir=None)
+    myGene = trainGenerator(1, 'data/train', 'image', 'label', data_gen_args, target_size=(256, 256), image_color_mode = "rgb", save_to_dir=None)
 
-    model = unet(pretrained_weights=None, input_size=(256, 256, 1))
+    model = unet(pretrained_weights=None, input_size=(256, 256, 3))
     model_checkpoint = ModelCheckpoint('unet_hdf5', monitor='loss', verbose=1, save_best_only=True)
-    model.fit_generator(myGene, steps_per_epoch=50, epochs=10, callbacks=[model_checkpoint])  
+    model.fit_generator(myGene, steps_per_epoch=50, epochs=5, callbacks=[model_checkpoint])  
     
 else:    
-    model = unet(pretrained_weights='unet_hdf5', input_size=(256, 256, 1))
-    model_checkpoint = ModelCheckpoint('unet_hdf5', monitor='loss', verbose=1, save_best_only=True)
+    model = unet(pretrained_weights=None, input_size=(256, 256, 1))
+    model_checkpoint = ModelCheckpoint('unet_hdf5', monitor='loss', verbose=1, save_best_only=True, as_gray = False)
 
 
     path = "data/test/predict/" + dt_string 
