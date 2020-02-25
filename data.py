@@ -127,10 +127,13 @@ def saveResult(save_path,npyfile,flag_multi_class = False,num_class = 2):
             img = labelVisualize(num_class,COLOR_DICT,item)
         else:            
             img=item[:,:,0] 
+            
             print(np.max(img),np.min(img))
-            img[img>0.5] = 1
-            img[img<=0.5] = 0
-            print(np.max(img),np.min(img))
+            
+            img[img>0.01] = 1
+            img[img<=0.01] = 0
+            
+            #print(np.max(img),np.min(img))
         
         io.imsave(os.path.join(save_path,"%d_predict.png"%i), img_as_ubyte(img))
 
