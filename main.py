@@ -44,8 +44,13 @@ def main():
         sys.exit()
 
     if (args.t == 0):
-        data_gen_args = dict(rotation_range=0.2, width_shift_range=0.05, height_shift_range=0.05, 
-                             shear_range=0.05, zoom_range=0.05, horizontal_flip=True, fill_mode='nearest')
+        data_gen_args = dict(rotation_range=0.2,
+                             zoom_range=0.15,  
+                             width_shift_range=0.2, 
+                             height_shift_range=0.2, 
+                             shear_range=0.15,                              
+                             horizontal_flip=True, 
+                             fill_mode='wrap')
 
         save_to_dir = None
         if (args.g != 0):
@@ -53,21 +58,20 @@ def main():
 
         myGene = trainGenerator(2, 'data/train', 'image', 'label', 
                                 data_gen_args, 
-                                target_size=(256, 256), 
+                                target_size=(512, 512), 
                                 image_color_mode="rgb", 
-                                save_to_dir=save_to_dir, 
-                                )
+                                save_to_dir=save_to_dir)
 
-        model = unet(pretrained_weights=None, input_size=(256, 256, 3))
+        model = unet(pretrained_weights=None, input_size=(512, 512, 3))
         model_checkpoint = ModelCheckpoint('unet_hdf5', monitor='loss', verbose=1, save_best_only=True)
-        model.fit_generator(myGene, steps_per_epoch=50, epochs=10, callbacks=[model_checkpoint])
+        model.fit_generator(myGene, steps_per_epoch=20, epochs=50, callbacks=[model_checkpoint])
 
     elif (args.t == 1):
-        model = unet(pretrained_weights='unet_hdf5', input_size=(256, 256, 3))
+        model = unet(pretrained_weights='unet_hdf5', input_size=(512, 512, 3))
         model_checkpoint = ModelCheckpoint(
             'unet_hdf5', monitor='loss', verbose=1, save_best_only=True)
 
-        testGene = testGenerator('data/test', flag_multi_class=True, target_size=(256, 256, 3), as_gray=False)
+        testGene = testGenerator('data/test', flag_multi_class=True, target_size=(512, 512, 3), as_gray=False)
         qtd = getFilesCount('data/test')
 
         if(qtd > 0):
@@ -80,3 +84,15 @@ def main():
 # test - DJI_0179.jpg
 if __name__ == "__main__":
     main()
+
+# 512 x 512 - sem gerar imagem - 5 steps - 2 epocas
+# 0.69 - 0.95
+# 0.39 - 0.95
+
+# 256 x 256 - sem gerar imagem - 5 steps - 2 epocas
+# 0.56 - 0.65
+# 0.69 - 0.95
+
+# 1024 x 1024 - sem gerar imagem - 5 steps - 2 epocas
+# 0.00 - 0.00
+# 0.00 - 0.00

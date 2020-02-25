@@ -130,8 +130,8 @@ def saveResult(save_path,npyfile,flag_multi_class = False,num_class = 2):
             
             print(np.max(img),np.min(img))
             
-            img[img>0.01] = 1
-            img[img<=0.01] = 0
+            img[img>0.15] = 1
+            img[img<=0.15] = 0
             
             #print(np.max(img),np.min(img))
         
