@@ -84,16 +84,16 @@ def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image
 
 
 
-def testGenerator(test_path,num_image = 30, target_size = (256,256), flag_multi_class = False, as_gray = True):
-    for i in range(num_image):
-        img = io.imread(os.path.join(test_path,"%d.jpg"%i), as_gray = as_gray)         
+def testGenerator(test_path, ext = '.JPG', num_image = 30, target_size = (256,256), flag_multi_class = False, as_gray = True):    
+    imgs = glob.glob('data/test/*' + ext)
+    for item in imgs:
+        #os.path.join(test_path,"%d.jpg"%i)
+        img = io.imread(item, as_gray = as_gray)
         img = img / 255.
         img = trans.resize(img, target_size)
         img = np.reshape(img,img.shape+(1,)) if (not flag_multi_class) else img
         img = np.reshape(img,(1,)+img.shape)               
-
         yield img
-
 
 def geneTrainNpy(image_path,mask_path,flag_multi_class = False,num_class = 2,image_prefix = "image",mask_prefix = "mask",image_as_gray = True,mask_as_gray = True):
     image_name_arr = glob.glob(os.path.join(image_path,"%s*.jpg"%image_prefix))
@@ -121,19 +121,20 @@ def labelVisualize(num_class,color_dict,img):
 
 
 
-def saveResult(save_path,npyfile,flag_multi_class = False,num_class = 2):
+def saveResult(save_path, npyfile, imgs, flag_multi_class = False,num_class = 2):
     for i,item in enumerate(npyfile):
         if flag_multi_class:
             img = labelVisualize(num_class,COLOR_DICT,item)
         else:            
             img=item[:,:,0] 
             
-            print(np.max(img),np.min(img))
+            if(i==0):
+                print(img)
             
-            img[img>0.15] = 1
-            img[img<=0.15] = 0
-            
+            #print(np.max(img),np.min(img))            
+            img[img>0.5] = 1
+            img[img<=0.5] = 0             
             #print(np.max(img),np.min(img))
         
-        io.imsave(os.path.join(save_path,"%d_predict.png"%i), img_as_ubyte(img))
+        io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_ubyte(img))
 

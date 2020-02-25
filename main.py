@@ -6,6 +6,7 @@ import sys
 import argparse
 import os
 import os.path 
+import glob 
 
 # pip install scikit-image
 # pip install keras
@@ -20,9 +21,14 @@ def getFolderName(basePath):
     return basePath + path
 
 
-def getFilesCount(path):
-    path, dirs, files = next(os.walk(path))
-    return len(files)
+def getFilesCount(path, ext = '.JPG'):    
+    parts = len(path.split('/'))
+    imgs = glob.glob('data/test/*' + ext)
+
+    for i, item in enumerate(imgs):
+        imgs[i] = imgs[i].split('/')[parts]
+        
+    return len(imgs), imgs
 
 
 def main():
@@ -58,41 +64,28 @@ def main():
 
         myGene = trainGenerator(2, 'data/train', 'image', 'label', 
                                 data_gen_args, 
-                                target_size=(512, 512), 
+                                target_size=(384, 512), 
                                 image_color_mode="rgb", 
                                 save_to_dir=save_to_dir)
 
-        model = unet(pretrained_weights=None, input_size=(512, 512, 3))
+        model = unet(pretrained_weights=None, input_size=(384, 512, 3))
         model_checkpoint = ModelCheckpoint('unet_hdf5', monitor='loss', verbose=1, save_best_only=True)
-        model.fit_generator(myGene, steps_per_epoch=20, epochs=50, callbacks=[model_checkpoint])
+        model.fit_generator(myGene, steps_per_epoch=20, epochs=75, callbacks=[model_checkpoint])
 
     elif (args.t == 1):
-        model = unet(pretrained_weights='unet_hdf5', input_size=(512, 512, 3))
-        model_checkpoint = ModelCheckpoint(
-            'unet_hdf5', monitor='loss', verbose=1, save_best_only=True)
+        model = unet(pretrained_weights='unet_hdf5', input_size=(384, 512, 3))
+        model_checkpoint = ModelCheckpoint('unet_hdf5', monitor='loss', verbose=1, save_best_only=True)
 
-        testGene = testGenerator('data/test', flag_multi_class=True, target_size=(512, 512, 3), as_gray=False)
-        qtd = getFilesCount('data/test')
+        testGene = testGenerator('data/test', flag_multi_class=True, target_size=(384, 512, 3), as_gray=False)
+        qtd, imgs = getFilesCount('data/test')
 
         if(qtd > 0):
             results = model.predict_generator(testGene, qtd, verbose=1)
-            saveResult('data/predict/', results, flag_multi_class=False)
+            saveResult('data/predict/', npyfile=results, imgs=imgs, flag_multi_class=False)
         else:
             print("nenhum arquivo encontrado")
 
 
 # test - DJI_0179.jpg
 if __name__ == "__main__":
-    main()
-
-# 512 x 512 - sem gerar imagem - 5 steps - 2 epocas
-# 0.69 - 0.95
-# 0.39 - 0.95
-
-# 256 x 256 - sem gerar imagem - 5 steps - 2 epocas
-# 0.56 - 0.65
-# 0.69 - 0.95
-
-# 1024 x 1024 - sem gerar imagem - 5 steps - 2 epocas
-# 0.00 - 0.00
-# 0.00 - 0.00
+    main() 
