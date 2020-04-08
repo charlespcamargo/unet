@@ -62,21 +62,21 @@ def main():
         if (args.g != 0):
             save_to_dir = getFolderName('data/train/aug/')
 
-        myGene = trainGenerator(2, 'data/train', 'image', 'label', 
+        myGene = trainGenerator(1, 'data/train', 'image', 'label', 
                                 data_gen_args, 
-                                target_size=(384, 512), 
+                                target_size=(1280, 1792), 
                                 image_color_mode="rgb", 
                                 save_to_dir=save_to_dir)
 
-        model = unet(pretrained_weights=None, input_size=(384, 512, 3))
+        model = unet(pretrained_weights=None, input_size=(1280, 1792, 3))
         model_checkpoint = ModelCheckpoint('unet_hdf5', monitor='loss', verbose=1, save_best_only=True)
-        model.fit_generator(myGene, steps_per_epoch=20, epochs=75, callbacks=[model_checkpoint])
+        model.fit_generator(myGene, steps_per_epoch=100, epochs=150, callbacks=[model_checkpoint])
 
     elif (args.t == 1):
-        model = unet(pretrained_weights='unet_hdf5', input_size=(384, 512, 3))
+        model = unet(pretrained_weights='unet_hdf5', input_size=(1280, 1792, 3))
         model_checkpoint = ModelCheckpoint('unet_hdf5', monitor='loss', verbose=1, save_best_only=True)
 
-        testGene = testGenerator('data/test', flag_multi_class=True, target_size=(384, 512, 3), as_gray=False)
+        testGene = testGenerator('data/test', flag_multi_class=True, target_size=(1280, 1792, 3), as_gray=False)
         qtd, imgs = getFilesCount('data/test')
 
         if(qtd > 0):
@@ -85,7 +85,5 @@ def main():
         else:
             print("nenhum arquivo encontrado")
 
-
-# test - DJI_0179.jpg
 if __name__ == "__main__":
     main() 
