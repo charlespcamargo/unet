@@ -115,8 +115,6 @@ def test(args):
     model = unet(pretrained_weights=args.n, input_size=input_shape)
     model_checkpoint = ModelCheckpoint(args.n, monitor='loss', verbose=1, save_best_only=True)
 
-    print(test_folder + image_folder)
-
     testGene = testGenerator(test_folder + image_folder, flag_multi_class=True, target_size=input_shape, as_gray=False)
     qtd, imgs = getFilesCount(test_folder + image_folder)
 
@@ -124,9 +122,14 @@ def test(args):
         results = model.predict_generator(testGene, qtd, verbose=1)
         saveResult(test_folder + label_folder, npyfile=results, imgs=imgs, flag_multi_class=False)
 
-        loss, acc = model.evaluate(testGene, verbose=2)
-        print("Restored model, accuracy: {:5.2f}%".format(100*acc))
-        print("Restored model, loss: {:5.2f}%".format(100*loss))
+        try:
+            loss, acc = model.evaluate(x=testGene, y=results, verbose=1)
+            
+            print("Restored model, accuracy: {:5.2f}%".format(100*acc))
+            print("Restored model, loss: {:5.2f}%".format(100*loss))        
+        except Exception as e:
+            print("type error: " + str(e))
+            pass
 
     else:
         print("nenhum arquivo encontrado")
