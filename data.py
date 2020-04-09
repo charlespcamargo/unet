@@ -84,8 +84,8 @@ def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image
 
 
 
-def testGenerator(test_path, ext = '.JPG', num_image = 30, target_size = (256,256), flag_multi_class = False, as_gray = True):    
-    imgs = glob.glob('data/test/*' + ext)
+def testGenerator(path, ext = '.JPG', num_image = 30, target_size = (256,256), flag_multi_class = False, as_gray = True):    
+    imgs = glob.glob(path + '/*' + ext)
     for item in imgs:
         #os.path.join(test_path,"%d.jpg"%i)
         img = io.imread(item, as_gray = as_gray)

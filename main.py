@@ -13,6 +13,31 @@ import glob
 # pip install tensorflow
 # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
+model = None
+target_size = (1280, 1792)
+input_shape = (1280, 1792, 3)
+
+base_folder = 'data/'
+
+train_folder = base_folder + 'train/'
+augmentation_folder = train_folder + 'aug/'
+
+test_folder = base_folder + 'test/'
+
+image_folder = 'image/'
+label_folder = 'label/'
+
+def main():
+    args = arguments()
+
+    if (args.t == 0):
+        train(args)
+
+    elif (args.t == 1):
+        test(args)
+
+    elif (args.t == 2): 
+        showSummary(args)
 
 def getFolderName(basePath):
     now = datetime.now()
@@ -20,37 +45,44 @@ def getFolderName(basePath):
     Path(basePath + path).mkdir(parents=True, exist_ok=True)
     return basePath + path
 
-
-def getFilesCount(path, ext = '.JPG'):    
-    parts = len(path.split('/'))
-    imgs = glob.glob('data/test/*' + ext)
-
+def getFilesCount(path, ext = '.JPG'):
+    parts = len(path.split('/')) - 1
+    imgs = glob.glob(path + '/*' + ext)
+    
     for i, item in enumerate(imgs):
         imgs[i] = imgs[i].split('/')[parts]
         
     return len(imgs), imgs
 
-
-def main():
+def arguments():
+    # show options, get arguments and validate    
     parser = argparse.ArgumentParser(description='Informe os parametros:')
     parser.add_argument("--t", default=-1, type=int,
-                        help="Informe o tipo '--t 0' para treino ou '--t 1' para teste'")
+                        help="Informe o tipo '--t 0' para treino, '--t 1' para teste', '--t 2' para exibir o sumario', '--t 3' para exibir a avaliacao'")
     parser.add_argument("--g", default=0, type=int,
                         help="Gerar arquivos de '--g 0' para nao gerar arquivos ou '--g 1' para gerar")
     parser.add_argument("--q", default=0, type=int,
                         help="Quantidade de arquivos para teste '--q 0' para nao gerar arquivos ou '--q 1' para gerar")
+    parser.add_argument("--n", default=None, type=str,
+                        help="Informe o nome do arquivo de pesos para ler o sumario")
     args = parser.parse_args()
 
-    if (args.t != 0 and args.t != 1):
-        print("Tipo invalido! Informe o tipo corretamente: '--t 0' para treino ou '--t 1' para teste'")
+    if (args.t != 0 and args.t != 1 and args.t != 2):
+        print("Tipo invalido! Informe o tipo corretamente: '--t 0' para treino, '--t 1' para teste', '--t 2' para exibir o sumario'")
         sys.exit()
 
     if (args.g != 0 and args.g != 1):
-        print("Parametro para a geracao de arquivos invalido! Informe corretamene: '--g 0' para nao gerar arquivos ou '--g 1' para gerar")
+        print("Parametro para a geracao de arquivos invalido! Informe corretamente: '--g 0' para nao gerar arquivos ou '--g 1' para gerar")
+        sys.exit()
+    
+    if ((args.t == 2) and not args.n):
+        print("Parametro invalido! Informe corretamente: '--n [file_name]'")
         sys.exit()
 
-    if (args.t == 0):
-        data_gen_args = dict(rotation_range=0.2,
+    return args
+
+def train(args):
+    data_gen_args = dict(rotation_range=0.2,
                              zoom_range=0.15,  
                              width_shift_range=0.2, 
                              height_shift_range=0.2, 
@@ -58,32 +90,51 @@ def main():
                              horizontal_flip=True, 
                              fill_mode='wrap')
 
-        save_to_dir = None
-        if (args.g != 0):
-            save_to_dir = getFolderName('data/train/aug/')
+    save_to_dir = None
+    if (args.g != 0):
+        save_to_dir = getFolderName(augmentation_folder)
 
-        myGene = trainGenerator(1, 'data/train', 'image', 'label', 
-                                data_gen_args, 
-                                target_size=(1280, 1792), 
-                                image_color_mode="rgb", 
-                                save_to_dir=save_to_dir)
+    myGene = trainGenerator(1, 
+                            train_folder, 
+                            train_folder + image_folder, 
+                            train_folder + label_folder, 
+                            data_gen_args, 
+                            target_size=target_size, 
+                            image_color_mode="rgb", 
+                            save_to_dir=save_to_dir)
 
-        model = unet(pretrained_weights=None, input_size=(1280, 1792, 3))
-        model_checkpoint = ModelCheckpoint('unet_hdf5', monitor='loss', verbose=1, save_best_only=True)
-        model.fit_generator(myGene, steps_per_epoch=1, epochs=1, callbacks=[model_checkpoint])
+    model = unet(pretrained_weights=None, input_size=input_shape)
+    model_checkpoint = ModelCheckpoint('unet_hdf5', monitor='loss', verbose=1, save_best_only=True)
+    model.fit_generator(myGene, steps_per_epoch=150, epochs=150, callbacks=[model_checkpoint])
 
-    elif (args.t == 1):
-        model = unet(pretrained_weights='unet_hdf5', input_size=(1280, 1792, 3))
-        model_checkpoint = ModelCheckpoint('unet_hdf5', monitor='loss', verbose=1, save_best_only=True)
+def test(args):
 
-        testGene = testGenerator('data/test', flag_multi_class=True, target_size=(1280, 1792, 3), as_gray=False)
-        qtd, imgs = getFilesCount('data/test')
+    if(not args.n):
+        args.n = 'unet_hdf5'
 
-        if(qtd > 0):
-            results = model.predict_generator(testGene, qtd, verbose=1)
-            saveResult('data/predict/', npyfile=results, imgs=imgs, flag_multi_class=False)
-        else:
-            print("nenhum arquivo encontrado")
+    model = unet(pretrained_weights=args.n, input_size=input_shape)
+    model_checkpoint = ModelCheckpoint(args.n, monitor='loss', verbose=1, save_best_only=True)
+
+    print(test_folder + image_folder)
+
+    testGene = testGenerator(test_folder + image_folder, flag_multi_class=True, target_size=input_shape, as_gray=False)
+    qtd, imgs = getFilesCount(test_folder + image_folder)
+
+    if(qtd > 0):
+        results = model.predict_generator(testGene, qtd, verbose=1)
+        saveResult(test_folder + label_folder, npyfile=results, imgs=imgs, flag_multi_class=False)
+
+        loss, acc = model.evaluate(testGene, verbose=2)
+        print("Restored model, accuracy: {:5.2f}%".format(100*acc))
+        print("Restored model, loss: {:5.2f}%".format(100*loss))
+
+    else:
+        print("nenhum arquivo encontrado")
+
+def showSummary(args):
+    model = unet(pretrained_weights=args.n, input_size=input_shape)        
+    model.build(input_shape)
+    model.summary()
 
 if __name__ == "__main__":
     main() 
