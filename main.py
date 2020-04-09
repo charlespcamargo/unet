@@ -70,7 +70,7 @@ def main():
 
         model = unet(pretrained_weights=None, input_size=(1280, 1792, 3))
         model_checkpoint = ModelCheckpoint('unet_hdf5', monitor='loss', verbose=1, save_best_only=True)
-        model.fit_generator(myGene, steps_per_epoch=100, epochs=150, callbacks=[model_checkpoint])
+        model.fit_generator(myGene, steps_per_epoch=1, epochs=1, callbacks=[model_checkpoint])
 
     elif (args.t == 1):
         model = unet(pretrained_weights='unet_hdf5', input_size=(1280, 1792, 3))
