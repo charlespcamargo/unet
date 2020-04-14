@@ -8,7 +8,7 @@ from keras.layers import *
 from keras.optimizers import *
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from keras import backend as keras
-
+import keras.metrics
 
 def unet(pretrained_weights = None, input_size = (256,256, 3)):
     inputs = Input( shape=input_size )
@@ -56,9 +56,20 @@ def unet(pretrained_weights = None, input_size = (256,256, 3)):
     model = Model(input = inputs, output = conv10)
 
     #model.compile(optimizer = Adam(lr = 0.00001), loss = 'categorical_crossentropy', metrics = ['accuracy'])
-    model.compile(optimizer = Adam(lr = 0.00001), loss = 'binary_crossentropy', metrics = ['accuracy'])
+    model.compile(optimizer = Adam(lr = 0.00001), 
+                  loss = 'binary_crossentropy', 
+                  metrics = [
+                                'accuracy',
+                                'binary_accuracy',
+                                keras.metrics.TrueNegatives(),
+                                keras.metrics.FalseNegatives(),
+                                keras.metrics.TruePositives(),
+                                keras.metrics.FalsePositives(),
+                                keras.metrics.Precision(), 
+                                keras.metrics.Recall()
+                            ])
     
-    #model.summary()
+    model.summary()
 
     if(pretrained_weights):
     	model.load_weights(pretrained_weights)

@@ -7,15 +7,20 @@ import argparse
 import os
 import os.path 
 import glob 
+import traceback
 
 # pip install scikit-image
 # pip install keras
 # pip install tensorflow
-# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1" 
 
 model = None
-target_size = (1280, 1792)
-input_shape = (1280, 1792, 3)
+batch_size  = 4
+target_size = (640, 896)      #(1280, 1792) 
+input_shape = (640, 896, 3)   #(1280, 1792, 3)
+steps_per_epoch = 100
+epochs=150
+
 
 base_folder = 'data/'
 
@@ -24,8 +29,8 @@ augmentation_folder = train_folder + 'aug/'
 
 test_folder = base_folder + 'test/'
 
-image_folder = 'image/'
-label_folder = 'label/'
+image_folder = 'image'
+label_folder = 'label'
 
 def main():
     args = arguments()
@@ -94,10 +99,10 @@ def train(args):
     if (args.g != 0):
         save_to_dir = getFolderName(augmentation_folder)
 
-    myGene = trainGenerator(1, 
+    myGene = trainGenerator(batch_size, 
                             train_folder, 
-                            train_folder + image_folder, 
-                            train_folder + label_folder, 
+                            image_folder,
+                            label_folder, 
                             data_gen_args, 
                             target_size=target_size, 
                             image_color_mode="rgb", 
@@ -105,7 +110,7 @@ def train(args):
 
     model = unet(pretrained_weights=None, input_size=input_shape)
     model_checkpoint = ModelCheckpoint('unet_hdf5', monitor='loss', verbose=1, save_best_only=True)
-    model.fit_generator(myGene, steps_per_epoch=150, epochs=150, callbacks=[model_checkpoint])
+    model.fit_generator(myGene, steps_per_epoch=steps_per_epoch, epochs=epochs, callbacks=[model_checkpoint])
 
 def test(args):
 
@@ -118,17 +123,21 @@ def test(args):
     testGene = testGenerator(test_folder + image_folder, flag_multi_class=True, target_size=input_shape, as_gray=False)
     qtd, imgs = getFilesCount(test_folder + image_folder)
 
+    print("Images do predict: ", qtd)
+
     if(qtd > 0):
         results = model.predict_generator(testGene, qtd, verbose=1)
-        saveResult(test_folder + label_folder, npyfile=results, imgs=imgs, flag_multi_class=False)
+        saveResult(test_folder + label_folder, results) #npyfile=results, imgs=imgs, flag_multi_class=False)
 
         try:
-            loss, acc = model.evaluate(x=testGene, y=results, verbose=1)
+            #loss, acc = model.evaluate(x=testGene, y=results, verbose=1)
             
-            print("Restored model, accuracy: {:5.2f}%".format(100*acc))
-            print("Restored model, loss: {:5.2f}%".format(100*loss))        
+            #print("Restored model, accuracy: {:5.2f}%".format(100*acc))
+            #print("Restored model, loss: {:5.2f}%".format(100*loss))        
+            print("Not yet!")        
         except Exception as e:
             print("type error: " + str(e))
+            print(traceback.format_exc())
             pass
 
     else:
