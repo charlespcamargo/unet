@@ -120,14 +120,14 @@ def test(args):
     model = unet(pretrained_weights=args.n, input_size=input_shape)
     model_checkpoint = ModelCheckpoint(args.n, monitor='loss', verbose=1, save_best_only=True)
 
-    testGene = testGenerator(test_folder + image_folder, flag_multi_class=True, target_size=input_shape, as_gray=False)
-    qtd, imgs = getFilesCount(test_folder + image_folder)
+    testGene = testGenerator(test_folder + image_folder + '/', flag_multi_class=True, target_size=input_shape, as_gray=False)
+    qtd, imgs = getFilesCount(test_folder + image_folder + '/')
 
-    print("Images do predict: ", qtd)
+    print("Images do predict: {0} - {1}".format(qtd, len(imgs)))
 
     if(qtd > 0):
         results = model.predict_generator(testGene, qtd, verbose=1)
-        saveResult(test_folder + label_folder, results) #npyfile=results, imgs=imgs, flag_multi_class=False)
+        saveResult(test_folder + label_folder + '/', npyfile=results, imgs=imgs, flag_multi_class=False)
 
         try:
             #loss, acc = model.evaluate(x=testGene, y=results, verbose=1)
