@@ -55,7 +55,6 @@ def unet(pretrained_weights = None, input_size = (256,256, 3)):
 
     model = Model(input = inputs, output = conv10)
 
-    #model.compile(optimizer = Adam(lr = 0.00001), loss = 'categorical_crossentropy', metrics = ['accuracy'])
     model.compile(optimizer = Adam(lr = 0.00001), 
                   loss = 'binary_crossentropy', 
                   metrics = [
@@ -68,7 +67,7 @@ def unet(pretrained_weights = None, input_size = (256,256, 3)):
                                 keras.metrics.Precision(), 
                                 keras.metrics.Recall()
                             ])
-    
+
     model.summary()
 
     if(pretrained_weights):

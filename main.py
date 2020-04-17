@@ -7,7 +7,7 @@ import argparse
 import os
 import os.path 
 import glob 
-import traceback
+import traceback 
 
 # pip install scikit-image
 # pip install keras
@@ -16,10 +16,10 @@ import traceback
 
 model = None
 batch_size  = 4
-target_size = (640, 896)      #(1280, 1792) 
-input_shape = (640, 896, 3)   #(1280, 1792, 3)
+target_size = (640, 896)      #(1280, 1792) #
+input_shape = (640, 896, 3)   #(1280, 1792, 3) #
 steps_per_epoch = 100
-epochs=150
+epochs=200
 
 
 base_folder = 'data/'
@@ -108,9 +108,20 @@ def train(args):
                             image_color_mode="rgb", 
                             save_to_dir=save_to_dir)
 
+
+    
+    path = datetime.now().strftime("%Y%m%d_%H%M")
+
+    # define TensorBoard directory
+    tb_dir = f'.logs/{path}'
+    
+    # define TensorBoard callback
+    tb_cb = keras.callbacks.TensorBoard(log_dir=tb_dir, write_graph=True, update_freq=100)
+
+
     model = unet(pretrained_weights=None, input_size=input_shape)
     model_checkpoint = ModelCheckpoint('unet_hdf5', monitor='loss', verbose=1, save_best_only=True)
-    model.fit_generator(myGene, steps_per_epoch=steps_per_epoch, epochs=epochs, callbacks=[model_checkpoint])
+    model.fit_generator(myGene, steps_per_epoch=steps_per_epoch, epochs=epochs, callbacks=[tb_cb])
 
 def test(args):
 
