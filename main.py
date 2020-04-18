@@ -1,7 +1,6 @@
 from model import *
 from data import *
 from pathlib import Path
-from datetime import datetime
 import sys
 import argparse
 import os
@@ -9,28 +8,29 @@ import os.path
 import glob 
 import traceback 
 
-# pip install scikit-image
-# pip install keras
-# pip install tensorflow
-# os.environ["CUDA_VISIBLE_DEVICES"] = "1" 
+from datetime import datetime
+from _datetime import timezone
+import pytz
 
-model = None
-batch_size  = 16
+# training vars
+model = None 
+batch_size  = 2
+steps_per_epoch = 100
+epochs = 200
+
+# image sizes
 target_size = (640, 896)      #(1280, 1792) #
-input_shape = (640, 896, 3)   #(1280, 1792, 3) #
-steps_per_epoch = 1
-epochs = 1
+input_shape = (640, 896, 3)   #(1280, 1792, 3) #    
 
-
+# paths
 base_folder = 'data/'
-
 train_folder = base_folder + 'train/'
 augmentation_folder = train_folder + 'aug/'
-
 test_folder = base_folder + 'test/'
-
 image_folder = 'image'
 label_folder = 'label'
+
+tz = pytz.timezone("Brazil/East")
 
 def main():
     args = arguments()
@@ -125,21 +125,25 @@ def train(args):
                             save_to_dir=save_to_dir)
 
 
-    
-    path = datetime.now().strftime("%Y%m%d_%H%M")
+    start_time = datetime.now(tz=tz)
+    path = start_time.strftime("%Y%m%d_%H%M")
 
-    # define TensorBoard directory
+    # define TensorBoard directory and TensorBoard callback
     tb_dir = f'.logs/{path}'
-    
-    # define TensorBoard callback
     tb_cb = keras.callbacks.TensorBoard(log_dir=tb_dir, write_graph=True, update_freq=100)
 
+    try:
+        model = unet(pretrained_weights=None, input_size=input_shape)
+        model_checkpoint = ModelCheckpoint('unet_hdf5', monitor='loss', verbose=1, save_best_only=True)
+        model.fit_generator(myGene, steps_per_epoch=steps_per_epoch, epochs=epochs, callbacks=[tb_cb])
 
-    model = unet(pretrained_weights=None, input_size=input_shape)
-    model_checkpoint = ModelCheckpoint('unet_hdf5', monitor='loss', verbose=1, save_best_only=True)
-    model.fit_generator(myGene, steps_per_epoch=steps_per_epoch, epochs=epochs, callbacks=[tb_cb])
+    except Exception as e:
+        showExecutionTime(start_time)
+        print("type error: " + str(e))
+        print(traceback.format_exc())
+        pass
 
-    print('acabou! {datetime.now().strftime("%Y%m%d_%H%M")}')
+    showExecutionTime(start_time)
 
 def test(args):
 
@@ -177,5 +181,11 @@ def showSummary(args):
     model.build(input_shape)
     model.summary()
 
-if __name__ == "__main__":
+def showExecutionTime(start_time):
+    end_time = datetime.now(tz=tz)
+    elapsed = end_time - start_time
+    print(f'\nExecution end! \n start: {start_time.strftime("%Y/%m/%d %H:%M")} \n finish: {end_time.strftime("%Y/%m/%d %H:%M")} \n elapsed: {elapsed}')
+
+
+if __name__ == "__main__":     
     main() 
