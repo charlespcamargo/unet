@@ -15,11 +15,11 @@ import traceback
 # os.environ["CUDA_VISIBLE_DEVICES"] = "1" 
 
 model = None
-batch_size  = 4
+batch_size  = 16
 target_size = (640, 896)      #(1280, 1792) #
 input_shape = (640, 896, 3)   #(1280, 1792, 3) #
-steps_per_epoch = 100
-epochs=200
+steps_per_epoch = 1
+epochs = 1
 
 
 base_folder = 'data/'
@@ -35,6 +35,9 @@ label_folder = 'label'
 def main():
     args = arguments()
 
+    if (args.t == -1):
+        showParameters()
+    
     if (args.t == 0):
         train(args)
 
@@ -43,6 +46,19 @@ def main():
 
     elif (args.t == 2): 
         showSummary(args)
+
+def showParameters():
+    print('batch_size: ', batch_size)
+    print('target_size: ', target_size)
+    print('input_shape: ', input_shape)
+    print('steps_per_epoch: ', steps_per_epoch)
+    print('epochs: ', epochs)
+    print('base_folder: ', base_folder)
+    print('train_folder: ', train_folder)
+    print('augmentation_folder: ', augmentation_folder)
+    print('test_folder: ', test_folder)
+    print('image_folder: ', image_folder)
+    print('label_folder: ', label_folder)
 
 def getFolderName(basePath):
     now = datetime.now()
@@ -63,7 +79,7 @@ def arguments():
     # show options, get arguments and validate    
     parser = argparse.ArgumentParser(description='Informe os parametros:')
     parser.add_argument("--t", default=-1, type=int,
-                        help="Informe o tipo '--t 0' para treino, '--t 1' para teste', '--t 2' para exibir o sumario', '--t 3' para exibir a avaliacao'")
+                        help="Informe o tipo  '--t -1' parametros, '--t 0' treino, '--t 1' teste', '--t 2' sumario', '--t 3' avaliacao''")
     parser.add_argument("--g", default=0, type=int,
                         help="Gerar arquivos de '--g 0' para nao gerar arquivos ou '--g 1' para gerar")
     parser.add_argument("--q", default=0, type=int,
@@ -72,8 +88,8 @@ def arguments():
                         help="Informe o nome do arquivo de pesos para ler o sumario")
     args = parser.parse_args()
 
-    if (args.t != 0 and args.t != 1 and args.t != 2):
-        print("Tipo invalido! Informe o tipo corretamente: '--t 0' para treino, '--t 1' para teste', '--t 2' para exibir o sumario'")
+    if (args.t != -1 and args.t != 0 and args.t != 1 and args.t != 2):
+        print("Tipo invalido! Informe o tipo corretamente: --t -1' parametros, '--t 0' para treino, '--t 1' para teste', '--t 2' para exibir o sumario'")
         sys.exit()
 
     if (args.g != 0 and args.g != 1):
@@ -122,6 +138,8 @@ def train(args):
     model = unet(pretrained_weights=None, input_size=input_shape)
     model_checkpoint = ModelCheckpoint('unet_hdf5', monitor='loss', verbose=1, save_best_only=True)
     model.fit_generator(myGene, steps_per_epoch=steps_per_epoch, epochs=epochs, callbacks=[tb_cb])
+
+    print('acabou! {datetime.now().strftime("%Y%m%d_%H%M")}')
 
 def test(args):
 

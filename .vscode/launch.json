@@ -5,11 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "Python: U-Net",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal"
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "args" : ["--t", "0"]
         }
     ]
 }
