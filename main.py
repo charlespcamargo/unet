@@ -10,12 +10,13 @@ import traceback
 
 from datetime import datetime
 from _datetime import timezone
-import pytz
+import pytz 
+import errno
 
 # training vars
 model = None 
-batch_size  = 2
-steps_per_epoch = 100
+batch_size  = 4
+steps_per_epoch = 200
 epochs = 200
 
 # image sizes
@@ -133,22 +134,27 @@ def train(args):
     tb_cb = keras.callbacks.TensorBoard(log_dir=tb_dir, write_graph=True, update_freq=100)
 
     try:
+        showExecutionTime(start_time, originalMsg='Starting now...', writeInFile=True)
+
         model = unet(pretrained_weights=None, input_size=input_shape)
-        model_checkpoint = ModelCheckpoint('unet_hdf5', monitor='loss', verbose=1, save_best_only=True)
-        model.fit_generator(myGene, steps_per_epoch=steps_per_epoch, epochs=epochs, callbacks=[tb_cb])
+        model_checkpoint = ModelCheckpoint(f'train_weights/{path}_unet.hdf5', monitor='loss', verbose=0, save_best_only=True)
+        model.fit_generator(myGene, steps_per_epoch=steps_per_epoch, epochs=epochs, callbacks=[model_checkpoint, tb_cb])
+
+        showExecutionTime(start_time, writeInFile=True)
 
     except Exception as e:
-        showExecutionTime(start_time)
-        print("type error: " + str(e))
-        print(traceback.format_exc())
-        pass
+        showExecutionTime(start_time, success=False, writeInFile=True)
 
-    showExecutionTime(start_time)
+        error_Msg = "\ntype error: " + str(e) + ' \ntraceback: ' + traceback.format_exc()
+        showExecutionTime(start_time, success=False, originalMsg=error_Msg, writeInFile=True)
+        pass
 
 def test(args):
 
     if(not args.n):
-        args.n = 'unet_hdf5'
+        args.n = 'train_weights/unet.hdf5'
+    else:
+        args.n = 'train_weights/' + args.n
 
     model = unet(pretrained_weights=args.n, input_size=input_shape)
     model_checkpoint = ModelCheckpoint(args.n, monitor='loss', verbose=1, save_best_only=True)
@@ -156,10 +162,18 @@ def test(args):
     testGene = testGenerator(test_folder + image_folder + '/', flag_multi_class=True, target_size=input_shape, as_gray=False)
     qtd, imgs = getFilesCount(test_folder + image_folder + '/')
 
-    print("Images do predict: {0} - {1}".format(qtd, len(imgs)))
+    
+    
+    start_time = datetime.now(tz=tz)
+    path = start_time.strftime("%Y%m%d_%H%M")
+
+    # define TensorBoard directory and TensorBoard callback
+    tb_dir = f'.logs/{path}'
+    tb_cb = keras.callbacks.TensorBoard(log_dir=tb_dir, write_graph=True, update_freq=100)
+
 
     if(qtd > 0):
-        results = model.predict_generator(testGene, qtd, verbose=1)
+        results = model.predict_generator(testGene, qtd, verbose=1, callbacks=[tb_cb])
         saveResult(test_folder + label_folder + '/', npyfile=results, imgs=imgs, flag_multi_class=False)
 
         try:
@@ -181,11 +195,31 @@ def showSummary(args):
     model.build(input_shape)
     model.summary()
 
-def showExecutionTime(start_time):
+def showExecutionTime(start_time, success = True, originalMsg = '', writeInFile = False):
     end_time = datetime.now(tz=tz)
     elapsed = end_time - start_time
-    print(f'\nExecution end! \n start: {start_time.strftime("%Y/%m/%d %H:%M")} \n finish: {end_time.strftime("%Y/%m/%d %H:%M")} \n elapsed: {elapsed}')
+    
+    msg = originalMsg + f'\n==================================================' \
+                        f'\nExecution checkpoint! ' \
+                        f'\nWith success: {success} ' \
+                        f'\nProcess Started: {start_time.strftime("%Y/%m/%d %H:%M")}' \
+                        f'\nProcess Now: {end_time.strftime("%Y/%m/%d %H:%M")}' \
+                        f'\nProcess Time elapsed: {elapsed}' \
+                        f'\n==================================================' \
+                        f'\n\n\n' \
 
+    if(writeInFile):
+        path = f'.logs/{start_time.strftime("%Y%m%d_%H%M")}/'
+        print(f'\nlog path: {path}execution_log.txt\n\n{msg}\n')
+        writeTextFile(path, 'execution_log.txt', msg)
+
+def writeTextFile(path, file_name, text):
+    if not os.path.exists(path):
+        os.makedirs(path)
+        
+    text_file = open(path + file_name, "a+")
+    n = text_file.write(text)
+    text_file.close()
 
 if __name__ == "__main__":     
     main() 

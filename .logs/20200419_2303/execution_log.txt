@@ -1,0 +1,20 @@
+Starting now...
+==================================================
+Execution checkpoint! 
+With success: True 
+Process Started: 2020/04/19 23:03
+Process Now: 2020/04/19 23:03
+Process Time elapsed: 0:00:01.755627
+==================================================
+
+
+
+==================================================
+Execution checkpoint! 
+With success: True 
+Process Started: 2020/04/19 23:03
+Process Now: 2020/04/19 23:49
+Process Time elapsed: 0:46:12.768698
+==================================================
+
+
