@@ -11,7 +11,21 @@ import traceback
 from datetime import datetime
 from _datetime import timezone
 import pytz 
-import errno
+import errno 
+
+# curva roc e UAC
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.datasets import make_classification
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_curve
+from sklearn.metrics import roc_auc_score
+# curva roc e UAC
 
 # training vars
 model = None 
@@ -48,6 +62,12 @@ def main():
     elif (args.t == 2): 
         showSummary(args)
 
+    elif (args.t == 3): 
+        showSummary(args)
+
+    elif (args.t == 4):
+        get_fbetaScore(args.b, args.p, args.r)
+
 def showParameters():
     print('batch_size: ', batch_size)
     print('target_size: ', target_size)
@@ -80,17 +100,24 @@ def arguments():
     # show options, get arguments and validate    
     parser = argparse.ArgumentParser(description='Informe os parametros:')
     parser.add_argument("--t", default=-1, type=int,
-                        help="Informe o tipo  '--t -1' parametros, '--t 0' treino, '--t 1' teste', '--t 2' sumario', '--t 3' avaliacao''")
+                        help="Informe o tipo  '--t -1' parametros, '--t 0' treino, '--t 1' teste, '--t 2' sumario', '--t 3' avaliacao, '--t 4' f-beta-score")
     parser.add_argument("--g", default=0, type=int,
                         help="Gerar arquivos de '--g 0' para nao gerar arquivos ou '--g 1' para gerar")
     parser.add_argument("--q", default=0, type=int,
                         help="Quantidade de arquivos para teste '--q 0' para nao gerar arquivos ou '--q 1' para gerar")
     parser.add_argument("--n", default=None, type=str,
                         help="Informe o nome do arquivo de pesos para ler o sumario")
+    parser.add_argument("--b", default=None, type=float,
+                        help="Informe o beta para calcular o f-beta score")
+    parser.add_argument("--p", default=None, type=float,
+                        help="Informe o precision para calcular o f-beta score")
+    parser.add_argument("--r", default=None, type=float,
+                        help="Informe o recall para calcular o f-beta score")
+
     args = parser.parse_args()
 
-    if (args.t != -1 and args.t != 0 and args.t != 1 and args.t != 2):
-        print("Tipo invalido! Informe o tipo corretamente: --t -1' parametros, '--t 0' para treino, '--t 1' para teste', '--t 2' para exibir o sumario'")
+    if (args.t != -1 and args.t != 0 and args.t != 1 and args.t != 2 and args.t != 4):
+        print("Tipo invalido! Informe o tipo corretamente: --t -1' parametros, '--t 0' para treino, '--t 1' para teste', '--t 2' para exibir o sumario, '--t 4' f-beta-score")
         sys.exit()
 
     if (args.g != 0 and args.g != 1):
@@ -99,6 +126,10 @@ def arguments():
     
     if ((args.t == 2) and not args.n):
         print("Parametro invalido! Informe corretamente: '--n [file_name]'")
+        sys.exit()
+
+    if ((args.t == 4) and (not args.b or not args.p or not args.r) ):
+        print("Parametro invalido! Informe corretamente: '--b [beta], --p [precision], --r [recall]'")
         sys.exit()
 
     return args
@@ -161,8 +192,7 @@ def test(args):
 
     testGene = testGenerator(test_folder + image_folder + '/', flag_multi_class=True, target_size=input_shape, as_gray=False)
     qtd, imgs = getFilesCount(test_folder + image_folder + '/')
-
-    
+   
     
     start_time = datetime.now(tz=tz)
     path = start_time.strftime("%Y%m%d_%H%M")
@@ -171,9 +201,11 @@ def test(args):
     tb_dir = f'.logs/{path}'
     tb_cb = keras.callbacks.TensorBoard(log_dir=tb_dir, write_graph=True, update_freq=100)
 
-
     if(qtd > 0):
         results = model.predict_generator(testGene, qtd, verbose=1, callbacks=[tb_cb])
+        
+        createDirectory(path)
+
         saveResult(test_folder + label_folder + '/', npyfile=results, imgs=imgs, flag_multi_class=False)
 
         try:
@@ -214,12 +246,75 @@ def showExecutionTime(start_time, success = True, originalMsg = '', writeInFile 
         writeTextFile(path, 'execution_log.txt', msg)
 
 def writeTextFile(path, file_name, text):
-    if not os.path.exists(path):
-        os.makedirs(path)
+    createDirectory(path)
         
     text_file = open(path + file_name, "a+")
     n = text_file.write(text)
     text_file.close()
+
+def createDirectory(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+
+
+def get_recall(tp, fn):
+    recall = tp / (tp + fn)
+    print(f'The recall value is: {recall}')
+    return recall
+
+def get_precision(tp, tn):
+    precision = tp / (tp + tp)
+    print(f'The precision value is: {precision}')
+    return precision
+
+def get_f1_measure():
+    return 0
+
+def get_fscore(recall, precision):
+    f_score = (2 * recall * precision) / (recall + precision)
+    print(f'The f_score value is: {f_score}')
+    return f_score
+
+def get_fbetaScore(beta, precision, recall):
+
+    # F0.5-Measure  (beta=0.5): More weight on precision, less weight on recall
+    # F1-Measure    (beta=1.0): Balance the weight on precision and recall
+    # F2-Measure    (beta=2.0): Less weight on precision, more weight on recall 
+    f_beta_score = ((1 + beta ** 2) * precision * recall) / (beta ** 2 * precision + recall)
+    print(f'The f_beta_score value is: {f_beta_score}')
+    return f_beta_score
+
+def plot_roc_curve(fpr, tpr):
+    plt.plot(fpr, tpr, color='orange', label='ROC')
+    plt.plot([0, 1], [0, 1], color='darkblue', linestyle='--')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic (ROC) Curve')
+    plt.legend()
+    plt.show()
+
+def get_auc(model, testX, testY):
+    probs = model.predict_proba(testX)
+    probs = probs[:, 1]
+    
+    auc = roc_auc_score(testY, probs)
+    print('AUC: %.2f' % auc)
+
+    fpr, tpr, thresholds = roc_curve(testY, probs)
+    plot_roc_curve(fpr, tpr)
+
+    return auc
+
+#Jaccard Index
+def iou_coef(y_true, y_pred, smooth=1):
+  intersection = K.sum(K.abs(y_true * y_pred), axis=[1,2,3])
+  union = K.sum(y_true,[1,2,3])+K.sum(y_pred,[1,2,3])-intersection
+  iou = K.mean((intersection + smooth) / (union + smooth), axis=0)  
+  return iou
+
+  
+
 
 if __name__ == "__main__":     
     main() 
