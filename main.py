@@ -99,14 +99,14 @@ def getFilesCount(path, ext = '.JPG'):
 def arguments():
     # show options, get arguments and validate    
     parser = argparse.ArgumentParser(description='Informe os parametros:')
-    parser.add_argument("--t", default=-1, type=int,
+    parser.add_argument("--t", default=None, type=int,
                         help="Informe o tipo  '--t -1' parametros, '--t 0' treino, '--t 1' teste, '--t 2' sumario', '--t 3' avaliacao, '--t 4' f-beta-score")
     parser.add_argument("--g", default=0, type=int,
                         help="Gerar arquivos de '--g 0' para nao gerar arquivos ou '--g 1' para gerar")
     parser.add_argument("--q", default=0, type=int,
                         help="Quantidade de arquivos para teste '--q 0' para nao gerar arquivos ou '--q 1' para gerar")
     parser.add_argument("--n", default=None, type=str,
-                        help="Informe o nome do arquivo de pesos para ler o sumario")
+                        help="Informe o nome do arquivo de pesos para executar o teste ou ler o sumario")
     parser.add_argument("--b", default=None, type=float,
                         help="Informe o beta para calcular o f-beta score")
     parser.add_argument("--p", default=None, type=float,
@@ -199,24 +199,30 @@ def test(args):
 
     # define TensorBoard directory and TensorBoard callback
     tb_dir = f'.logs/{path}'
-    tb_cb = keras.callbacks.TensorBoard(log_dir=tb_dir, write_graph=True, update_freq=100)
+    tb_cb = keras.callbacks.TensorBoard(log_dir=tb_dir, write_graph=True, update_freq=1)
 
     if(qtd > 0):
-        results = model.predict_generator(testGene, qtd, verbose=1, callbacks=[tb_cb])
-        
-        createDirectory(path)
-
-        saveResult(test_folder + label_folder + '/', npyfile=results, imgs=imgs, flag_multi_class=False)
 
         try:
-            #loss, acc = model.evaluate(x=testGene, y=results, verbose=1)
+            showExecutionTime(start_time, originalMsg='Starting now...', writeInFile=True)
+
+            results = model.predict_generator(testGene, qtd, verbose=1, callbacks=[tb_cb])
             
-            #print("Restored model, accuracy: {:5.2f}%".format(100*acc))
-            #print("Restored model, loss: {:5.2f}%".format(100*loss))        
+            createDirectory(path + test_folder + label_folder + '/')
+            saveResult(test_folder + label_folder + '/', npyfile=results, imgs=imgs, flag_multi_class=True, target_size=input_shape, as_gray=False)
+
+            showExecutionTime(start_time, originalMsg='Ending now...', writeInFile=True)    
             print("Not yet!")        
+
+
+            loss, acc = model.evaluate(x=testGene, targets=results, verbose=1)            
+            #print("Restored model, accuracy: {:5.2f}%".format(100*acc))
+            #print("Restored model, loss: {:5.2f}%".format(100*loss))    
+
         except Exception as e:
-            print("type error: " + str(e))
-            print(traceback.format_exc())
+            showExecutionTime(start_time, success=False, writeInFile=True)
+            error_Msg = "\ntype error: " + str(e) + ' \ntraceback: ' + traceback.format_exc()
+            showExecutionTime(start_time, success=False, originalMsg=error_Msg, writeInFile=True)
             pass
 
     else:
