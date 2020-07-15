@@ -128,10 +128,10 @@ def saveResult(save_path, npyfile, imgs, flag_multi_class = False,num_class = 2)
         else:            
             img=item[:,:,0] 
             
-            if(i==0):
-                print(img)
+            # if(i==0):
+            #     print(img)
             
-            #print(np.max(img),np.min(img))            
+            print(np.max(img),np.min(img))            
             img[img>0.5] = 1
             img[img<=0.5] = 0             
             #print(np.max(img),np.min(img))

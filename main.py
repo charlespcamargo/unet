@@ -25,13 +25,17 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_curve
 from sklearn.metrics import roc_auc_score
+from keras.callbacks.callbacks import Callback  
+from kerasCustom.CustomCallback import CustomCallback
+from kerasCustom.LossAndErrorPrintingCallback import LossAndErrorPrintingCallback
+
 # curva roc e UAC
 
 # training vars
 model = None 
 batch_size  = 4
-steps_per_epoch = 200
-epochs = 200
+steps_per_epoch = 50
+epochs = 300
 
 # image sizes
 target_size = (640, 896)      #(1280, 1792) #
@@ -41,11 +45,13 @@ input_shape = (640, 896, 3)   #(1280, 1792, 3) #
 base_folder = 'data/'
 train_folder = base_folder + 'train/'
 augmentation_folder = train_folder + 'aug/'
-test_folder = base_folder + 'test/'
+test_folder = base_folder + 'temp_folder/' #'test/'
 image_folder = 'image'
 label_folder = 'label'
 
 tz = pytz.timezone("Brazil/East")
+start_time = datetime.now(tz=tz)
+path = None
 
 def main():
     args = arguments()
@@ -87,12 +93,24 @@ def getFolderName(basePath):
     Path(basePath + path).mkdir(parents=True, exist_ok=True)
     return basePath + path
 
-def getFilesCount(path, ext = '.JPG'):
-    parts = len(path.split('/')) - 1
+def getFilesCount(path, ext = '.JPG', flag_multi_class = True, target_size = (256,256), as_gray = False):
+    parts = len(path.split('/'))
     imgs = glob.glob(path + '/*' + ext)
     
     for i, item in enumerate(imgs):
         imgs[i] = imgs[i].split('/')[parts]
+        
+    # imgs = glob.glob(path + '/*' + ext)     
+
+    # for item in enumerate(imgs):
+    #     img = io.imread(item[1], as_gray = as_gray)
+    #     img = img / 255.
+    #     img = trans.resize(img, target_size)
+    #     img = np.reshape(img,img.shape+(1,)) if (not flag_multi_class) else img
+    #     img = np.reshape(img,(1,)+img.shape)               
+    #     yield img
+
+
         
     return len(imgs), imgs
 
@@ -156,73 +174,70 @@ def train(args):
                             image_color_mode="rgb", 
                             save_to_dir=save_to_dir)
 
-
-    start_time = datetime.now(tz=tz)
-    path = start_time.strftime("%Y%m%d_%H%M")
-
     # define TensorBoard directory and TensorBoard callback
-    tb_dir = f'.logs/{path}'
-    tb_cb = keras.callbacks.TensorBoard(log_dir=tb_dir, write_graph=True, update_freq=100)
+    tb_cb = createTensorBoardCallBack()
 
-    try:
-        showExecutionTime(start_time, originalMsg='Starting now...', writeInFile=True)
+    try: 
+        showExecutionTime(originalMsg='Starting now...', writeInFile=True)
 
         model = unet(pretrained_weights=None, input_size=input_shape)
+        earlystopper = Callback(patience=5, verbose=1)
         model_checkpoint = ModelCheckpoint(f'train_weights/{path}_unet.hdf5', monitor='loss', verbose=0, save_best_only=True)
-        model.fit_generator(myGene, steps_per_epoch=steps_per_epoch, epochs=epochs, callbacks=[model_checkpoint, tb_cb])
+        model.fit_generator(myGene, steps_per_epoch=steps_per_epoch, epochs=epochs, callbacks=[earlystopper, model_checkpoint, tb_cb])
 
-        showExecutionTime(start_time, writeInFile=True)
+        showExecutionTime(writeInFile=True)
 
     except Exception as e:
-        showExecutionTime(start_time, success=False, writeInFile=True)
-
+        showExecutionTime(success=False, writeInFile=True)
         error_Msg = "\ntype error: " + str(e) + ' \ntraceback: ' + traceback.format_exc()
-        showExecutionTime(start_time, success=False, originalMsg=error_Msg, writeInFile=True)
+        showExecutionTime(success=False, originalMsg=error_Msg, writeInFile=True)
         pass
 
 def test(args):
 
     if(not args.n):
-        args.n = 'train_weights/unet.hdf5'
+        args.n = 'train_weights/20200420_0817_unet-100-100-loss0_431_acc0_9837.hdf5'
     else:
         args.n = 'train_weights/' + args.n
 
-    model = unet(pretrained_weights=args.n, input_size=input_shape)
-    model_checkpoint = ModelCheckpoint(args.n, monitor='loss', verbose=1, save_best_only=True)
-
-    testGene = testGenerator(test_folder + image_folder + '/', flag_multi_class=True, target_size=input_shape, as_gray=False)
-    qtd, imgs = getFilesCount(test_folder + image_folder + '/')
-   
-    
-    start_time = datetime.now(tz=tz)
-    path = start_time.strftime("%Y%m%d_%H%M")
-
-    # define TensorBoard directory and TensorBoard callback
-    tb_dir = f'.logs/{path}'
-    tb_cb = keras.callbacks.TensorBoard(log_dir=tb_dir, write_graph=True, update_freq=1)
+    qtd, imgs = getFilesCount(test_folder + image_folder, target_size=target_size)
 
     if(qtd > 0):
-
-        try:
-            showExecutionTime(start_time, originalMsg='Starting now...', writeInFile=True)
-
-            results = model.predict_generator(testGene, qtd, verbose=1, callbacks=[tb_cb])
+        try: 
+            showExecutionTime(originalMsg='Starting now...', writeInFile=True)
             
-            createDirectory(path + test_folder + label_folder + '/')
-            saveResult(test_folder + label_folder + '/', npyfile=results, imgs=imgs, flag_multi_class=True, target_size=input_shape, as_gray=False)
+            tb_cb = createTensorBoardCallBack()
+            testGene = testGenerator(test_folder + image_folder + '/', flag_multi_class=True, target_size=input_shape, as_gray=False)
+            
+            model = unet(pretrained_weights=args.n, input_size=input_shape) 
+            results = model.predict_generator(generator=testGene, steps=qtd, callbacks=[tb_cb], verbose=1)
+            
+            # para ter mais performance enquanto testou outra coisa
+            if(False):
+                saveResult(save_path=test_folder + '/results', npyfile=results, imgs=imgs) 
 
-            showExecutionTime(start_time, originalMsg='Ending now...', writeInFile=True)    
-            print("Not yet!")        
 
 
-            loss, acc = model.evaluate(x=testGene, targets=results, verbose=1)            
-            #print("Restored model, accuracy: {:5.2f}%".format(100*acc))
-            #print("Restored model, loss: {:5.2f}%".format(100*loss))    
+            #labelGene = testGenerator(test_folder + label_folder + '/', flag_multi_class=True, target_size=input_shape, as_gray=False)
+
+            # myGene = trainGenerator(batch_size=batch_size, 
+            #                         train_path=test_folder,  
+            #                         image_folder=image_folder, 
+            #                         mask_folder=label_folder,
+            #                         aug_dict=None, 
+            #                         target_size=target_size, 
+            #                         image_color_mode="rgb")
+            
+            res = model.evaluate(x=results, verbose=0, callbacks=[tb_cb])
+            # res = model.predict(x=myGene, batch_size=batch_size, callbacks=[CustomCallback()])
+
+            showExecutionTime(writeInFile=True)
 
         except Exception as e:
-            showExecutionTime(start_time, success=False, writeInFile=True)
+            showExecutionTime(success=False, writeInFile=True)
             error_Msg = "\ntype error: " + str(e) + ' \ntraceback: ' + traceback.format_exc()
-            showExecutionTime(start_time, success=False, originalMsg=error_Msg, writeInFile=True)
+            print(error_Msg)
+            showExecutionTime(success=False, originalMsg=error_Msg, writeInFile=True)
             pass
 
     else:
@@ -233,13 +248,12 @@ def showSummary(args):
     model.build(input_shape)
     model.summary()
 
-def showExecutionTime(start_time, success = True, originalMsg = '', writeInFile = False):
+def showExecutionTime(success = True, originalMsg = '', writeInFile = False):
     end_time = datetime.now(tz=tz)
     elapsed = end_time - start_time
     
     msg = originalMsg + f'\n==================================================' \
-                        f'\nExecution checkpoint! ' \
-                        f'\nWith success: {success} ' \
+                        f'\nExecution checkpoint! Success: {success} ' \
                         f'\nProcess Started: {start_time.strftime("%Y/%m/%d %H:%M")}' \
                         f'\nProcess Now: {end_time.strftime("%Y/%m/%d %H:%M")}' \
                         f'\nProcess Time elapsed: {elapsed}' \
@@ -247,21 +261,33 @@ def showExecutionTime(start_time, success = True, originalMsg = '', writeInFile 
                         f'\n\n\n' \
 
     if(writeInFile):
-        path = f'.logs/{start_time.strftime("%Y%m%d_%H%M")}/'
-        print(f'\nlog path: {path}execution_log.txt\n\n{msg}\n')
-        writeTextFile(path, 'execution_log.txt', msg)
+        basePath = f'.logs/{start_time.strftime("%Y%m%d")}/'
+        path = f'{start_time.strftime("%Y%m%d_%H%M")}/'
+        writeTextFile(basePath, path, 'execution_log.txt', msg)
 
-def writeTextFile(path, file_name, text):
-    createDirectory(path)
+def writeTextFile(basePath, path, file_name, text):
+    createDirectory(basePath, path)
         
-    text_file = open(path + file_name, "a+")
+    text_file = open(basePath + path + file_name, "a+")
     n = text_file.write(text)
     text_file.close()
 
-def createDirectory(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
+def createDirectory(basePath, path):
+    if (basePath and not os.path.exists(basePath)):
+        os.makedirs(basePath)
+    
+    if (basePath + path and not os.path.exists(basePath + '/' + path)):
+        os.makedirs(basePath + '/' + path)
 
+def createTensorBoardCallBack():
+    basePath = f'.logs/{start_time.strftime("%Y%m%d")}'
+    path = start_time.strftime("%Y%m%d_%H%M")
+    tb_dir = f'{basePath}/{path}/'
+    tb_cb = keras.callbacks.TensorBoard(log_dir=tb_dir, write_graph=True, update_freq=1)
+    
+    createDirectory(basePath, path)
+
+    return tb_cb
 
 
 def get_recall(tp, fn):
@@ -323,4 +349,4 @@ def iou_coef(y_true, y_pred, smooth=1):
 
 
 if __name__ == "__main__":     
-    main() 
+    main()  
