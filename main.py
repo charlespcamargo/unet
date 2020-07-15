@@ -212,9 +212,7 @@ def test(args):
             model = unet(pretrained_weights=args.n, input_size=input_shape) 
             results = model.predict_generator(generator=testGene, steps=qtd, callbacks=[tb_cb], verbose=1)
             
-            # para ter mais performance enquanto testou outra coisa
-            if(False):
-                saveResult(save_path=test_folder + '/results', npyfile=results, imgs=imgs) 
+            saveResult(save_path=test_folder + '/results', npyfile=results, imgs=imgs) 
 
 
 
@@ -228,7 +226,7 @@ def test(args):
             #                         target_size=target_size, 
             #                         image_color_mode="rgb")
             
-            res = model.evaluate(x=results, verbose=0, callbacks=[tb_cb])
+            # res = model.evaluate(x=results, verbose=0, callbacks=[tb_cb])
             # res = model.predict(x=myGene, batch_size=batch_size, callbacks=[CustomCallback()])
 
             showExecutionTime(writeInFile=True)
