@@ -45,7 +45,7 @@ input_shape = (640, 896, 3)   #(1280, 1792, 3) #
 base_folder = 'data/'
 train_folder = base_folder + 'train/'
 augmentation_folder = train_folder + 'aug/'
-test_folder = base_folder + 'temp_folder/' #'test/'
+test_folder = base_folder + 'test/' # 'temp_folder/'
 image_folder = 'image'
 label_folder = 'label'
 
