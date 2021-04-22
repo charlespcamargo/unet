@@ -42,12 +42,12 @@ target_size = (640, 896)      #(1280, 1792) #
 input_shape = (640, 896, 3)   #(1280, 1792, 3) #    
 
 # paths
-base_folder = 'data/'
+base_folder = '../hedychium_coronarium/'
 train_folder = base_folder + 'train/'
 augmentation_folder = train_folder + 'aug/'
 test_folder = base_folder + 'test/' # 'temp_folder/'
 image_folder = 'image'
-label_folder = 'label'
+label_folder = 'masks'
 
 tz = pytz.timezone("Brazil/East")
 start_time = datetime.now(tz=tz)
