@@ -50,7 +50,7 @@ def unet(pretrained_weights = None, input_size = (256,256, 3)):
 
     model = Model(input = inputs, output = conv10)
 
-    model.compile(optimizer = Adam(lr = 0.00001), 
+    model.compile(optimizer = tf.keras.optimizers.Adam(lr = 0.00001), 
                   loss = 'binary_crossentropy', 
                   metrics = [
                                 'accuracy',

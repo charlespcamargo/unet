@@ -111,3 +111,4 @@ dmypy.json
 train_weights/*
 
 data/*
+.logs/*
