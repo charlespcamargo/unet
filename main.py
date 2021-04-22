@@ -3,7 +3,7 @@ from unet_helper import UnetHelper
 if __name__ == "__main__":     
     
     import easydict
-    helper = UnetHelper()
+    myhelper = UnetHelper()
     #args = helper.arguments()
 
     args = easydict.EasyDict({
@@ -16,4 +16,4 @@ if __name__ == "__main__":
         'r': None # Informe o recall para calcular o f-beta score
     })
 
-    helper.main(args)
+    myhelper.main(args)

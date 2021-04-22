@@ -54,6 +54,7 @@ class UnetHelper():
     path = None
 
     def main(self, args):
+        print(args)
         if (args.t == -1):
             self.showParameters()
         
