@@ -53,9 +53,7 @@ class UnetHelper():
     start_time = datetime.now(tz=tz)
     path = None
 
-    def main(self):
-        args = self.arguments()
-
+    def main(self, args):
         if (args.t == -1):
             self.showParameters()
         
