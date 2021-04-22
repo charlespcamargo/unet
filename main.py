@@ -24,7 +24,8 @@ from sklearn.metrics import roc_auc_score
 import keras
 #import keras.callbacks
 #from keras.callbacks import TensorBoard
-#from keras.callbacks.callbacks import Callback  
+from keras.callbacks import Callback  
+from keras.callbacks import ModelCheckpoint
 from kerasCustom.CustomCallback import CustomCallback
 from kerasCustom.LossAndErrorPrintingCallback import LossAndErrorPrintingCallback
 
