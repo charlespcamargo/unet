@@ -43,7 +43,7 @@ base_folder = '../hedychium_coronarium/'
 train_folder = base_folder + 'train/'
 augmentation_folder = train_folder + 'aug/'
 test_folder = base_folder + 'test/' # 'temp_folder/'
-image_folder = 'image'
+image_folder = 'images'
 label_folder = 'masks'
 
 tz = pytz.timezone("Brazil/East")
