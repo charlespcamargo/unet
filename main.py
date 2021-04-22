@@ -8,28 +8,25 @@ import os.path
 import glob 
 import traceback 
 
-from datetime import datetime
-from _datetime import timezone
+from datetime import datetime 
 import pytz 
 import errno 
 
 # curva roc e UAC
 import numpy as np
-import pandas as pd
+#import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
+#import seaborn as sns
 
-from sklearn.datasets import make_classification
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_curve
 from sklearn.metrics import roc_auc_score
-from keras.callbacks.callbacks import Callback  
+
+import keras
+#import keras.callbacks
+#from keras.callbacks import TensorBoard
+#from keras.callbacks.callbacks import Callback  
 from kerasCustom.CustomCallback import CustomCallback
 from kerasCustom.LossAndErrorPrintingCallback import LossAndErrorPrintingCallback
-
-# curva roc e UAC
 
 # training vars
 model = None 
@@ -117,10 +114,10 @@ def getFilesCount(path, ext = '.JPG', flag_multi_class = True, target_size = (25
 def arguments():
     # show options, get arguments and validate    
     parser = argparse.ArgumentParser(description='Informe os parametros:')
-    parser.add_argument("--t", default=None, type=int,
+    parser.add_argument("--t", default=0, type=int,
                         help="Informe o tipo  '--t -1' parametros, '--t 0' treino, '--t 1' teste, '--t 2' sumario', '--t 3' avaliacao, '--t 4' f-beta-score")
     parser.add_argument("--g", default=0, type=int,
-                        help="Gerar arquivos de '--g 0' para nao gerar arquivos ou '--g 1' para gerar")
+                        help="Gerar arquivos '--g 0' para nao gerar arquivos ou '--g 1' para gerar")
     parser.add_argument("--q", default=0, type=int,
                         help="Quantidade de arquivos para teste '--q 0' para nao gerar arquivos ou '--q 1' para gerar")
     parser.add_argument("--n", default=None, type=str,

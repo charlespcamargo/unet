@@ -1,0 +1,6 @@
+numpy
+tensorflow
+scikit-metrics
+scikit-image
+pytz
+seaborn

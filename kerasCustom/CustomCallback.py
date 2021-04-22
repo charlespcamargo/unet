@@ -1,4 +1,4 @@
-from keras.callbacks.callbacks import Callback  
+from keras.callbacks import Callback  
 
 class CustomCallback(Callback):
     def on_train_begin(self, logs=None):

@@ -1,4 +1,4 @@
-from keras.callbacks.callbacks import Callback  
+from keras.callbacks import Callback  
 
 class LossAndErrorPrintingCallback(Callback):
     def on_train_batch_end(self, batch, logs=None):
