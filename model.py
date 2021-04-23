@@ -48,9 +48,9 @@ def unet(pretrained_weights = None, input_size = (256,256, 3)):
     conv9 = Conv2D(2, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv9)
     conv10 = Conv2D(3, 1, activation = 'sigmoid')(conv9)
 
-    model = Model(input = inputs, output = conv10)
+    model = Model(inputs, conv10)
 
-    model.compile(optimizer = tf.keras.optimizers.Adam(lr = 0.00001), 
+    model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate = 0.00001), 
                   loss = 'binary_crossentropy', 
                   metrics = [
                                 'accuracy',
