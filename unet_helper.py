@@ -56,7 +56,7 @@ class UnetHelper():
     def main(self, args):
         print(args)
         if (args.t == -1):
-            self.showParameters()
+            self.show_arguments()
         
         if (args.t == 0):
             self.train(args)
@@ -73,7 +73,7 @@ class UnetHelper():
         elif (args.t == 4):
             self.get_fbetaScore(args.b, args.p, args.r)
 
-    def showParameters(self):
+    def show_arguments(self):
         print('batch_size: ', self.batch_size)
         print('target_size: ', self.target_size)
         print('input_shape: ', self.input_shape)
@@ -85,6 +85,20 @@ class UnetHelper():
         print('test_folder: ', self.test_folder)
         print('image_folder: ', self.image_folder)
         print('label_folder: ', self.label_folder)
+
+    def set_arguments(self, batch_size  = 4, steps_per_epoch = 50, epochs = 300, target_size = (640, 896), input_shape = (640, 896, 3),
+                            base_folder = '../hedychium_coronarium/', image_folder = 'images', label_folder = 'masks'):
+        self.batch_size  = batch_size
+        self.steps_per_epoch = steps_per_epoch
+        self.epochs = epochs
+        self.target_size = target_size
+        self.input_shape = input_shape
+        self.base_folder = base_folder
+        self.train_folder = base_folder + 'train/'
+        self.augmentation_folder =  base_folder + 'test/' # 'temp_folder/'
+        self.test_folder = base_folder + 'test/' # 'temp_folder/'
+        self.image_folder = image_folder
+        self.label_folder = label_folder
 
     def getFolderName(self, basePath):
         now = datetime.now()
