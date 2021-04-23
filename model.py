@@ -3,16 +3,7 @@ from tensorflow.keras.models import *
 from tensorflow.keras.layers import *
 from tensorflow.keras.optimizers import *
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
-from tensorflow.keras.metrics import *
-
-# from tensorflow.keras import backend as keras
-# from tensorflow.keras.models import *
-# from tensorflow.keras.layers import *
-# from tensorflow.keras.optimizers import *
-# from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
-# from keras import backend as keras
-# import tensorflow.keras.metrics  
-
+from tensorflow.keras.metrics import * 
 
 def unet(pretrained_weights = None, input_size = (256,256, 3)):
     inputs = Input( shape=input_size )
@@ -56,20 +47,21 @@ def unet(pretrained_weights = None, input_size = (256,256, 3)):
     conv9 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(merge9)
     conv9 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv9)
     conv9 = Conv2D(2, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv9)
+    
+    ##Output Layer
     conv10 = Conv2D(3, 1, activation = 'sigmoid')(conv9)
 
+    ##Defining Model
     model = Model(inputs, conv10)
 
-    model.compile(optimizer = Adam(learning_rate = 0.00001), 
+    ##Compiling Model
+    model.compile(optimizer = Adam(learning_rate = 1e-4), 
                   loss = 'binary_crossentropy', 
                   metrics = [
-                                'accuracy',
-                                TrueNegatives(),
-                                FalseNegatives(),
-                                TruePositives(),
-                                FalsePositives(),
+                                Accuracy(),
+                                MeanIoU(num_classes=2),
                                 Precision(), 
-                                Recall()
+                                Recall(),                              
                             ])
 
     model.summary()
