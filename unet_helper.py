@@ -204,7 +204,7 @@ class UnetHelper():
             self.showExecutionTime(success=False, writeInFile=True)
             error_Msg = "\ntype error: " + str(e) + ' \ntraceback: ' + traceback.format_exc()
             self.showExecutionTime(success=False, originalMsg=error_Msg, writeInFile=True)
-            pass
+            raise e
 
     def test(self, args):
 
