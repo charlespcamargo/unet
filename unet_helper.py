@@ -1,3 +1,4 @@
+from tensorflow.python.keras.callbacks import EarlyStopping
 from model import *
 from data import *
 
@@ -22,13 +23,12 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve
 from sklearn.metrics import roc_auc_score
 
-import keras
-#import keras.callbacks
-#from keras.callbacks import TensorBoard
-from keras.callbacks import Callback  
-from keras.callbacks import ModelCheckpoint
-from kerasCustom.CustomCallback import CustomCallback
-from kerasCustom.LossAndErrorPrintingCallback import LossAndErrorPrintingCallback
+import tensorflow.keras
+#import tensorflow.keras.callbacks
+#from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+# from kerasCustom.CustomCallback import CustomCallback
+# from kerasCustom.LossAndErrorPrintingCallback import LossAndErrorPrintingCallback
 
 class UnetHelper():
     # training vars
@@ -194,9 +194,9 @@ class UnetHelper():
             self.showExecutionTime(originalMsg='Starting now...', writeInFile=True)
 
             model = unet(pretrained_weights=None, input_size=self.input_shape)
-            earlystopper = Callback(patience=5, verbose=1)
+            earlystopper = EarlyStopping(patience=5, verbose=1)            
             model_checkpoint = ModelCheckpoint(f'train_weights/{self.path}_unet.hdf5', monitor='loss', verbose=0, save_best_only=True)
-            model.fit_generator(myGene, steps_per_epoch=self.steps_per_epoch, epochs=self.epochs, callbacks=[earlystopper, model_checkpoint, tb_cb])
+            model.fit(myGene, steps_per_epoch=self.steps_per_epoch, epochs=self.epochs, callbacks=[earlystopper, model_checkpoint, tb_cb])
 
             self.showExecutionTime(writeInFile=True)
 
@@ -294,7 +294,7 @@ class UnetHelper():
         basePath = f'.logs/{self.start_time.strftime("%Y%m%d")}'
         path = self.start_time.strftime("%Y%m%d_%H%M")
         tb_dir = f'{basePath}/{path}/'
-        tb_cb = keras.callbacks.TensorBoard(log_dir=tb_dir, write_graph=True, update_freq=1)
+        tb_cb = tensorflow.keras.callbacks.TensorBoard(log_dir=tb_dir, write_graph=True, update_freq=1)
         
         self.createDirectory(basePath, path)
 

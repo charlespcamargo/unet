@@ -1,9 +1,17 @@
-from keras.models import *
-from keras.layers import *
-from keras.optimizers import *
-#from keras.callbacks import ModelCheckpoint, LearningRateScheduler
-from keras import backend as keras
-import keras.metrics 
+import tensorflow as tf
+from tensorflow.keras.models import *
+from tensorflow.keras.layers import *
+from tensorflow.keras.optimizers import *
+from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
+from tensorflow.keras import backend as keras
+from tensorflow.keras.metrics import *
+
+# from keras.models import *
+# from keras.layers import *
+# from keras.optimizers import *
+# from keras.callbacks import ModelCheckpoint, LearningRateScheduler
+# from keras import backend as keras
+# import keras.metrics 
 
 def unet(pretrained_weights = None, input_size = (256,256, 3)):
     inputs = Input( shape=input_size )
@@ -50,16 +58,16 @@ def unet(pretrained_weights = None, input_size = (256,256, 3)):
 
     model = Model(inputs, conv10)
 
-    model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate = 0.00001), 
+    model.compile(optimizer = Adam(learning_rate = 0.00001), 
                   loss = 'binary_crossentropy', 
                   metrics = [
                                 'accuracy',
-                                keras.metrics.TrueNegatives(),
-                                keras.metrics.FalseNegatives(),
-                                keras.metrics.TruePositives(),
-                                keras.metrics.FalsePositives(),
-                                keras.metrics.Precision(), 
-                                keras.metrics.Recall()
+                                TrueNegatives(),
+                                FalseNegatives(),
+                                TruePositives(),
+                                FalsePositives(),
+                                Precision(), 
+                                Recall()
                             ])
 
     model.summary()
