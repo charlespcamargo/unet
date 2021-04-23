@@ -106,9 +106,9 @@ class UnetHelper():
 
     def getFolderName(self, basePath):
         now = datetime.now()
-        path = now.strftime("%Y.%m.%d_%H%M%S")
-        Path(basePath + path).mkdir(parents=True, exist_ok=True)
-        return basePath + path
+        self.path = now.strftime("%Y.%m.%d_%H%M%S")
+        Path(basePath + self.path).mkdir(parents=True, exist_ok=True)
+        return basePath + self.path
 
     def getFilesCount(self, path, ext = '.JPG', flag_multi_class = True, target_size = (256,256), as_gray = False):
         parts = len(path.split('/'))
