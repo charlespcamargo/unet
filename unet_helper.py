@@ -22,8 +22,12 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve
 from sklearn.metrics import roc_auc_score
 
-import tensorflow.keras
-from tensorflow.keras.callbacks import *
+import tensorflow as tf
+#import tensorflow.keras
+from keras import backend as K
+from keras.callbacks import *
+
+
 # from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 #import tensorflow.keras.callbacks
 #from tensorflow.keras.callbacks import TensorBoard
@@ -42,7 +46,7 @@ class UnetHelper():
     input_shape = (640, 896, 3)   #(1280, 1792, 3) #    
 
     # paths
-    base_folder = 'hedychium_coronarium/'
+    base_folder = '../../datasets/hedychium_coronarium/'
     train_folder = base_folder + 'train/'
     augmentation_folder = train_folder + 'aug/'
     test_folder = base_folder + 'test/' # 'temp_folder/'
@@ -294,7 +298,7 @@ class UnetHelper():
         basePath = f'.logs/{self.start_time.strftime("%Y%m%d")}'
         path = self.start_time.strftime("%Y%m%d_%H%M")
         tb_dir = f'{basePath}/{path}/'
-        tb_cb = tensorflow.keras.callbacks.TensorBoard(log_dir=tb_dir, write_graph=True, update_freq=1)
+        tb_cb = keras.callbacks.TensorBoard(log_dir=tb_dir, write_graph=True, update_freq=1)
         
         self.createDirectory(basePath, path)
 

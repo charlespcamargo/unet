@@ -1,11 +1,11 @@
 import tensorflow as tf
-from tensorflow.keras.models import *
-#from tensorflow.keras.layers import *
-from tensorflow.keras.layers import Concatenate, Conv2D, MaxPooling2D, Input, Dropout, UpSampling2D
-from tensorflow.keras.optimizers import *
-from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
-from tensorflow.keras import backend as keras
-from tensorflow.keras.metrics import *
+
+from keras.models import *
+from keras.layers import *
+from keras.optimizers import *
+from keras.callbacks import ModelCheckpoint, LearningRateScheduler
+from keras import backend as keras
+from keras.metrics import *
 
 # from keras.models import *
 # from keras.layers import *
