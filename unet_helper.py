@@ -24,13 +24,13 @@ from sklearn.metrics import roc_auc_score
 
 import tensorflow as tf
 #import tensorflow.keras
-from keras import backend as K
-from keras.callbacks import *
+from tensorflow.keras.callbacks import *
+from tensorflow.keras import backend as K
 
 
-# from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
-#import tensorflow.keras.callbacks
-#from tensorflow.keras.callbacks import TensorBoard
+# from tensorflow.tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+#import tensorflow.tensorflow.keras.callbacks
+#from tensorflow.tensorflow.keras.callbacks import TensorBoard
 # from kerasCustom.CustomCallback import CustomCallback
 # from kerasCustom.LossAndErrorPrintingCallback import LossAndErrorPrintingCallback
 
@@ -298,7 +298,7 @@ class UnetHelper():
         basePath = f'.logs/{self.start_time.strftime("%Y%m%d")}'
         path = self.start_time.strftime("%Y%m%d_%H%M")
         tb_dir = f'{basePath}/{path}/'
-        tb_cb = keras.callbacks.TensorBoard(log_dir=tb_dir, write_graph=True, update_freq=1)
+        tb_cb = TensorBoard(log_dir=tb_dir, write_graph=True, update_freq=1)
         
         self.createDirectory(basePath, path)
 

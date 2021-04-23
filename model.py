@@ -1,18 +1,17 @@
 import tensorflow as tf
+from tensorflow.keras.models import *
+from tensorflow.keras.layers import *
+from tensorflow.keras.optimizers import *
+from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
+from tensorflow.keras.metrics import *
 
-from keras.models import *
-from keras.layers import *
-from keras.optimizers import *
-from keras.callbacks import ModelCheckpoint, LearningRateScheduler
-from keras import backend as keras
-from keras.metrics import *
-
-# from keras.models import *
-# from keras.layers import *
-# from keras.optimizers import *
-# from keras.callbacks import ModelCheckpoint, LearningRateScheduler
+# from tensorflow.keras import backend as keras
+# from tensorflow.keras.models import *
+# from tensorflow.keras.layers import *
+# from tensorflow.keras.optimizers import *
+# from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 # from keras import backend as keras
-# import keras.metrics  
+# import tensorflow.keras.metrics  
 
 
 def unet(pretrained_weights = None, input_size = (256,256, 3)):
