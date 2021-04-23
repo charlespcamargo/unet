@@ -99,7 +99,7 @@ class UnetHelper():
         self.input_shape = input_shape
         self.base_folder = base_folder
         self.train_folder = base_folder + 'train/'
-        self.augmentation_folder =  base_folder + 'test/' # 'temp_folder/'
+        self.augmentation_folder =  self.train_folder + 'aug/' # 'temp_folder/'
         self.test_folder = base_folder + 'test/' # 'temp_folder/'
         self.image_folder = image_folder
         self.label_folder = label_folder
@@ -198,7 +198,7 @@ class UnetHelper():
             self.showExecutionTime(originalMsg='Starting now...', writeInFile=True)
 
             model = unet(pretrained_weights=None, input_size=self.input_shape)
-            earlystopper = EarlyStopping(patience=5, verbose=1)            
+            earlystopper = EarlyStopping(patience=3, verbose=1)            
             model_checkpoint = ModelCheckpoint(f'train_weights/{self.path}_unet.hdf5', monitor='loss', verbose=0, save_best_only=True)
             model.fit(myGene, steps_per_epoch=self.steps_per_epoch, epochs=self.epochs, callbacks=[earlystopper, model_checkpoint, tb_cb])
 
