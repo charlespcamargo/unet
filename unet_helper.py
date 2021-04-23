@@ -1,4 +1,3 @@
-from tensorflow.python.keras.callbacks import EarlyStopping
 from model import *
 from data import *
 
@@ -24,9 +23,10 @@ from sklearn.metrics import roc_curve
 from sklearn.metrics import roc_auc_score
 
 import tensorflow.keras
+from tensorflow.keras.callbacks import *
+# from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 #import tensorflow.keras.callbacks
 #from tensorflow.keras.callbacks import TensorBoard
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 # from kerasCustom.CustomCallback import CustomCallback
 # from kerasCustom.LossAndErrorPrintingCallback import LossAndErrorPrintingCallback
 
