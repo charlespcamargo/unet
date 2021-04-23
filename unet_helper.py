@@ -42,7 +42,7 @@ class UnetHelper():
     input_shape = (640, 896, 3)   #(1280, 1792, 3) #    
 
     # paths
-    base_folder = '../hedychium_coronarium/'
+    base_folder = 'hedychium_coronarium/'
     train_folder = base_folder + 'train/'
     augmentation_folder = train_folder + 'aug/'
     test_folder = base_folder + 'test/' # 'temp_folder/'
