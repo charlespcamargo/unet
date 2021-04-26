@@ -25,21 +25,14 @@ from sklearn.metrics import roc_auc_score
 import tensorflow as tf
 #import tensorflow.keras
 from tensorflow.keras.callbacks import *
-from tensorflow.keras import backend as K
-
-
-# from tensorflow.tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
-#import tensorflow.tensorflow.keras.callbacks
-#from tensorflow.tensorflow.keras.callbacks import TensorBoard
-# from kerasCustom.CustomCallback import CustomCallback
-# from kerasCustom.LossAndErrorPrintingCallback import LossAndErrorPrintingCallback
+from tensorflow.keras import backend as K 
 
 class UnetHelper():
     # training vars
     model = None 
     batch_size  = 4
-    steps_per_epoch = 50
-    epochs = 300
+    steps_per_epoch = 200
+    epochs = 5
 
     # image sizes
     target_size = (640, 896)      #(1280, 1792) #
@@ -90,7 +83,7 @@ class UnetHelper():
         print('image_folder: ', self.image_folder)
         print('label_folder: ', self.label_folder)
 
-    def set_arguments(self, batch_size  = 4, steps_per_epoch = 50, epochs = 30, target_size = (640, 896), input_shape = (640, 896, 3),
+    def set_arguments(self, batch_size  = 4, steps_per_epoch = 200, epochs = 5, target_size = (640, 896), input_shape = (640, 896, 3),
                             base_folder = '../hedychium_coronarium/', image_folder = 'images', label_folder = 'masks'):
         self.batch_size  = batch_size
         self.steps_per_epoch = steps_per_epoch
@@ -171,7 +164,7 @@ class UnetHelper():
 
     def train(self, args):
         data_gen_args = dict(rotation_range=0.2,
-                                zoom_range=0.15,  
+                                zoom_range=0.05,  
                                 width_shift_range=0.2, 
                                 height_shift_range=0.2, 
                                 shear_range=0.15,                              
@@ -198,7 +191,7 @@ class UnetHelper():
             self.showExecutionTime(originalMsg='Starting now...', writeInFile=True)
 
             model = unet(pretrained_weights=None, input_size=self.input_shape)
-            earlystopper = EarlyStopping(patience=3, verbose=1)            
+            earlystopper = EarlyStopping(patience=3, verbose=1, monitor='accuracy')            
             model_checkpoint = ModelCheckpoint(f'train_weights/{self.path}_unet.hdf5', monitor='loss', verbose=0, save_best_only=True)
             model.fit(myGene, steps_per_epoch=self.steps_per_epoch, epochs=self.epochs, callbacks=[earlystopper, model_checkpoint, tb_cb])
 
