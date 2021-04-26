@@ -6,6 +6,7 @@ import glob
 import skimage.io as io
 import skimage.transform as trans
 from skimage.util import img_as_float, img_as_ubyte 
+from pathlib import Path
 
 
 Sky = [128,128,128] # gray
@@ -122,6 +123,9 @@ def labelVisualize(num_class,color_dict,img):
 
 
 def saveResult(save_path, npyfile, imgs, flag_multi_class = False,num_class = 2):
+    
+    Path(save_path).mkdir(parents=True, exist_ok=True)
+
     for i,item in enumerate(npyfile):
         if flag_multi_class:
             img = labelVisualize(num_class,COLOR_DICT,item)
