@@ -195,7 +195,8 @@ class UnetHelper():
         try: 
             self.showExecutionTime(originalMsg='Starting now...', writeInFile=True)
 
-            model = unet(pretrained_weights=None, input_size=self.input_shape)
+            model = self.get_model()
+
             earlystopper = EarlyStopping(patience=3, verbose=1, monitor='accuracy')            
             model_checkpoint = ModelCheckpoint(f'train_weights/{self.path}_unet.hdf5', monitor='loss', verbose=0, save_best_only=True)
             model.fit(self.my_gene, steps_per_epoch=self.steps_per_epoch, epochs=self.epochs, callbacks=[earlystopper, model_checkpoint, tb_cb])
@@ -206,6 +207,9 @@ class UnetHelper():
             error_Msg = "\ntype error: " + str(e) + ' \ntraceback: ' + traceback.format_exc()
             self.showExecutionTime(success=False, originalMsg=error_Msg, writeInFile=True)
             raise e
+
+    def get_model(self):
+        return unet(pretrained_weights=None, input_size=self.input_shape)
     
     def evaluate(self, model: Model):            
         X, Y = self.my_gene
