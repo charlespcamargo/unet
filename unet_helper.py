@@ -104,7 +104,7 @@ class UnetHelper():
         Path(basePath + self.path).mkdir(parents=True, exist_ok=True)
         return basePath + self.path
 
-    def getFilesCount(self, path, ext = '.JPG', flag_multi_class = True, target_size = (256,256), as_gray = False):
+    def getFilesCount(self, path, ext = '.JPG', flag_multi_class = False, target_size = (256,256), as_gray = False):
         parts = len(path.split('/'))
         imgs = glob.glob(path + '/*' + ext)
         
@@ -229,7 +229,7 @@ class UnetHelper():
                 self.showExecutionTime(originalMsg='Starting now...', writeInFile=True)
                 
                 tb_cb = self.createTensorBoardCallBack()
-                testGene = testGenerator(self.test_folder + self.image_folder + '/', flag_multi_class=True, target_size=self.input_shape, as_gray=False)
+                testGene = testGenerator(self.test_folder + self.image_folder + '/', flag_multi_class=False, target_size=self.input_shape, as_gray=False)
                 
                 model = unet(pretrained_weights=args.n, input_size=self.input_shape) 
                 results = model.predict(testGene, steps=qtd, callbacks=[tb_cb], verbose=1)
@@ -239,7 +239,7 @@ class UnetHelper():
 
 
 
-                #labelGene = testGenerator(test_folder + label_folder + '/', flag_multi_class=True, target_size=input_shape, as_gray=False)
+                #labelGene = testGenerator(test_folder + label_folder + '/', flag_multi_class=False, target_size=input_shape, as_gray=False)
 
                 # my_gene = trainGenerator(batch_size=batch_size, 
                 #                         train_path=test_folder,  
