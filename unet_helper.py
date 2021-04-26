@@ -48,7 +48,7 @@ class UnetHelper():
 
     tz = pytz.timezone("Brazil/East")
     start_time = datetime.now(tz=tz)
-    path = None
+    path = datetime.now().strftime("%Y.%m.%d_%H%M%S")
     my_gene = None
 
     def main(self, args):
@@ -174,7 +174,7 @@ class UnetHelper():
 
         save_to_dir = None
         if (args.g != 0):
-            save_to_dir = self.getFolderName(self.augmentation_folder)
+            save_to_dir = self.getFolderName(self.augmentation_folder)            
 
         self.my_gene = trainGenerator(self.batch_size, 
                                 self.train_folder, 
@@ -199,7 +199,6 @@ class UnetHelper():
             earlystopper = EarlyStopping(patience=3, verbose=1, monitor='accuracy')            
             model_checkpoint = ModelCheckpoint(f'train_weights/{self.path}_unet.hdf5', monitor='loss', verbose=0, save_best_only=True)
             model.fit(self.my_gene, steps_per_epoch=self.steps_per_epoch, epochs=self.epochs, callbacks=[earlystopper, model_checkpoint, tb_cb])
-
             self.showExecutionTime(writeInFile=True)
 
         except Exception as e:
@@ -207,6 +206,10 @@ class UnetHelper():
             error_Msg = "\ntype error: " + str(e) + ' \ntraceback: ' + traceback.format_exc()
             self.showExecutionTime(success=False, originalMsg=error_Msg, writeInFile=True)
             raise e
+    
+    def evaluate(self, model: Model):            
+        X, Y = self.my_gene
+        model.evaluate(x=X, y=Y)
 
     def test(self, args):
 
