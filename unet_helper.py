@@ -228,9 +228,9 @@ class UnetHelper():
                 testGene = testGenerator(self.test_folder + self.image_folder + '/', flag_multi_class=True, target_size=self.input_shape, as_gray=False)
                 
                 model = unet(pretrained_weights=args.n, input_size=self.input_shape) 
-                results = model.predict(generator=testGene, steps=qtd, callbacks=[tb_cb], verbose=1)
+                results = model.predict(testGene, steps=qtd, callbacks=[tb_cb], verbose=1)
                 
-                
+
                 saveResult(save_path=self.test_folder + '/results', npyfile=results, imgs=imgs) 
 
 
