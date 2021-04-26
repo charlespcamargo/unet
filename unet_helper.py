@@ -49,6 +49,7 @@ class UnetHelper():
     tz = pytz.timezone("Brazil/East")
     start_time = datetime.now(tz=tz)
     path = None
+    my_gene = None
 
     def main(self, args):
         print(args)
@@ -162,7 +163,7 @@ class UnetHelper():
 
         return args
 
-    def train(self, args):
+    def generate_my_gen(self, args):
         data_gen_args = dict(rotation_range=0.2,
                                 zoom_range=0.05,  
                                 width_shift_range=0.2, 
@@ -175,7 +176,7 @@ class UnetHelper():
         if (args.g != 0):
             save_to_dir = self.getFolderName(self.augmentation_folder)
 
-        myGene = trainGenerator(self.batch_size, 
+        self.my_gene = trainGenerator(self.batch_size, 
                                 self.train_folder, 
                                 self.image_folder,
                                 self.label_folder, 
@@ -184,6 +185,10 @@ class UnetHelper():
                                 image_color_mode="rgb", 
                                 save_to_dir=save_to_dir)
 
+        return self.my_gene
+
+    def train(self):
+        
         # define TensorBoard directory and TensorBoard callback
         tb_cb = self.createTensorBoardCallBack()
 
@@ -193,7 +198,7 @@ class UnetHelper():
             model = unet(pretrained_weights=None, input_size=self.input_shape)
             earlystopper = EarlyStopping(patience=3, verbose=1, monitor='accuracy')            
             model_checkpoint = ModelCheckpoint(f'train_weights/{self.path}_unet.hdf5', monitor='loss', verbose=0, save_best_only=True)
-            model.fit(myGene, steps_per_epoch=self.steps_per_epoch, epochs=self.epochs, callbacks=[earlystopper, model_checkpoint, tb_cb])
+            model.fit(self.my_gene, steps_per_epoch=self.steps_per_epoch, epochs=self.epochs, callbacks=[earlystopper, model_checkpoint, tb_cb])
 
             self.showExecutionTime(writeInFile=True)
 
@@ -228,7 +233,7 @@ class UnetHelper():
 
                 #labelGene = testGenerator(test_folder + label_folder + '/', flag_multi_class=True, target_size=input_shape, as_gray=False)
 
-                # myGene = trainGenerator(batch_size=batch_size, 
+                # my_gene = trainGenerator(batch_size=batch_size, 
                 #                         train_path=test_folder,  
                 #                         image_folder=image_folder, 
                 #                         mask_folder=label_folder,
@@ -237,7 +242,7 @@ class UnetHelper():
                 #                         image_color_mode="rgb")
                 
                 # res = model.evaluate(x=results, verbose=0, callbacks=[tb_cb])
-                # res = model.predict(x=myGene, batch_size=batch_size, callbacks=[CustomCallback()])
+                # res = model.predict(x=my_gene, batch_size=batch_size, callbacks=[CustomCallback()])
 
                 self.showExecutionTime(writeInFile=True)
 
