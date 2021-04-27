@@ -31,8 +31,8 @@ class UnetHelper():
     # training vars
     model = None 
     batch_size  = 4
-    steps_per_epoch = 200
-    epochs = 5
+    steps_per_epoch = 100
+    epochs = 15
 
     # image sizes
     target_size = (640, 896)      #(1280, 1792) #
@@ -45,6 +45,7 @@ class UnetHelper():
     test_folder = base_folder + 'test/' # 'temp_folder/'
     image_folder = 'images'
     label_folder = 'masks'
+    patience = 5
 
     tz = pytz.timezone("Brazil/East")
     start_time = datetime.now(tz=tz)
@@ -57,16 +58,16 @@ class UnetHelper():
             self.show_arguments()
         
         if (args.t == 0):
-            self.train(args)
+            self.train()
 
         elif (args.t == 1):
             self.test(args)
 
         elif (args.t == 2): 
-            self.showSummary(args)
+            self.show_summary(args)
 
         elif (args.t == 3): 
-            self.showSummary(args)
+            self.show_summary(args)
 
         elif (args.t == 4):
             self.get_fbetaScore(args.b, args.p, args.r)
@@ -84,8 +85,8 @@ class UnetHelper():
         print('image_folder: ', self.image_folder)
         print('label_folder: ', self.label_folder)
 
-    def set_arguments(self, batch_size  = 4, steps_per_epoch = 200, epochs = 5, target_size = (640, 896), input_shape = (640, 896, 3),
-                            base_folder = '../hedychium_coronarium/', image_folder = 'images', label_folder = 'masks'):
+    def set_arguments(self, batch_size  = 4, steps_per_epoch = 100, epochs = 15, target_size = (640, 896), input_shape = (640, 896, 3),
+                            base_folder = '../hedychium_coronarium/', image_folder = 'images', label_folder = 'masks', patience = 5):
         self.batch_size  = batch_size
         self.steps_per_epoch = steps_per_epoch
         self.epochs = epochs
@@ -97,14 +98,15 @@ class UnetHelper():
         self.test_folder = base_folder + 'test/' # 'temp_folder/'
         self.image_folder = image_folder
         self.label_folder = label_folder
+        self.patience = patience
 
-    def getFolderName(self, basePath):
+    def get_folder_name(self, basePath):
         now = datetime.now()
         self.path = now.strftime("%Y.%m.%d_%H%M%S")
         Path(basePath + self.path).mkdir(parents=True, exist_ok=True)
         return basePath + self.path
 
-    def getFilesCount(self, path, ext = '.JPG', flag_multi_class = False, target_size = (256,256), as_gray = False):
+    def get_files_count(self, path, ext = '.JPG', flag_multi_class = False, target_size = (256,256), as_gray = False):
         parts = len(path.split('/'))
         imgs = glob.glob(path + '/*' + ext)
         
@@ -174,9 +176,9 @@ class UnetHelper():
 
         save_to_dir = None
         if (args.g != 0):
-            save_to_dir = self.getFolderName(self.augmentation_folder)            
+            save_to_dir = self.get_folder_name(self.augmentation_folder)            
 
-        self.my_gene = trainGenerator(self.batch_size, 
+        self.my_gene = train_generator(self.batch_size, 
                                 self.train_folder, 
                                 self.image_folder,
                                 self.label_folder, 
@@ -190,52 +192,55 @@ class UnetHelper():
     def train(self):
         
         # define TensorBoard directory and TensorBoard callback
-        tb_cb = self.createTensorBoardCallBack()
+        tb_cb = self.create_tensor_board_callback()
 
         try: 
-            self.showExecutionTime(originalMsg='Starting now...', writeInFile=True)
+            self.show_execution_time(originalMsg='Starting now...', writeInFile=True)
 
             model = self.get_model()
 
-            earlystopper = EarlyStopping(patience=3, verbose=1, monitor='accuracy')            
+            earlystopper = EarlyStopping(patience=self.patience, verbose=1, monitor='accuracy')            
             model_checkpoint = ModelCheckpoint(f'train_weights/{self.path}_unet.hdf5', monitor='loss', verbose=0, save_best_only=True)
             model.fit(self.my_gene, steps_per_epoch=self.steps_per_epoch, epochs=self.epochs, callbacks=[earlystopper, model_checkpoint, tb_cb])
-            self.showExecutionTime(writeInFile=True)
+            self.show_execution_time(writeInFile=True)
 
         except Exception as e:
-            self.showExecutionTime(success=False, writeInFile=True)
+            self.show_execution_time(success=False, writeInFile=True)
             error_Msg = "\ntype error: " + str(e) + ' \ntraceback: ' + traceback.format_exc()
-            self.showExecutionTime(success=False, originalMsg=error_Msg, writeInFile=True)
+            self.show_execution_time(success=False, originalMsg=error_Msg, writeInFile=True)
             raise e
 
     def get_model(self):
         return unet(pretrained_weights=None, input_size=self.input_shape)
     
-    def evaluate(self, model: Model):            
-        X, Y = self.my_gene
+    def evaluate(self, model: Model, X, Y):            
         model.evaluate(x=X, y=Y)
 
-    def test(self, args):
+    def test(self, args, tf_1 = False):
 
         if(not args.n):
             args.n = 'train_weights/20200420_0817_unet-100-100-loss0_431_acc0_9837.hdf5'
         else:
             args.n = 'train_weights/' + args.n
 
-        qtd, imgs = self.getFilesCount(self.test_folder + self.image_folder, target_size=self.target_size)
+        qtd, imgs = self.get_files_count(self.test_folder + self.image_folder, target_size=self.target_size)
 
         if(qtd > 0):
             try: 
-                self.showExecutionTime(originalMsg='Starting now...', writeInFile=True)
+                self.show_execution_time(originalMsg='Starting now...', writeInFile=True)
                 
-                tb_cb = self.createTensorBoardCallBack()
-                testGene = testGenerator(self.test_folder + self.image_folder + '/', flag_multi_class=False, target_size=self.input_shape, as_gray=False)
+                tb_cb = self.create_tensor_board_callback()
+                testGene = test_generator(self.test_folder + self.image_folder + '/', flag_multi_class=False, target_size=self.input_shape, as_gray=False)
                 
-                model = unet(pretrained_weights=args.n, input_size=self.input_shape) 
-                results = model.predict(testGene, steps=qtd, callbacks=[tb_cb], verbose=1)
+                model = unet(pretrained_weights=args.n, input_size=self.input_shape)
+                
+                if(tf_1):
+                    results = model.predict_generator(generator=testGene, steps=qtd, callbacks=[tb_cb], verbose=1)
+                else:
+                    results = model.predict(testGene, steps=qtd, callbacks=[tb_cb], verbose=1)
                 
 
-                saveResult(save_path=self.test_folder + '/results', npyfile=results, imgs=imgs) 
+                save_result(save_path=self.test_folder + '/results', npyfile=results, imgs=imgs) 
 
 
 
@@ -252,24 +257,24 @@ class UnetHelper():
                 # res = model.evaluate(x=results, verbose=0, callbacks=[tb_cb])
                 # res = model.predict(x=my_gene, batch_size=batch_size, callbacks=[CustomCallback()])
 
-                self.showExecutionTime(writeInFile=True)
+                self.show_execution_time(writeInFile=True)
 
             except Exception as e:
-                self.showExecutionTime(success=False, writeInFile=True)
+                self.show_execution_time(success=False, writeInFile=True)
                 error_Msg = "\ntype error: " + str(e) + ' \ntraceback: ' + traceback.format_exc()
                 print(error_Msg)
-                self.showExecutionTime(success=False, originalMsg=error_Msg, writeInFile=True)
+                self.show_execution_time(success=False, originalMsg=error_Msg, writeInFile=True)
                 pass
 
         else:
             print("nenhum arquivo encontrado")
 
-    def showSummary(self, args):
+    def show_summary(self, args):
         model = unet(pretrained_weights=args.n, input_size=self.input_shape)        
         model.build(self.input_shape)
         model.summary()
 
-    def showExecutionTime(self, success = True, originalMsg = '', writeInFile = False):
+    def show_execution_time(self, success = True, originalMsg = '', writeInFile = False):
         end_time = datetime.now(tz=self.tz)
         elapsed = end_time - self.start_time
         
@@ -284,29 +289,29 @@ class UnetHelper():
         if(writeInFile):
             basePath = f'.logs/{self.start_time.strftime("%Y%m%d")}/'
             path = f'{self.start_time.strftime("%Y%m%d_%H%M")}/'
-            self.writeTextFile(basePath, path, 'execution_log.txt', msg)
+            self.write_text_file(basePath, path, 'execution_log.txt', msg)
 
-    def writeTextFile(self, basePath, path, file_name, text):
-        self.createDirectory(basePath, path)
+    def write_text_file(self, basePath, path, file_name, text):
+        self.create_directory(basePath, path)
             
         text_file = open(basePath + path + file_name, "a+")
         n = text_file.write(text)
         text_file.close()
 
-    def createDirectory(self, basePath, path):
+    def create_directory(self, basePath, path):
         if (basePath and not os.path.exists(basePath)):
             os.makedirs(basePath)
         
         if (basePath + path and not os.path.exists(basePath + '/' + path)):
             os.makedirs(basePath + '/' + path)
 
-    def createTensorBoardCallBack(self):
+    def create_tensor_board_callback(self):
         basePath = f'.logs/{self.start_time.strftime("%Y%m%d")}'
         path = self.start_time.strftime("%Y%m%d_%H%M")
         tb_dir = f'{basePath}/{path}/'
         tb_cb = TensorBoard(log_dir=tb_dir, write_graph=True, update_freq=1)
         
-        self.createDirectory(basePath, path)
+        self.create_directory(basePath, path)
 
         return tb_cb
 
