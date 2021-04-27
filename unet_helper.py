@@ -221,7 +221,7 @@ class UnetHelper():
     def evaluate(self, model: Model, X, Y):            
         model.evaluate(x=X, y=Y)
 
-    def test(self, args, tf_1 = False):
+    def test(self, args):
 
         if(not args.n):
             args.n = 'train_weights/20200420_0817_unet-100-100-loss0_431_acc0_9837.hdf5'
@@ -239,10 +239,7 @@ class UnetHelper():
                 
                 model = unet(pretrained_weights=args.n, input_size=self.input_shape)
                 
-                if(tf_1):
-                    results = model.predict_generator(generator=testGene, steps=qtd, callbacks=[tb_cb], verbose=1)
-                else:
-                    results = model.predict(testGene, steps=qtd, callbacks=[tb_cb], verbose=1)
+                results = model.predict(testGene, steps=qtd, callbacks=[tb_cb], verbose=1)
                 
 
                 save_result(save_path=self.test_folder + '/results', npyfile=results, imgs=imgs, flag_multi_class=args.flag_multi_class) 
