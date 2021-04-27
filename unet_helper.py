@@ -217,7 +217,7 @@ class UnetHelper():
     def evaluate(self, model: Model, X, Y):            
         model.evaluate(x=X, y=Y)
 
-    def test(self, args, tf_1 = False):
+    def test(self, args, tf_1 = False, flag_multi_class = False):
 
         if(not args.n):
             args.n = 'train_weights/20200420_0817_unet-100-100-loss0_431_acc0_9837.hdf5'
@@ -231,7 +231,7 @@ class UnetHelper():
                 self.show_execution_time(originalMsg='Starting now...', writeInFile=True)
                 
                 tb_cb = self.create_tensor_board_callback()
-                testGene = test_generator(self.test_folder + self.image_folder + '/', flag_multi_class=False, target_size=self.input_shape, as_gray=False)
+                testGene = test_generator(self.test_folder + self.image_folder + '/', flag_multi_class=flag_multi_class, target_size=self.input_shape, as_gray=False)
                 
                 model = unet(pretrained_weights=args.n, input_size=self.input_shape)
                 
