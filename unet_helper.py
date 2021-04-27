@@ -25,8 +25,7 @@ from sklearn.metrics import roc_auc_score
 import tensorflow as tf
 #import tensorflow.keras
 from tensorflow.keras.callbacks import *
-from tensorflow.keras import backend as K 
-import tensorflow.keras.metrics as metricas
+from tensorflow.keras import backend as K  
 
 class UnetHelper():
     # training vars
@@ -53,8 +52,8 @@ class UnetHelper():
     path = datetime.now().strftime("%Y.%m.%d_%H%M%S")
     my_gene = None
     flag_multi_class = True
-    early_stopping_monitor = metricas.MeanIoU
-    model_monitor = metricas.MeanIoU
+    early_stopping_monitor = 'MeanIoU'
+    model_monitor = 'MeanIoU'
 
     def main(self, args):
         print(args)
@@ -90,13 +89,13 @@ class UnetHelper():
         print('label_folder: ', self.label_folder)
         print('patience: ', self.patience)
         print('flag_multi_class: ', self.flag_multi_class)
-        print('flag_multi_class: ', self.early_stopping_monitor)
+        print('early_stopping_monitor: ', self.early_stopping_monitor)
         print('model_monitor: ', self.model_monitor)
         
 
     def set_arguments(self, batch_size  = 4, steps_per_epoch = 50, epochs = 15, target_size = (640, 896), input_shape = (640, 896, 3),
                             base_folder = '../hedychium_coronarium/', image_folder = 'images', label_folder = 'masks', patience = 5, flag_multi_class = True,
-                            early_stopping_monitor = metricas.MeanIoU, model_monitor = metricas.MeanIoU):
+                            early_stopping_monitor = 'mean_iou', model_monitor = 'mean_iou'):
         self.batch_size  = batch_size
         self.steps_per_epoch = steps_per_epoch
         self.epochs = epochs
@@ -213,7 +212,7 @@ class UnetHelper():
 
             model = self.get_model()
 
-            earlystopper = EarlyStopping(patience=self.patience, verbose=1, monitor=self.early_stopping_monitor)
+            earlystopper = EarlyStopping(patience=self.patience, verbose=1, monitor=self.early_stopping_monitor, mode='auto')
             model_checkpoint = ModelCheckpoint(f'train_weights/{self.path}_unet.hdf5', monitor=self.model_monitor, verbose=0, save_best_only=True)
             model.fit(self.my_gene, steps_per_epoch=self.steps_per_epoch, epochs=self.epochs, callbacks=[earlystopper, model_checkpoint, tb_cb])
             self.show_execution_time(writeInFile=True)
