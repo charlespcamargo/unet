@@ -127,17 +127,13 @@ def save_result(save_path, npyfile, imgs, flag_multi_class = False,num_class = 2
     Path(save_path).mkdir(parents=True, exist_ok=True)
 
     for i,item in enumerate(npyfile):
-        if flag_multi_class:
-            img = label_visualize(num_class,COLOR_DICT,item)
-        else:            
-            img=item[:,:,0] 
-            
-            # if(i==0):
-            #     print(img)            
-            #print(np.max(img),np.min(img))            
-            img[img>0.5] = 1
-            img[img<=0.5] = 0             
-            #print(np.max(img),np.min(img))
+        #if flag_multi_class:
+        #    img = label_visualize(num_class,COLOR_DICT,item)
+        #else:            
+        img=item[:,:,0] 
+        
+        img[img>0.5] = 1
+        img[img<=0.5] = 0
         
         io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_ubyte(img))
 
