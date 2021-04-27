@@ -42,7 +42,7 @@ class UnetHelper():
     base_folder = '../../datasets/hedychium_coronarium/'
     train_folder = base_folder + 'train/'
     augmentation_folder = train_folder + 'aug/'
-    test_folder = base_folder + 'test/' # 'temp_folder/'
+    test_folder = base_folder + 'val/' # 'temp_folder/'
     image_folder = 'images'
     label_folder = 'masks'
     patience = 5
@@ -98,7 +98,7 @@ class UnetHelper():
         self.base_folder = base_folder
         self.train_folder = base_folder + 'train/'
         self.augmentation_folder =  self.train_folder + 'aug/' # 'temp_folder/'
-        self.test_folder = base_folder + 'test/' # 'temp_folder/'
+        self.test_folder = base_folder + 'val/' # 'temp_folder/'
         self.image_folder = image_folder
         self.label_folder = label_folder
         self.patience = patience
