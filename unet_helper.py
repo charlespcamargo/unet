@@ -211,6 +211,7 @@ class UnetHelper():
             self.show_execution_time(originalMsg='Starting now...', writeInFile=True)
 
             model = self.get_model()
+            model.reset_metrics()
 
             earlystopper = EarlyStopping(patience=self.patience, verbose=1, monitor=self.early_stopping_monitor, mode='auto')
             model_checkpoint = ModelCheckpoint(f'train_weights/{self.path}_unet.hdf5', monitor=self.model_monitor, verbose=0, save_best_only=True)
