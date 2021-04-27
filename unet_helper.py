@@ -51,6 +51,7 @@ class UnetHelper():
     start_time = datetime.now(tz=tz)
     path = datetime.now().strftime("%Y.%m.%d_%H%M%S")
     my_gene = None
+    flag_multi_class = True
 
     def main(self, args):
         print(args)
@@ -85,9 +86,10 @@ class UnetHelper():
         print('image_folder: ', self.image_folder)
         print('label_folder: ', self.label_folder)
         print('patience: ', self.patience)
+        print('flag_multi_class: ', self.flag_multi_class)
 
     def set_arguments(self, batch_size  = 4, steps_per_epoch = 50, epochs = 15, target_size = (640, 896), input_shape = (640, 896, 3),
-                            base_folder = '../hedychium_coronarium/', image_folder = 'images', label_folder = 'masks', patience = 5):
+                            base_folder = '../hedychium_coronarium/', image_folder = 'images', label_folder = 'masks', patience = 5, flag_multi_class = True):
         self.batch_size  = batch_size
         self.steps_per_epoch = steps_per_epoch
         self.epochs = epochs
@@ -100,6 +102,7 @@ class UnetHelper():
         self.image_folder = image_folder
         self.label_folder = label_folder
         self.patience = patience
+        self.flag_multi_class = flag_multi_class
 
     def get_folder_name(self, basePath):
         now = datetime.now()
@@ -183,7 +186,8 @@ class UnetHelper():
                                 self.train_folder, 
                                 self.image_folder,
                                 self.label_folder, 
-                                data_gen_args, 
+                                data_gen_args,
+                                flag_multi_class=args.flag_multi_class, 
                                 target_size=self.target_size, 
                                 image_color_mode="rgb", 
                                 save_to_dir=save_to_dir)
@@ -217,7 +221,7 @@ class UnetHelper():
     def evaluate(self, model: Model, X, Y):            
         model.evaluate(x=X, y=Y)
 
-    def test(self, args, tf_1 = False, flag_multi_class = False):
+    def test(self, args, tf_1 = False):
 
         if(not args.n):
             args.n = 'train_weights/20200420_0817_unet-100-100-loss0_431_acc0_9837.hdf5'
@@ -231,7 +235,7 @@ class UnetHelper():
                 self.show_execution_time(originalMsg='Starting now...', writeInFile=True)
                 
                 tb_cb = self.create_tensor_board_callback()
-                testGene = test_generator(self.test_folder + self.image_folder + '/', flag_multi_class=flag_multi_class, target_size=self.input_shape, as_gray=False)
+                testGene = test_generator(self.test_folder + self.image_folder + '/', flag_multi_class=args.flag_multi_class, target_size=self.input_shape, as_gray=False)
                 
                 model = unet(pretrained_weights=args.n, input_size=self.input_shape)
                 
@@ -241,11 +245,11 @@ class UnetHelper():
                     results = model.predict(testGene, steps=qtd, callbacks=[tb_cb], verbose=1)
                 
 
-                save_result(save_path=self.test_folder + '/results', npyfile=results, imgs=imgs) 
+                save_result(save_path=self.test_folder + '/results', npyfile=results, imgs=imgs, flag_multi_class=args.flag_multi_class) 
 
 
 
-                #labelGene = testGenerator(test_folder + label_folder + '/', flag_multi_class=False, target_size=input_shape, as_gray=False)
+                #labelGene = testGenerator(test_folder + label_folder + '/', args.flag_multi_class=False, target_size=input_shape, as_gray=False)
 
                 # my_gene = trainGenerator(batch_size=batch_size, 
                 #                         train_path=test_folder,  
