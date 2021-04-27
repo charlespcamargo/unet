@@ -31,7 +31,7 @@ class UnetHelper():
     # training vars
     model = None 
     batch_size  = 4
-    steps_per_epoch = 100
+    steps_per_epoch = 50
     epochs = 15
 
     # image sizes
@@ -84,8 +84,9 @@ class UnetHelper():
         print('test_folder: ', self.test_folder)
         print('image_folder: ', self.image_folder)
         print('label_folder: ', self.label_folder)
+        print('patience: ', self.patience)
 
-    def set_arguments(self, batch_size  = 4, steps_per_epoch = 100, epochs = 15, target_size = (640, 896), input_shape = (640, 896, 3),
+    def set_arguments(self, batch_size  = 4, steps_per_epoch = 50, epochs = 15, target_size = (640, 896), input_shape = (640, 896, 3),
                             base_folder = '../hedychium_coronarium/', image_folder = 'images', label_folder = 'masks', patience = 5):
         self.batch_size  = batch_size
         self.steps_per_epoch = steps_per_epoch
