@@ -13,7 +13,8 @@ if __name__ == "__main__":
         'n': None, # Informe o nome do arquivo de pesos para executar o teste ou ler o sumario
         'b': None, # Informe o beta para calcular o f-beta score
         'p': None, # Informe o precision para calcular o f-beta score
-        'r': None # Informe o recall para calcular o f-beta score
+        'r': None, # Informe o recall para calcular o f-beta score,
+        'flag_multi_class': False
     })
 
     myhelper.main(args) 

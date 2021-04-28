@@ -21,6 +21,7 @@ import matplotlib.pyplot as plt
 
 from sklearn.metrics import roc_curve
 from sklearn.metrics import roc_auc_score
+from sklearn.utils import class_weight
 
 import tensorflow as tf
 #import tensorflow.keras
@@ -56,7 +57,10 @@ class UnetHelper():
     model_monitor = 'accuracy'
 
     def main(self, args):
+
         print(args)
+        self.generate_my_gen(args)
+
         if (args.t == -1):
             self.show_arguments()
         
@@ -111,6 +115,7 @@ class UnetHelper():
         self.flag_multi_class = flag_multi_class
         self.early_stopping_monitor = early_stopping_monitor
         self.model_monitor = model_monitor
+        self.class_weights = None
 
     def get_folder_name(self, basePath):
         now = datetime.now()
@@ -200,6 +205,10 @@ class UnetHelper():
                                 image_color_mode="rgb", 
                                 save_to_dir=save_to_dir)
 
+        self.class_weights = class_weight.compute_class_weight('balanced', 
+                                                                np.unique([self.label_folder]), 
+                                                                [self.label_folder])
+
         return self.my_gene
 
     def train(self):
@@ -215,7 +224,7 @@ class UnetHelper():
 
             earlystopper = EarlyStopping(patience=self.patience, verbose=1, monitor=self.early_stopping_monitor, mode='auto')
             model_checkpoint = ModelCheckpoint(f'train_weights/{self.path}_unet.hdf5', monitor=self.model_monitor, verbose=0, save_best_only=True)
-            model.fit(self.my_gene, steps_per_epoch=self.steps_per_epoch, epochs=self.epochs, callbacks=[earlystopper, model_checkpoint, tb_cb])
+            model.fit(self.my_gene, steps_per_epoch=self.steps_per_epoch, epochs=self.epochs, class_weight=self.class_weights, callbacks=[earlystopper, model_checkpoint, tb_cb])
             self.show_execution_time(writeInFile=True)
 
         except Exception as e:
