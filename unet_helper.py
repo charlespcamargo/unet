@@ -52,8 +52,8 @@ class UnetHelper():
     path = datetime.now().strftime("%Y.%m.%d_%H%M%S")
     my_gene = None
     flag_multi_class = True
-    early_stopping_monitor = 'MeanIoU'
-    model_monitor = 'MeanIoU'
+    early_stopping_monitor = 'accuracy'
+    model_monitor = 'accuracy'
 
     def main(self, args):
         print(args)
