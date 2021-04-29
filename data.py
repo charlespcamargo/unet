@@ -66,7 +66,7 @@ def get_class_weights(mask):
 
 def data_generator(batch_size, data_path, image_folder,mask_folder,aug_dict,image_color_mode = "rgb",
                     mask_color_mode = "rgb",image_save_prefix  = "image",mask_save_prefix  = "mask",
-                    flag_multi_class = False,num_class = 2,save_to_dir = None,target_size = (256,256),seed = 1, class_mode = None):
+                    flag_multi_class = False,num_class = 2,save_to_dir = None,target_size = (256,256), seed = 1, class_mode = None):
     '''
     can generate image and mask at the same time
     use the same seed for image_datagen and mask_datagen to ensure the transformation for image and mask is the same
@@ -111,18 +111,25 @@ def test_generator(path, ext = '.JPG', num_image = 30, target_size = (256,256), 
         img = np.reshape(img,(1,)+img.shape)               
         yield img
 
-def gene_train_npy(image_path,mask_path,flag_multi_class = False,num_class = 2,image_prefix = "image",mask_prefix = "mask",image_as_gray = True,mask_as_gray = True):
-    image_name_arr = glob.glob(os.path.join(image_path,"%s*.jpg"%image_prefix))
+def gene_data_npy(data_path, flag_multi_class = False, num_class = 2, image_folder = "images", mask_folder = "masks", image_as_gray = False, mask_as_gray = False):
+    image_path = os.path.join(data_path, image_folder)
+    mask_path = os.path.join(data_path, image_folder)
+
+    image_name_arr = glob.glob(os.path.join(image_path, "*.JPG"))
     image_arr = []
     mask_arr = []
     for index,item in enumerate(image_name_arr):
-        img = io.imread(item,as_grey = image_as_gray)
+        img = io.imread(item, as_gray = image_as_gray)
         img = np.reshape(img,img.shape + (1,)) if image_as_gray else img
-        mask = io.imread(item.replace(image_path,mask_path).replace(image_prefix,mask_prefix),as_gray = mask_as_gray)
+        mask = io.imread(item.replace(image_path, mask_path).replace(image_folder, mask_folder),as_gray = mask_as_gray)
         mask = np.reshape(mask,mask.shape + (1,)) if mask_as_gray else mask
         img,mask = adjust_data(img,mask,flag_multi_class,num_class)
         image_arr.append(img)
         mask_arr.append(mask)
+
+        if(index % 25 == 0):
+            print(f'{index}/{len(image_name_arr)}')
+
     image_arr = np.array(image_arr)
     mask_arr = np.array(mask_arr)
     return image_arr,mask_arr

@@ -61,17 +61,15 @@ class UnetHelper:
     early_stopping_monitor = "accuracy"
     model_monitor = "accuracy"
     validation_steps = 200
+    use_numpy = False
 
     def main(self, args):
-
-        print(args)
-        self.generate_my_gen(args)
 
         if args.t == -1:
             self.show_arguments()
 
         if args.t == 0:
-            self.train()
+            self.train(args)
 
         elif args.t == 1:
             self.test(args)
@@ -103,6 +101,7 @@ class UnetHelper:
         print("early_stopping_monitor: ", self.early_stopping_monitor)
         print("model_monitor: ", self.model_monitor)
         print("validation_steps: ", self.validation_steps)
+        print("use_numpy: ", self.use_numpy)
 
     def set_arguments(
         self,
@@ -119,6 +118,7 @@ class UnetHelper:
         early_stopping_monitor="accuracy",
         model_monitor="accuracy",
         validation_steps=800,
+        use_numpy = False
     ):
         self.batch_size = batch_size
         self.steps_per_epoch = steps_per_epoch
@@ -138,6 +138,7 @@ class UnetHelper:
         self.model_monitor = model_monitor
         self.class_weights = None
         self.validation_steps = validation_steps
+        self.use_numpy = use_numpy
 
     def get_folder_name(self, basePath):
         now = datetime.now()
@@ -260,33 +261,39 @@ class UnetHelper:
         if args.g != 0:
             save_to_dir = self.get_folder_name(self.augmentation_folder)
 
-        self.my_train_gene = data_generator(
-            self.batch_size,
-            self.train_folder,
-            self.image_folder,
-            self.label_folder,
-            data_gen_args,
-            flag_multi_class=args.flag_multi_class,
-            target_size=self.target_size,
-            image_color_mode="rgb",
-            save_to_dir=save_to_dir,
-        )
+        if (not self.use_numpy):
+            self.my_train_gene = data_generator(
+                self.batch_size,
+                self.train_folder,
+                self.image_folder,
+                self.label_folder,
+                data_gen_args,
+                flag_multi_class=args.flag_multi_class,
+                target_size=self.target_size,
+                image_color_mode="rgb",
+                save_to_dir=save_to_dir,
+            )
 
-        self.my_validation_gene = data_generator(
-            self.batch_size,
-            self.validation_folder,
-            self.image_folder,
-            self.label_folder,
-            data_gen_args,
-            flag_multi_class=args.flag_multi_class,
-            target_size=self.target_size,
-            image_color_mode="rgb",
-            save_to_dir=save_to_dir,
-        )
+            self.my_validation_gene = data_generator(
+                self.batch_size,
+                self.validation_folder,
+                self.image_folder,
+                self.label_folder,
+                data_gen_args,
+                flag_multi_class=args.flag_multi_class,
+                target_size=self.target_size,
+                image_color_mode="rgb",
+                save_to_dir=save_to_dir)
+            
+            return (self.my_train_gene, self.my_validation_gene)
 
-        return (self.my_train_gene, self.my_validation_gene)
+        else:
+            self.my_train_gene_npy = gene_data_npy(self.train_folder, flag_multi_class=args.flag_multi_class)
+            self.my_validation_gene_npy = gene_data_npy(self.validation_folder, flag_multi_class=args.flag_multi_class)
 
-    def train(self):
+            return (self.my_train_gene_npy, self.my_validation_gene_npy)
+
+    def train(self, args):
 
         # define TensorBoard directory and TensorBoard callback
         tb_cb = self.create_tensor_board_callback()
@@ -294,8 +301,12 @@ class UnetHelper:
         try:
             self.show_execution_time(originalMsg="Starting now...", writeInFile=True)
 
+            self.use_numpy = True
+
             model = self.get_model()
             model.reset_metrics()
+
+            generator = self.generate_my_gen(args)
 
             earlystopper = EarlyStopping(
                 patience=self.patience,
@@ -314,12 +325,14 @@ class UnetHelper:
             # classe desbalanceada
             # self.class_weights = { 0: 0.80, 1: 0.20}
 
+            model.summary()
+
             model.fit(
-                self.my_train_gene,
+                generator,
                 steps_per_epoch=self.steps_per_epoch,
                 epochs=self.epochs,
-                #validation_data=self.my_validation_gene,
-                #validation_steps=self.validation_steps,
+                validation_data=self.my_validation_gene,
+                validation_steps=self.validation_steps,
                 callbacks=[earlystopper, model_checkpoint, tb_cb],
             )
 
