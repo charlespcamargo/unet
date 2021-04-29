@@ -21,7 +21,6 @@ import matplotlib.pyplot as plt
 
 from sklearn.metrics import roc_curve
 from sklearn.metrics import roc_auc_score
-from sklearn.utils import class_weight
 
 import tensorflow as tf
 #import tensorflow.keras
@@ -43,7 +42,8 @@ class UnetHelper():
     base_folder = '../../datasets/hedychium_coronarium/'
     train_folder = base_folder + 'train/'
     augmentation_folder = train_folder + 'aug/'
-    test_folder = base_folder + 'val/' # 'temp_folder/'
+    validation_folder = base_folder + 'val/'
+    test_folder = base_folder + 'test/'
     image_folder = 'images'
     label_folder = 'masks'
     patience = 5
@@ -51,10 +51,12 @@ class UnetHelper():
     tz = pytz.timezone("Brazil/East")
     start_time = datetime.now(tz=tz)
     path = datetime.now().strftime("%Y.%m.%d_%H%M%S")
-    my_gene = None
+    my_train_gene = None
+    my_validation_gene = None
     flag_multi_class = True
     early_stopping_monitor = 'accuracy'
     model_monitor = 'accuracy'
+    validation_steps = 200
 
     def main(self, args):
 
@@ -87,6 +89,7 @@ class UnetHelper():
         print('epochs: ', self.epochs)
         print('base_folder: ', self.base_folder)
         print('train_folder: ', self.train_folder)
+        print('validation_folder: ', self.validation_folder)        
         print('augmentation_folder: ', self.augmentation_folder)
         print('test_folder: ', self.test_folder)
         print('image_folder: ', self.image_folder)
@@ -95,11 +98,12 @@ class UnetHelper():
         print('flag_multi_class: ', self.flag_multi_class)
         print('early_stopping_monitor: ', self.early_stopping_monitor)
         print('model_monitor: ', self.model_monitor)
+        print('validation_steps: ', self.validation_steps)        
         
 
     def set_arguments(self, batch_size  = 4, steps_per_epoch = 50, epochs = 15, target_size = (640, 896), input_shape = (640, 896, 3),
                             base_folder = '../hedychium_coronarium/', image_folder = 'images', label_folder = 'masks', patience = 5, flag_multi_class = True,
-                            early_stopping_monitor = 'accuracy', model_monitor = 'accuracy'):
+                            early_stopping_monitor = 'accuracy', model_monitor = 'accuracy', validation_steps = 800):
         self.batch_size  = batch_size
         self.steps_per_epoch = steps_per_epoch
         self.epochs = epochs
@@ -107,8 +111,9 @@ class UnetHelper():
         self.input_shape = input_shape
         self.base_folder = base_folder
         self.train_folder = base_folder + 'train/'
-        self.augmentation_folder =  self.train_folder + 'aug/' # 'temp_folder/'
-        self.test_folder = base_folder + 'val/' # 'temp_folder/'
+        self.augmentation_folder =  self.train_folder + 'aug/' 
+        self.validation_folder = base_folder + 'val/' 
+        self.test_folder = base_folder + 'test/'         
         self.image_folder = image_folder
         self.label_folder = label_folder
         self.patience = patience
@@ -116,6 +121,7 @@ class UnetHelper():
         self.early_stopping_monitor = early_stopping_monitor
         self.model_monitor = model_monitor
         self.class_weights = None
+        self.validation_steps = validation_steps
 
     def get_folder_name(self, basePath):
         now = datetime.now()
@@ -195,21 +201,27 @@ class UnetHelper():
         if (args.g != 0):
             save_to_dir = self.get_folder_name(self.augmentation_folder)            
 
-        self.my_gene = train_generator(self.batch_size, 
-                                self.train_folder, 
-                                self.image_folder,
-                                self.label_folder, 
-                                data_gen_args,
-                                flag_multi_class=args.flag_multi_class, 
-                                target_size=self.target_size, 
-                                image_color_mode="rgb", 
-                                save_to_dir=save_to_dir)
+        self.my_train_gene = data_generator(self.batch_size, 
+                                       self.train_folder, 
+                                       self.image_folder,
+                                       self.label_folder, 
+                                       data_gen_args,
+                                       flag_multi_class=args.flag_multi_class, 
+                                       target_size=self.target_size, 
+                                       image_color_mode="rgb", 
+                                       save_to_dir=save_to_dir)
 
-        self.class_weights = class_weight.compute_class_weight('balanced', 
-                                                                np.unique([self.label_folder]), 
-                                                                [self.label_folder])
+        self.my_validation_gene = data_generator(self.batch_size, 
+                                       self.validation_folder, 
+                                       self.image_folder,
+                                       self.label_folder, 
+                                       data_gen_args,
+                                       flag_multi_class=args.flag_multi_class, 
+                                       target_size=self.target_size, 
+                                       image_color_mode="rgb", 
+                                       save_to_dir=save_to_dir)
 
-        return self.my_gene
+        return (self.my_train_gene, self.my_validation_gene)
 
     def train(self):
         
@@ -224,8 +236,17 @@ class UnetHelper():
 
             earlystopper = EarlyStopping(patience=self.patience, verbose=1, monitor=self.early_stopping_monitor, mode='auto')
             model_checkpoint = ModelCheckpoint(f'train_weights/{self.path}_unet.hdf5', monitor=self.model_monitor, verbose=0, save_best_only=True)
-            model.fit(self.my_gene, steps_per_epoch=self.steps_per_epoch, epochs=self.epochs, class_weight=self.class_weights, callbacks=[earlystopper, model_checkpoint, tb_cb])
+
+            (X_train, Y_train, self.class_weights) = self.my_train_gene[0], self.my_train_gene[1], self.my_train_gene[2]
+            (X_val, Y_val, class_weights_val) = self.my_validation_gene[0], self.my_validation_gene[1]
+            
+            model.fit((X_train, Y_train), steps_per_epoch=self.steps_per_epoch, epochs=self.epochs, class_weight=self.class_weights, 
+                      validation_data=(X_val, Y_val),
+                      validation_steps=self.validation_steps,
+                      callbacks=[earlystopper, model_checkpoint, tb_cb])
+
             self.show_execution_time(writeInFile=True)
+            model.save_weights('train_weights/final_{self.path}_unet.hdf5')
 
         except Exception as e:
             self.show_execution_time(success=False, writeInFile=True)
@@ -262,18 +283,6 @@ class UnetHelper():
 
                 save_result(save_path=self.test_folder + '/results', npyfile=results, imgs=imgs, flag_multi_class=args.flag_multi_class) 
 
-
-
-                #labelGene = testGenerator(test_folder + label_folder + '/', args.flag_multi_class=False, target_size=input_shape, as_gray=False)
-
-                # my_gene = trainGenerator(batch_size=batch_size, 
-                #                         train_path=test_folder,  
-                #                         image_folder=image_folder, 
-                #                         mask_folder=label_folder,
-                #                         aug_dict=None, 
-                #                         target_size=target_size, 
-                #                         image_color_mode="rgb")
-                
                 # res = model.evaluate(x=results, verbose=0, callbacks=[tb_cb])
                 # res = model.predict(x=my_gene, batch_size=batch_size, callbacks=[CustomCallback()])
 

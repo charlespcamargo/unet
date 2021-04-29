@@ -8,6 +8,7 @@ import skimage.transform as trans
 from skimage.util import img_as_float, img_as_ubyte 
 from pathlib import Path
 
+from sklearn.utils import class_weight
 
 Sky = [128,128,128] # gray
 Building = [128,0,0] # red
@@ -48,7 +49,7 @@ def adjust_data(img,mask,flag_multi_class,num_class):
 
 
 
-def train_generator(batch_size,train_path,image_folder,mask_folder,aug_dict,image_color_mode = "rgb",
+def data_generator(batch_size, data_path, image_folder,mask_folder,aug_dict,image_color_mode = "rgb",
                     mask_color_mode = "rgb",image_save_prefix  = "image",mask_save_prefix  = "mask",
                     flag_multi_class = False,num_class = 2,save_to_dir = None,target_size = (256,256),seed = 1, class_mode = None):
     '''
@@ -59,7 +60,7 @@ def train_generator(batch_size,train_path,image_folder,mask_folder,aug_dict,imag
     image_datagen = ImageDataGenerator(**aug_dict)
     mask_datagen = ImageDataGenerator(**aug_dict)
     image_generator = image_datagen.flow_from_directory(
-        train_path,
+        data_path,
         classes = [image_folder],
         class_mode = class_mode,
         color_mode = image_color_mode,
@@ -69,7 +70,7 @@ def train_generator(batch_size,train_path,image_folder,mask_folder,aug_dict,imag
         save_prefix  = image_save_prefix,
         seed = seed)
     mask_generator = mask_datagen.flow_from_directory(
-        train_path,
+        data_path,
         classes = [mask_folder],
         class_mode = None,
         color_mode = mask_color_mode,
@@ -78,12 +79,19 @@ def train_generator(batch_size,train_path,image_folder,mask_folder,aug_dict,imag
         save_to_dir = save_to_dir,
         save_prefix  = mask_save_prefix,
         seed = seed)
-    train_generator = zip(image_generator, mask_generator)
-    for (img,mask) in train_generator:
+    
+    X = []
+    Y = []
+    data_generator = zip(image_generator, mask_generator)
+    for (img,mask) in data_generator:
         img,mask = adjust_data(img,mask,flag_multi_class,num_class)
-        yield (img,mask)
+        X.append(img)
+        Y.append(mask)
 
-
+    class_weights = class_weight.compute_class_weight('balanced', 
+                                                       np.unique(Y), 
+                                                       Y)
+    return (X, Y, class_weights)
 
 def test_generator(path, ext = '.JPG', num_image = 30, target_size = (256,256), flag_multi_class = False, as_gray = True):    
     imgs = glob.glob(path + '/*' + ext)
