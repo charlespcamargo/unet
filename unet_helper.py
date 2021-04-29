@@ -337,7 +337,7 @@ class UnetHelper:
             )
 
             self.show_execution_time(writeInFile=True)
-            model.save_weights("train_weights/final_{self.path}_unet.hdf5")
+            model.save_weights(f"train_weights/final_{self.path}_unet.hdf5")
 
         except Exception as e:
             self.show_execution_time(success=False, writeInFile=True)
