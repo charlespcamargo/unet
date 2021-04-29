@@ -45,9 +45,24 @@ def adjust_data(img,mask,flag_multi_class,num_class):
         mask = mask /255
         mask[mask > 0.5] = 1
         mask[mask <= 0.5] = 0
+        
+        # get_class_weights(mask)
+
     return (img,mask)
 
 
+def get_class_weights(mask):
+    (unique, counts) = np.unique(mask, return_counts=True)
+    frequencies = np.asarray((unique, counts)).T
+
+    x = frequencies[0][1]
+    y = frequencies[1][1]
+    total = x + y
+
+    x_weights = x / total
+    y_weights = y / total
+
+    return (x_weights, y_weights)
 
 def data_generator(batch_size, data_path, image_folder,mask_folder,aug_dict,image_color_mode = "rgb",
                     mask_color_mode = "rgb",image_save_prefix  = "image",mask_save_prefix  = "mask",
@@ -80,18 +95,10 @@ def data_generator(batch_size, data_path, image_folder,mask_folder,aug_dict,imag
         save_prefix  = mask_save_prefix,
         seed = seed)
     
-    X = []
-    Y = []
-    data_generator = zip(image_generator, mask_generator)
-    for (img,mask) in data_generator:
+    generator = zip(image_generator, mask_generator)
+    for (img,mask) in generator:
         img,mask = adjust_data(img,mask,flag_multi_class,num_class)
-        X.append(img)
-        Y.append(mask)
-
-    class_weights = class_weight.compute_class_weight('balanced', 
-                                                       np.unique(Y), 
-                                                       Y)
-    return (X, Y, class_weights)
+        yield (img, mask)
 
 def test_generator(path, ext = '.JPG', num_image = 30, target_size = (256,256), flag_multi_class = False, as_gray = True):    
     imgs = glob.glob(path + '/*' + ext)
