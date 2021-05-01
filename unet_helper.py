@@ -39,8 +39,8 @@ class UnetHelper:
     epochs = 15
 
     # image sizes
-    target_size = (640, 896)  # (1280, 1792) #
-    input_shape = (640, 896, 3)  # (1280, 1792, 3) #
+    target_size = (400, 300)  # (1280, 1792) #
+    input_shape = (400, 300, 3)  # (1280, 1792, 3) #
 
     # paths
     base_folder = "../../datasets/hedychium_coronarium/"
@@ -83,6 +83,16 @@ class UnetHelper:
         elif args.t == 4:
             self.get_fbetaScore(args.b, args.p, args.r)
 
+        elif args.t == 5:
+            self.crop_images_in_tiles('../../datasets/hedychium_coronarium/', 
+                                      'train',
+                                      'val',
+                                      'test',
+                                      "images", 
+                                      "masks", 
+                                      400,
+                                      300)
+
     def show_arguments(self):
         print("batch_size: ", self.batch_size)
         print("target_size: ", self.target_size)
@@ -108,8 +118,8 @@ class UnetHelper:
         batch_size=4,
         steps_per_epoch=50,
         epochs=15,
-        target_size=(640, 896),
-        input_shape=(640, 896, 3),
+        target_size=(400, 300),
+        input_shape=(400, 300, 3),
         base_folder="../hedychium_coronarium/",
         image_folder="images",
         label_folder="masks",
@@ -306,7 +316,7 @@ class UnetHelper:
             model = self.get_model()
             model.reset_metrics()
 
-            generator = self.generate_my_gen(args)
+            (generator_train, generator_val) = self.generate_my_gen(args)
 
             earlystopper = EarlyStopping(
                 patience=self.patience,
@@ -328,11 +338,11 @@ class UnetHelper:
             model.summary()
 
             model.fit(
-                generator,
+                generator_train,
                 steps_per_epoch=self.steps_per_epoch,
                 epochs=self.epochs,
-                validation_data=self.my_validation_gene,
-                validation_steps=self.validation_steps,
+                # validation_data=generator_val,
+                # validation_steps=self.validation_steps,
                 callbacks=[earlystopper, model_checkpoint, tb_cb],
             )
 
@@ -476,6 +486,16 @@ class UnetHelper:
         self,
     ):
         return 0
+
+    def crop_images_in_tiles(self, data_path, train_folder, val_folder, test_folder, image_folder, mask_folder, w, h):
+        if(train_folder):
+            crop_image(data_path, train_folder, image_folder, mask_folder , w, h, True)
+        if(val_folder):
+            crop_image(data_path, val_folder, image_folder, mask_folder , w, h)
+        if(test_folder):
+            crop_image(data_path, test_folder, image_folder, mask_folder , w, h)
+
+        move_all_ignored_folders_to_test(data_path)
 
     def get_fscore(self, recall, precision):
         f_score = (2 * recall * precision) / (recall + precision)
