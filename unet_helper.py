@@ -44,9 +44,9 @@ class UnetHelper:
 
     # paths
     base_folder = "../../datasets/hedychium_coronarium/"
-    train_folder = base_folder + "train/"
+    train_folder = base_folder + "train_splits/"
     augmentation_folder = train_folder + "aug/"
-    validation_folder = base_folder + "val/"
+    validation_folder = base_folder + "val_splits/"
     test_folder = base_folder + "test/"
     image_folder = "images"
     label_folder = "masks"
@@ -136,9 +136,9 @@ class UnetHelper:
         self.target_size = target_size
         self.input_shape = input_shape
         self.base_folder = base_folder
-        self.train_folder = base_folder + "train/"
+        self.train_folder = base_folder + "train_splits/"
         self.augmentation_folder = self.train_folder + "aug/"
-        self.validation_folder = base_folder + "val/"
+        self.validation_folder = base_folder + "val_splits/"
         self.test_folder = base_folder + "test/"
         self.image_folder = image_folder
         self.label_folder = label_folder
