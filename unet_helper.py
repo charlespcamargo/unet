@@ -495,6 +495,9 @@ class UnetHelper:
         if(test_folder):
             crop_image(data_path, test_folder, image_folder, mask_folder , w, h)
 
+        self.move_ignored_items(data_path)
+
+    def move_ignored_items(self, data_path):
         move_all_ignored_folders_to_test(data_path)
 
     def get_fscore(self, recall, precision):
