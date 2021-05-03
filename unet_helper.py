@@ -303,7 +303,7 @@ class UnetHelper:
 
             return (self.my_train_gene_npy, self.my_validation_gene_npy)
 
-    def train(self, args):
+    def train(self, args, generator_train, generator_val):
 
         # define TensorBoard directory and TensorBoard callback
         tb_cb = self.create_tensor_board_callback()
@@ -311,12 +311,11 @@ class UnetHelper:
         try:
             self.show_execution_time(originalMsg="Starting now...", writeInFile=True)
 
-            self.use_numpy = True
-
             model = self.get_model()
             model.reset_metrics()
 
-            (generator_train, generator_val) = self.generate_my_gen(args)
+            if(not generator_train or not generator_val):
+                (generator_train, generator_val) = self.generate_my_gen(args)
 
             earlystopper = EarlyStopping(
                 patience=self.patience,
@@ -341,8 +340,8 @@ class UnetHelper:
                 generator_train,
                 steps_per_epoch=self.steps_per_epoch,
                 epochs=self.epochs,
-                # validation_data=generator_val,
-                # validation_steps=self.validation_steps,
+                validation_data=generator_val,
+                validation_steps=self.validation_steps,
                 callbacks=[earlystopper, model_checkpoint, tb_cb],
             )
 

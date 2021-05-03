@@ -199,7 +199,7 @@ def gene_data_npy(
         image_arr.append(img)
         mask_arr.append(mask)
 
-        if index % 25 == 0:
+        if index % 50 == 0:
             print(f"generate data - {index}/{len(image_name_arr)}")
 
         # if(index > 0 and index % 5 == 0):
