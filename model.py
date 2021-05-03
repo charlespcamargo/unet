@@ -64,7 +64,7 @@ def unet(pretrained_weights = None, input_size = (256,256, 3)):
                                 Recall(),                              
                             ])
 
-    #model.summary()
+    model.summary()
 
     if(pretrained_weights):
     	model.load_weights(pretrained_weights)
