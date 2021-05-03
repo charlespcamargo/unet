@@ -59,7 +59,7 @@ def unet(pretrained_weights = None, input_size = (256,256, 3)):
                   loss = 'binary_crossentropy', 
                   metrics = [
                                 Accuracy(),
-                                MeanIoU(),
+                                MeanIoU(num_classes=1),
                                 Precision(), 
                                 Recall(),                              
                             ])

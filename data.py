@@ -348,7 +348,7 @@ def create_split_dirs(data_path):
     x = os.path.join("/".join(img_path))
 
     if os.path.exists(x):
-        os.remove(x)
+        shutil.rmtree(x, ignore_errors=False, onerror=None)
 
     os.makedirs(x + "/")
 
@@ -356,7 +356,7 @@ def create_split_dirs(data_path):
     y = os.path.join("/".join(img_path))
     
     if os.path.exists(y):
-        os.remove(y)
+        shutil.rmtree(x, ignore_errors=False, onerror=None)
 
     os.makedirs(y + "/")
 
