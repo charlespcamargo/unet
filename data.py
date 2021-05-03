@@ -247,7 +247,7 @@ def save_result(save_path, npyfile, imgs, flag_multi_class=False, num_class=2):
         io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_ubyte(img))
 
 
-def crop_image(data_path, data_folder, image_folder="images", mask_folder="masks", w=400, h=300, validate_class_to_discard = False):
+def crop_image(data_path, data_folder, image_folder="images", mask_folder="masks", w=400, h=320, validate_class_to_discard = False):
     image_path = os.path.join(data_path, data_folder, image_folder)
     mask_path = os.path.join(data_path, data_folder, image_folder)
     image_name_arr = glob.glob(os.path.join(image_path, "*.JPG"))
@@ -348,7 +348,7 @@ def create_split_dirs(data_path):
     x = os.path.join("/".join(img_path))
 
     if os.path.exists(x):
-        os.rmdir(x)
+        os.remove(x)
 
     os.makedirs(x + "/")
 
@@ -356,7 +356,7 @@ def create_split_dirs(data_path):
     y = os.path.join("/".join(img_path))
     
     if os.path.exists(y):
-        os.rmdir(y)
+        os.remove(y)
 
     os.makedirs(y + "/")
 

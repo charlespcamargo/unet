@@ -39,8 +39,8 @@ class UnetHelper:
     epochs = 15
 
     # image sizes
-    target_size = (400, 300)  # (1280, 1792) #
-    input_shape = (400, 300, 3)  # (1280, 1792, 3) #
+    target_size = (400, 320)  # (1280, 1792) #
+    input_shape = (400, 320, 3)  # (1280, 1792, 3) #
 
     # paths
     base_folder = "../../datasets/hedychium_coronarium/"
@@ -91,7 +91,7 @@ class UnetHelper:
                                       "images", 
                                       "masks", 
                                       400,
-                                      300)
+                                      320)
 
     def show_arguments(self):
         print("batch_size: ", self.batch_size)
@@ -118,8 +118,8 @@ class UnetHelper:
         batch_size=4,
         steps_per_epoch=50,
         epochs=15,
-        target_size=(400, 300),
-        input_shape=(400, 300, 3),
+        target_size=(400, 320),
+        input_shape=(400, 320, 3),
         base_folder="../hedychium_coronarium/",
         image_folder="images",
         label_folder="masks",
