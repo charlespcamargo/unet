@@ -128,7 +128,12 @@ class Unet():
 
         ch, cw = self.get_crop_shape(inputs, conv9)
         conv9 = ZeroPadding2D(padding=((ch[0], ch[1]), (cw[0], cw[1])))(conv9)
-        conv10 = Conv2D(num_class, (1, 1))(conv9)
+        
+        # ##Output Layer
+        #conv10 = Conv2D(3, 1, activation = 'sigmoid')(conv9)
+        #conv10 = Conv2D(1, 1, activation = 'sigmoid')(conv9)
+        conv10 = Conv2D(num_class, (3, 1), activation = 'sigmoid')(conv9)
+        
 
         model = Model(inputs=inputs, outputs=conv10)
 
