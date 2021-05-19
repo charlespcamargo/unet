@@ -303,7 +303,7 @@ class UnetHelper:
 
             return (self.my_train_gene_npy, self.my_validation_gene_npy)
 
-    def train(self, args, generator_train, generator_val):
+    def train(self, args, generator_train = None, generator_val = None):
 
         # define TensorBoard directory and TensorBoard callback
         tb_cb = self.create_tensor_board_callback()
@@ -312,7 +312,7 @@ class UnetHelper:
             self.show_execution_time(originalMsg="Starting now...", writeInFile=True)
 
             model = self.get_model()
-            model.reset_metrics()
+            #model.reset_metrics()
 
             if(not generator_train or not generator_val):
                 (generator_train, generator_val) = self.generate_my_gen(args)
@@ -334,7 +334,7 @@ class UnetHelper:
             # classe desbalanceada
             # self.class_weights = { 0: 0.80, 1: 0.20}
 
-            model.summary()
+            #model.summary()
 
             model.fit(
                 generator_train,
@@ -359,7 +359,7 @@ class UnetHelper:
             raise e
 
     def get_model(self):
-        return unet(pretrained_weights=None, input_size=self.input_shape)
+        return unet(pretrained_weights=None, input_size=self.input_shape, num_class=1)
 
     def evaluate(self, model: Model, X, Y):
         model.evaluate(x=X, y=Y)
@@ -389,7 +389,7 @@ class UnetHelper:
                     as_gray=False,
                 )
 
-                model = unet(pretrained_weights=args.n, input_size=self.input_shape)
+                model = unet(pretrained_weights=args.n, input_size=self.input_shape, num_class=1)
 
                 results = model.predict(
                     testGene, steps=qtd, callbacks=[tb_cb], verbose=1

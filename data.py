@@ -299,7 +299,7 @@ def crop_image(data_path, data_folder, image_folder="images", mask_folder="masks
     if(validate_class_to_discard):
         print(f'{data_folder} - discarded_img: {discarded_img} - not_discarded: {not_discarded} - total: {discarded_img+not_discarded}')
         print(f"items: {len(arr_weigths)}")
-        print(f"\nmédia(black,white): {np.mean(arr_weigths, axis=0)}\n")
+        print(f"\nmean(black, white): {np.mean(arr_weigths, axis=0)}\n")
 
 def get_name(file_name, frame_num, discard_folder):
     x = file_name.split("/")
@@ -399,6 +399,6 @@ def should_I_discard(im):
     whitepercent = (whitepx/totalpx)*100
     blackpercent = (blackpx/totalpx)*100
 
-    discard = (whitepercent < 30)
+    discard = (whitepercent < 25)
 
     return discard, (blackpercent, whitepercent)
