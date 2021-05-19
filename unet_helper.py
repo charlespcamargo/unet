@@ -28,7 +28,7 @@ import tensorflow as tf
 
 # import tensorflow.keras
 from tensorflow.keras.callbacks import *
-from tensorflow.keras import backend as K
+from tensorflow.keras import backend as K 
 
 
 class UnetHelper:
@@ -359,7 +359,8 @@ class UnetHelper:
             raise e
 
     def get_model(self):
-        return unet(pretrained_weights=None, input_size=self.input_shape, num_class=1)
+        unet = Unet()
+        return unet.create_model(pretrained_weights=None, input_size=self.input_shape, num_class=1)
 
     def evaluate(self, model: Model, X, Y):
         model.evaluate(x=X, y=Y)
@@ -389,7 +390,8 @@ class UnetHelper:
                     as_gray=False,
                 )
 
-                model = unet(pretrained_weights=args.n, input_size=self.input_shape, num_class=1)
+                unet = Unet()
+                model = unet.create_model(pretrained_weights=args.n, input_size=self.input_shape, num_class=1)
 
                 results = model.predict(
                     testGene, steps=qtd, callbacks=[tb_cb], verbose=1
@@ -425,7 +427,8 @@ class UnetHelper:
             print("nenhum arquivo encontrado")
 
     def show_summary(self, args):
-        model = unet(pretrained_weights=args.n, input_size=self.input_shape)
+        unet = Unet()
+        model = unet.create_model(pretrained_weights=args.n, input_size=self.input_shape)
         model.build(self.input_shape)
         model.summary()
 
