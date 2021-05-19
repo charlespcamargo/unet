@@ -260,8 +260,8 @@ class UnetHelper:
         data_gen_args = dict(
             rotation_range=0.2,
             zoom_range=0.05,
-            width_shift_range=0.2,
-            height_shift_range=0.2,
+            width_shift_range=0.05,
+            height_shift_range=0.05,
             shear_range=0.15,
             horizontal_flip=True,
             fill_mode="wrap",
