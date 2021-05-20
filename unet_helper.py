@@ -58,8 +58,8 @@ class UnetHelper:
     my_train_gene = None
     my_validation_gene = None
     flag_multi_class = True
-    early_stopping_monitor = "accuracy"
-    model_monitor = "accuracy"
+    early_stopping_monitor = "val_loss"
+    model_monitor = "val_loss"
     validation_steps = 200
     use_numpy = False
 
@@ -260,8 +260,8 @@ class UnetHelper:
         data_gen_args = dict(
             rotation_range=0.2,
             zoom_range=0.05,
-            width_shift_range=0.05,
-            height_shift_range=0.05,
+            width_shift_range=0.5,
+            height_shift_range=0.5,
             shear_range=0.15,
             horizontal_flip=True,
             fill_mode="wrap",
@@ -329,6 +329,7 @@ class UnetHelper:
                 monitor=self.model_monitor,
                 verbose=0,
                 save_best_only=True,
+                save_weights_only=True
             )
 
             # classe desbalanceada
@@ -474,21 +475,6 @@ class UnetHelper:
 
         return tb_cb
 
-    def get_recall(self, tp, fn):
-        recall = tp / (tp + fn)
-        print(f"The recall value is: {recall}")
-        return recall
-
-    def get_precision(self, tp, tn):
-        precision = tp / (tp + tp)
-        print(f"The precision value is: {precision}")
-        return precision
-
-    def get_f1_measure(
-        self,
-    ):
-        return 0
-
     def crop_images_in_tiles(self, data_path, train_folder, val_folder, test_folder, image_folder, mask_folder, w, h):
         if(train_folder):
             crop_image(data_path, train_folder, image_folder, mask_folder , w, h, True)
@@ -501,6 +487,23 @@ class UnetHelper:
 
     def move_ignored_items(self, data_path):
         move_all_ignored_folders_to_test(data_path)
+
+
+
+    def get_recall(self, tp, fn):
+        recall = tp / (tp + fn)
+        print(f"The recall value is: {recall}")
+        return recall
+
+    def get_precision(self, tp, tn):
+        precision = tp / (tp + tp)
+        print(f"The precision value is: {precision}")
+        return precision
+
+    def get_f1_measure(self, y_true, y_pred):
+        precision = self.get_precision(y_true, y_pred)
+        recall = self.recall_m(y_true, y_pred)
+        return 2*((precision*recall)/(precision+recall+K.epsilon()))
 
     def get_fscore(self, recall, precision):
         f_score = (2 * recall * precision) / (recall + precision)
@@ -545,3 +548,15 @@ class UnetHelper:
         union = K.sum(y_true, [1, 2, 3]) + K.sum(y_pred, [1, 2, 3]) - intersection
         iou = K.mean((intersection + smooth) / (union + smooth), axis=0)
         return iou
+
+    # def recall_m(self, y_true, y_pred):
+    #     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    #     possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+    #     recall = true_positives / (possible_positives + K.epsilon())
+    #     return recall
+
+    # def precision_m(self, y_true, y_pred):
+    #     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    #     predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+    #     precision = true_positives / (predicted_positives + K.epsilon())
+    #     return precision

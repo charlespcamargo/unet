@@ -140,11 +140,16 @@ class Unet():
         ##Compiling Model
         model.compile(optimizer = Adam(learning_rate = 1e-4), 
                     loss = 'binary_crossentropy', 
-                    metrics = [
-                                    Accuracy(),
-                                    Precision(), 
-                                    Recall(),                              
-                                ])
+                    metrics = [MeanIoU(num_classes=1)]
+                            #['acc', f1_m, precision_m, recall_m]
+                            #    [
+                            #         MeanIoU(num_classes=1),
+                            #         Precision(), 
+                            #         Recall(),                              
+                            #    ]
+                    )
+
+                             
 
         model.summary()
 
