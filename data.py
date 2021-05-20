@@ -107,7 +107,7 @@ def data_generator(
     image_save_prefix="image",
     mask_save_prefix="mask",
     flag_multi_class=False,
-    num_class=1,
+    num_class=2,
     save_to_dir=None,
     target_size=(256, 256),
     seed=1,
@@ -171,7 +171,7 @@ def test_generator(
 def gene_data_npy(
     data_path,
     flag_multi_class=False,
-    num_class=1,
+    num_class=2,
     image_folder="images",
     mask_folder="masks",
     image_as_gray=False,
@@ -231,7 +231,7 @@ def label_visualize(num_class, color_dict, img):
     return img_out / 255
 
 
-def save_result(save_path, npyfile, imgs, flag_multi_class=False, num_class=1):
+def save_result(save_path, npyfile, imgs, flag_multi_class=False, num_class=2):
 
     Path(save_path).mkdir(parents=True, exist_ok=True)
 

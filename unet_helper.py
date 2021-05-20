@@ -361,7 +361,7 @@ class UnetHelper:
 
     def get_model(self):
         unet = Unet()
-        return unet.create_model(pretrained_weights=None, input_size=self.input_shape, num_class=1)
+        return unet.create_model(pretrained_weights=None, input_size=self.input_shape, num_class=2)
 
     def evaluate(self, model: Model, X, Y):
         model.evaluate(x=X, y=Y)
@@ -392,7 +392,7 @@ class UnetHelper:
                 )
 
                 unet = Unet()
-                model = unet.create_model(pretrained_weights=args.n, input_size=self.input_shape, num_class=1)
+                model = unet.create_model(pretrained_weights=args.n, input_size=self.input_shape, num_class=2)
 
                 results = model.predict(
                     testGene, steps=qtd, callbacks=[tb_cb], verbose=1
