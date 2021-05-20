@@ -132,7 +132,7 @@ class Unet():
         # ##Output Layer
         #conv10 = Conv2D(3, 1, activation = 'sigmoid')(conv9)
         #conv10 = Conv2D(1, 1, activation = 'sigmoid')(conv9)
-        conv10 = Conv2D(num_class, (3, 1), activation = 'sigmoid')(conv9)
+        conv10 = Conv2D(3, (1, 1), activation = 'sigmoid')(conv9)
         
 
         model = Model(inputs=inputs, outputs=conv10)
