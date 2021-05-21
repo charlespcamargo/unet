@@ -368,6 +368,8 @@ class UnetHelper:
 
     def test(self, args):
 
+        steps_to_test = 500
+
         if not args.n:
             args.n = "train_weights/20200420_0817_unet-100-100-loss0_431_acc0_9837.hdf5"
         else:
@@ -395,7 +397,7 @@ class UnetHelper:
                 model = unet.create_model(pretrained_weights=args.n, input_size=self.input_shape, num_class=2)
 
                 results = model.predict(
-                    testGene, steps=qtd, callbacks=[tb_cb], verbose=1
+                    testGene, steps=steps_to_test, callbacks=[tb_cb], verbose=1
                 )
 
                 save_result(
@@ -403,10 +405,12 @@ class UnetHelper:
                     npyfile=results,
                     imgs=imgs,
                     flag_multi_class=args.flag_multi_class,
-                )
+                )   
 
-                # res = model.evaluate(x=results, verbose=0, callbacks=[tb_cb])
-                # res = model.predict(x=my_gene, batch_size=batch_size, callbacks=[CustomCallback()])
+
+                print("try to evaluate")
+                res = model.evaluate(x=results, verbose=1, callbacks=[tb_cb])
+                #res = model.predict(x=my_gene, batch_size=batch_size, callbacks=[CustomCallback()])
 
                 self.show_execution_time(writeInFile=True)
 
