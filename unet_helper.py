@@ -321,7 +321,7 @@ class UnetHelper:
                 patience=self.patience,
                 verbose=1,
                 monitor=self.early_stopping_monitor,
-                mode="auto",
+                mode="max",
             )
 
             model_checkpoint = ModelCheckpoint(
