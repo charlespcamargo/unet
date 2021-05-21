@@ -332,7 +332,7 @@ def move_ignored_folder_to_test(data_path, stage, folder):
     image_folder = img_path
     
     base_stage_path = os.path.join("/".join(image_folder)) + f"{stage}_splits/ignore/{folder}/"
-    dest_stage_path = os.path.join("/".join(image_folder)) + f"val_splits/{folder}/"
+    dest_stage_path = os.path.join("/".join(image_folder)) + f"test_splits/{folder}/"
 
     if(os.path.exists(base_stage_path) and os.path.exists(dest_stage_path)):
         for each_file in Path(base_stage_path).glob('*.JPG'):
