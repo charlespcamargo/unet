@@ -47,7 +47,7 @@ class UnetHelper:
     train_folder = base_folder + "train_splits/"
     augmentation_folder = train_folder + "aug/"
     validation_folder = base_folder + "val_splits/"
-    test_folder = base_folder + "test/"
+    test_folder = base_folder + "test_splits/"
     image_folder = "images"
     label_folder = "masks"
     patience = 5
