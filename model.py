@@ -4,6 +4,7 @@ from tensorflow.keras.layers import *
 from tensorflow.keras.optimizers import *
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from tensorflow.keras.metrics import *  
+from tensorflow.keras import backend as K
 
 class Unet():
 
@@ -139,14 +140,23 @@ class Unet():
 
         ##Compiling Model
         model.compile(optimizer = Adam(learning_rate = 1e-4), 
-                    loss = 'binary_crossentropy', 
-                    metrics = [
-                                MeanIoU(num_classes=2),
-                                Precision(),
-                                Recall(),
-                                AUC(),
-                                Accuracy()
-                              ]
+                    # loss = 'binary_crossentropy', 
+                    # metrics = [
+                    #             MeanIoU(num_classes=2),
+                    #             Precision(),
+                    #             Recall(),
+                    #             AUC(),
+                    #             Accuracy(),
+                    #             self.jacard_coef()
+                    #           ]
+
+                        loss = [self.jacard_coef_loss], 
+                        metrics = [MeanIoU(num_classes=2),
+                                   Precision(),
+                                   Recall(),
+                                   AUC(),
+                                   Accuracy(),
+                                   self.jacard_coef]
                     )
 
                              
@@ -157,5 +167,16 @@ class Unet():
             model.load_weights(pretrained_weights)
 
         return model
+
+
+    def jacard_coef(self, y_true, y_pred):
+        y_true_f = K.flatten(y_true)
+        y_pred_f = K.flatten(y_pred)
+        intersection = K.sum(y_true_f * y_pred_f)
+        return (intersection + 1.0) / (K.sum(y_true_f) + K.sum(y_pred_f) - intersection + 1.0)
+
+
+    def jacard_coef_loss(self, y_true, y_pred):
+        return -self.jacard_coef(y_true, y_pred)
 
 
