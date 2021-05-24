@@ -59,7 +59,7 @@ class UnetHelper:
     my_validation_gene = None
     flag_multi_class = True
     early_stopping_monitor = "val_loss"
-    model_monitor = "val_accuracy"
+    model_monitor = "val_binary_accuracy"
     validation_steps = 200
     use_numpy = False
 
@@ -126,7 +126,7 @@ class UnetHelper:
         patience=5,
         flag_multi_class=True,
         early_stopping_monitor="val_loss",
-        model_monitor="val_accuracy",
+        model_monitor="val_binary_accuracy",
         validation_steps=800,
         use_numpy = False
     ):
@@ -348,7 +348,7 @@ class UnetHelper:
                 epochs=self.epochs,
                 validation_data=generator_val,
                 validation_steps=self.validation_steps,
-                callbacks=[earlystopper, model_checkpoint, tb_cb],
+                callbacks=[earlystopper, model_checkpoint, tb_cb]
             )
 
             self.evaluate(model, generator_train, history)

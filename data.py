@@ -297,9 +297,9 @@ def crop_image(data_path, data_folder, image_folder="images", mask_folder="masks
                 frame_num += 1
 
     if(validate_class_to_discard):
-        print(f'{data_folder} - discarded_img: {discarded_img} - not_discarded: {not_discarded} - total: {discarded_img+not_discarded}')
+        print(f'\n{data_folder} - discarded_img: {discarded_img} - not_discarded: {not_discarded} - total: {discarded_img+not_discarded}')
         print(f"items: {len(arr_weigths)}")
-        print(f"\nmean(black, white): {np.mean(arr_weigths, axis=0)}\n")
+        print(f"mean(black, white): {np.mean(arr_weigths, axis=0)}\n")
 
 def get_name(file_name, frame_num, discard_folder):
     x = file_name.split("/")
