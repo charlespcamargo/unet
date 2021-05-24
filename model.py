@@ -140,7 +140,7 @@ class Unet():
 
         ##Compiling Model
         model.compile(optimizer = Adam(learning_rate = 1e-4), 
-                      loss = [self.jacard_coef_loss], 
+                      loss = [binary_crossentropy], 
                       metrics = [MeanIoU(num_classes=2),
                                 Precision(),
                                 Recall(),

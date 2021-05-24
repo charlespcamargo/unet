@@ -35,8 +35,8 @@ class UnetHelper:
     # training vars
     model = None
     batch_size = 1
-    steps_per_epoch = 50
-    epochs = 15
+    steps_per_epoch = 200
+    epochs = 30
 
     # image sizes
     target_size = (400, 320)  # (1280, 1792) #
@@ -58,7 +58,7 @@ class UnetHelper:
     my_train_gene = None
     my_validation_gene = None
     flag_multi_class = True
-    early_stopping_monitor = "val_accuracy"
+    early_stopping_monitor = "val_loss"
     model_monitor = "val_accuracy"
     validation_steps = 200
     use_numpy = False
@@ -125,7 +125,7 @@ class UnetHelper:
         label_folder="masks",
         patience=5,
         flag_multi_class=True,
-        early_stopping_monitor="val_accuracy",
+        early_stopping_monitor="val_loss",
         model_monitor="val_accuracy",
         validation_steps=800,
         use_numpy = False
@@ -324,12 +324,13 @@ class UnetHelper:
                 patience=self.patience,
                 verbose=1,
                 monitor=self.early_stopping_monitor,
-                mode="max",
+                mode="min",
             )
 
             model_checkpoint = ModelCheckpoint(
                 f"train_weights/{self.path}_unet.hdf5",
                 monitor=self.model_monitor,
+                mode='max',
                 verbose=1,
                 save_best_only=True,
                 save_weights_only=True
@@ -340,7 +341,7 @@ class UnetHelper:
 
             #model.summary()
 
-            model.fit(
+            history = model.fit(
                 generator_train,
                 steps_per_epoch=self.steps_per_epoch,
                 epochs=self.epochs,
@@ -348,6 +349,9 @@ class UnetHelper:
                 validation_steps=self.validation_steps,
                 callbacks=[earlystopper, model_checkpoint, tb_cb],
             )
+
+            self.evaluate(model, generator_train, history)
+            self.evaluate(model, generator_val, history)
 
             self.show_execution_time(writeInFile=True)
             model.save_weights(f"train_weights/final_{self.path}_unet.hdf5")
@@ -366,8 +370,15 @@ class UnetHelper:
         unet = Unet()
         return unet.create_model(pretrained_weights=None, input_size=self.input_shape, num_class=2)
 
-    def evaluate(self, model: Model, X, Y):
-        model.evaluate(x=X, y=Y)
+    def evaluate(self, model: Model, dataGenerator, history):
+        _, acc = model.evaluate(dataGenerator, verbose=1)
+        print('Evaluate data - acc: %.3f', acc)
+        
+        # plot training history
+        plt.plot(history.history['loss'], label='train')
+        plt.plot(history.history['val_loss'], label='test')
+        plt.legend()
+        plt.show()
 
     def test(self, args, steps_to_test = 2000):
 
@@ -406,10 +417,8 @@ class UnetHelper:
                     flag_multi_class=args.flag_multi_class,
                 )   
 
-
-                print("try to evaluate")
                 res = model.evaluate(x=results, verbose=1, callbacks=[tb_cb])
-                #res = model.predict(x=my_gene, batch_size=batch_size, callbacks=[CustomCallback()])
+                #self.evaluate(model, testGene, history)
 
                 self.show_execution_time(writeInFile=True)
 
