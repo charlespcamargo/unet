@@ -335,8 +335,12 @@ def move_ignored_folder_to_test(data_path, stage, folder):
     dest_stage_path = os.path.join("/".join(image_folder)) + f"test_splits/{folder}/"
 
     if(os.path.exists(base_stage_path) and os.path.exists(dest_stage_path)):
+        i = 0
         for each_file in Path(base_stage_path).glob('*.JPG'):
             shutil.move(str(each_file), dest_stage_path) 
+            i = i + 1
+        
+        print(f'{i} images moved from {base_stage_path} to {dest_stage_path}')
     else:
         print(f"The directory does not exists: {base_stage_path} or {dest_stage_path}")
     
