@@ -360,7 +360,7 @@ def create_split_dirs(data_path):
     y = os.path.join("/".join(img_path))
     
     if os.path.exists(y):
-        shutil.rmtree(x, ignore_errors=False, onerror=None)
+        shutil.rmtree(y, ignore_errors=False, onerror=None)
 
     os.makedirs(y + "/")
 
