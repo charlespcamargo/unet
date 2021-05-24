@@ -70,7 +70,7 @@ class UnetHelper:
 
         if args.t == 0:
             self.train(args)
-.
+
         elif args.t == 1:
             self.test(args)
 
