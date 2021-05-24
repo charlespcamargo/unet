@@ -155,7 +155,7 @@ def test_generator(
     num_image=30,
     target_size=(256, 256),
     flag_multi_class=False,
-    as_gray=True,
+    as_gray=False,
 ):
     imgs = glob.glob(path + "/*" + ext)
     for item in imgs:
