@@ -125,8 +125,8 @@ class UnetHelper:
         label_folder="masks",
         patience=5,
         flag_multi_class=True,
-        early_stopping_monitor="accuracy",
-        model_monitor="accuracy",
+        early_stopping_monitor="val_accuracy",
+        model_monitor="val_accuracy",
         validation_steps=800,
         use_numpy = False
     ):
@@ -307,6 +307,9 @@ class UnetHelper:
 
         # define TensorBoard directory and TensorBoard callback
         tb_cb = self.create_tensor_board_callback()
+
+        policy = tf.keras.mixed_precision.experimental.Policy('mixed_float16')
+        tf.keras.mixed_precision.experimental.set_policy(policy) 
 
         try:
             self.show_execution_time(originalMsg="Starting now...", writeInFile=True)
