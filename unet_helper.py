@@ -368,7 +368,7 @@ class UnetHelper:
 
     def test(self, args):
 
-        steps_to_test = 500
+        steps_to_test = 2000
 
         if not args.n:
             args.n = "train_weights/20200420_0817_unet-100-100-loss0_431_acc0_9837.hdf5"
@@ -396,9 +396,7 @@ class UnetHelper:
                 unet = Unet()
                 model = unet.create_model(pretrained_weights=args.n, input_size=self.input_shape, num_class=2)
 
-                results = model.predict(
-                    testGene, steps=steps_to_test, callbacks=[tb_cb], verbose=1
-                )
+                results = model.predict(testGene, steps=steps_to_test, batch_size=self.batch_size, callbacks=[tb_cb], verbose=1,use_multiprocessing=True)
 
                 save_result(
                     save_path=self.test_folder + "/results",
