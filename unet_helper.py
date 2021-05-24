@@ -58,8 +58,8 @@ class UnetHelper:
     my_train_gene = None
     my_validation_gene = None
     flag_multi_class = True
-    early_stopping_monitor = "val_loss"
-    model_monitor = "val_loss"
+    early_stopping_monitor = "val_accuracy"
+    model_monitor = "val_accuracy"
     validation_steps = 200
     use_numpy = False
 
@@ -70,7 +70,7 @@ class UnetHelper:
 
         if args.t == 0:
             self.train(args)
-
+.
         elif args.t == 1:
             self.test(args)
 
