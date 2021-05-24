@@ -142,7 +142,7 @@ class Unet():
                                 Precision(),
                                 Recall(),
                                 AUC(),
-                                Accuracy(),
+                                binary_accuracy(),
                                 self.jacard_coef]
                     )
 
