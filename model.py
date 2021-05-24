@@ -133,14 +133,14 @@ class Unet():
         # ##Output Layer
         #conv10 = Conv2D(3, 1, activation = 'sigmoid')(conv9)
         #conv10 = Conv2D(1, 1, activation = 'sigmoid')(conv9)
-        conv10 = Conv2D(3, (1, 1), activation = 'sigmoid')(conv9)
+        conv10 = Conv2D(1, 1, activation = 'sigmoid')(conv9)
         
 
         model = Model(inputs=inputs, outputs=conv10)
 
         ##Compiling Model
         model.compile(optimizer = Adam(learning_rate = 1e-4), 
-                      loss = [binary_crossentropy], 
+                      loss = 'binary_crossentropy', 
                       metrics = [MeanIoU(num_classes=2),
                                 Precision(),
                                 Recall(),

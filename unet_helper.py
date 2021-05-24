@@ -308,8 +308,9 @@ class UnetHelper:
         # define TensorBoard directory and TensorBoard callback
         tb_cb = self.create_tensor_board_callback()
 
-        policy = tf.keras.mixed_precision.experimental.Policy('mixed_float16')
-        tf.keras.mixed_precision.experimental.set_policy(policy) 
+        # to improve speed for some gpus
+        # policy = tf.keras.mixed_precision.experimental.Policy('mixed_float16')
+        # tf.keras.mixed_precision.experimental.set_policy(policy) 
 
         try:
             self.show_execution_time(originalMsg="Starting now...", writeInFile=True)
