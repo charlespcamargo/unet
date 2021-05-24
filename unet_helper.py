@@ -366,9 +366,7 @@ class UnetHelper:
     def evaluate(self, model: Model, X, Y):
         model.evaluate(x=X, y=Y)
 
-    def test(self, args):
-
-        steps_to_test = 2000
+    def test(self, args, steps_to_test = 2000):
 
         if not args.n:
             args.n = "train_weights/20200420_0817_unet-100-100-loss0_431_acc0_9837.hdf5"
