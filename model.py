@@ -78,7 +78,7 @@ class Unet():
 
         ##Compiling Model
         model.compile(optimizer = Adam(learning_rate = 1e-4), 
-                      loss = CustomMetrics.dice_coef_loss,
+                      loss = CustomMetrics.root_mean_squared_error,
                             # 'binary_crossentropy', 
                             # CustomMetrics.root_mean_squared_error
                       metrics = [BinaryAccuracy(name="binary_accuracy", threshold=0.5),
