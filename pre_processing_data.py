@@ -1,4 +1,5 @@
 from data import *
+from PIL import Image
 
 class PreProcessingData():
 
@@ -29,7 +30,7 @@ class PreProcessingData():
             frame_num = 1
 
             if(index % 100 == 0):
-                print(f"{data_folder[len(data_folder)-2]} - {index}/{len(image_name_arr)}")
+                print(f"{data_folder} - {index}/{len(image_name_arr)}")
 
             for col_i in range(0, width, w):
                 for row_i in range(0, height, h):

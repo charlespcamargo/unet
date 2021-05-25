@@ -316,7 +316,7 @@ class UnetHelper:
                 patience=self.patience,
                 verbose=1,
                 monitor=self.early_stopping_monitor,
-                mode="min",
+                mode="max",
             )
 
             model_checkpoint = ModelCheckpoint(
@@ -343,7 +343,10 @@ class UnetHelper:
                 verbose=1
             )
 
+            print('Evaluating train...')
             self.evaluate(model, generator_train, history)
+            
+            print('Evaluating val...')
             self.evaluate(model, generator_val, history)
 
             self.show_execution_time(writeInFile=True)
