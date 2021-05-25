@@ -244,7 +244,7 @@ def save_result(save_path, npyfile, imgs, flag_multi_class=False, num_class=2):
         img[img > 0.5] = 1
         img[img <= 0.5] = 0
 
-        io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_ubyte(img))
+        io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_float(img))
 
 
 def crop_image(data_path, data_folder, image_folder="images", mask_folder="masks", w=400, h=320, validate_class_to_discard = False):
@@ -273,7 +273,7 @@ def crop_image(data_path, data_folder, image_folder="images", mask_folder="masks
         frame_num = 1
 
         if(index % 50 == 0):
-            print(f"{index}/{len(image_name_arr)}")
+            print(f"{data_folder[len(data_folder)-1]} - {index}/{len(image_name_arr)}")
 
         for col_i in range(0, width, w):
             for row_i in range(0, height, h):

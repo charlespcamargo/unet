@@ -35,8 +35,8 @@ class UnetHelper:
     # training vars
     model = None
     batch_size = 1
-    steps_per_epoch = 200
-    epochs = 30
+    steps_per_epoch = 100
+    epochs = 10
 
     # image sizes
     target_size = (400, 320)  # (1280, 1792) #
@@ -58,7 +58,7 @@ class UnetHelper:
     my_train_gene = None
     my_validation_gene = None
     flag_multi_class = True
-    early_stopping_monitor = "val_loss"
+    early_stopping_monitor = "val_binary_accuracy"
     model_monitor = "val_binary_accuracy"
     validation_steps = 200
     use_numpy = False
@@ -125,7 +125,7 @@ class UnetHelper:
         label_folder="masks",
         patience=5,
         flag_multi_class=True,
-        early_stopping_monitor="val_loss",
+        early_stopping_monitor="val_binary_accuracy",
         model_monitor="val_binary_accuracy",
         validation_steps=800,
         use_numpy = False
@@ -409,7 +409,7 @@ class UnetHelper:
                 unet = Unet()
                 model = unet.create_model(pretrained_weights=args.n, input_size=self.input_shape, num_class=2)
 
-                results = model.predict(testGene, steps=steps_to_test, batch_size=self.batch_size, callbacks=[tb_cb], verbose=1,use_multiprocessing=True)
+                results = model.predict(testGene, steps=steps_to_test, batch_size=self.batch_size, callbacks=[tb_cb], verbose=1,use_multiprocessing=False)
 
                 save_result(
                     save_path=self.test_folder + "/results",
