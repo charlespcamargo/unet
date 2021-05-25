@@ -79,11 +79,12 @@ class Unet():
         ##Compiling Model
         model.compile(optimizer = Adam(learning_rate = 1e-4), 
                       loss = 'binary_crossentropy', 
-                      metrics = [MeanIoU(num_classes=2, name="meaniou"),
-                                Precision(name="precision"),
-                                Recall(name="recall"),
-                                AUC(name="auc"),
-                                BinaryAccuracy(name="binary_accuracy", threshold=0.5)]
+                      metrics = [BinaryAccuracy(name="binary_accuracy", threshold=0.5),
+                                 Precision(name="precision"),
+                                 Recall(name="recall"),
+                                 MeanIoU(num_classes=2, name="meaniou"),
+                                 AUC(name="auc"),                               
+                                 CustomMetrics.jacard_coef_loss]
                     )
 
                              
