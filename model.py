@@ -5,6 +5,7 @@ from tensorflow.keras.optimizers import *
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from tensorflow.keras.metrics import *  
 from tensorflow.keras import backend as K
+from custom_metrics import *
 
 class Unet():
 
@@ -76,65 +77,6 @@ class Unet():
         ##Defining Model
         model = Model(inputs, conv10)
 
-        # replacing zhixuhao for zizhaozhang
-        # to avoid different shapes of layers
-        # conv1 = Conv2D(32, (3, 3), activation='relu', padding='same', name='conv1_1')(inputs)
-        # conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(conv1)
-        # pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
-        # conv2 = Conv2D(64, (3, 3), activation='relu', padding='same')(pool1)
-        # conv2 = Conv2D(64, (3, 3), activation='relu', padding='same')(conv2)
-        # pool2 = MaxPooling2D(pool_size=(2, 2))(conv2)
-
-        # conv3 = Conv2D(128, (3, 3), activation='relu', padding='same')(pool2)
-        # conv3 = Conv2D(128, (3, 3), activation='relu', padding='same')(conv3)
-        # pool3 = MaxPooling2D(pool_size=(2, 2))(conv3)
-
-        # conv4 = Conv2D(256, (3, 3), activation='relu', padding='same')(pool3)
-        # conv4 = Conv2D(256, (3, 3), activation='relu', padding='same')(conv4)
-        # pool4 = MaxPooling2D(pool_size=(2, 2))(conv4)
-
-        # conv5 = Conv2D(512, (3, 3), activation='relu', padding='same')(pool4)
-        # conv5 = Conv2D(512, (3, 3), activation='relu', padding='same')(conv5)
-
-        # up_conv5 = UpSampling2D(size=(2, 2))(conv5)
-        # ch, cw = self.get_crop_shape(conv4, up_conv5)
-        # crop_conv4 = Cropping2D(cropping=(ch,cw))(conv4)
-        # up6 = concatenate([up_conv5, crop_conv4], axis=concat_axis)
-        # conv6 = Conv2D(256, (3, 3), activation='relu', padding='same')(up6)
-        # conv6 = Conv2D(256, (3, 3), activation='relu', padding='same')(conv6)
-
-        # up_conv6 = UpSampling2D(size=(2, 2))(conv6)
-        # ch, cw = self.get_crop_shape(conv3, up_conv6)
-        # crop_conv3 = Cropping2D(cropping=(ch,cw))(conv3)
-        # up7 = concatenate([up_conv6, crop_conv3], axis=concat_axis) 
-        # conv7 = Conv2D(128, (3, 3), activation='relu', padding='same')(up7)
-        # conv7 = Conv2D(128, (3, 3), activation='relu', padding='same')(conv7)
-
-        # up_conv7 = UpSampling2D(size=(2, 2))(conv7)
-        # ch, cw = self.get_crop_shape(conv2, up_conv7)
-        # crop_conv2 = Cropping2D(cropping=(ch,cw))(conv2)
-        # up8 = concatenate([up_conv7, crop_conv2], axis=concat_axis)
-        # conv8 = Conv2D(64, (3, 3), activation='relu', padding='same')(up8)
-        # conv8 = Conv2D(64, (3, 3), activation='relu', padding='same')(conv8)
-
-        # up_conv8 = UpSampling2D(size=(2, 2))(conv8)
-        # ch, cw = self.get_crop_shape(conv1, up_conv8)
-        # crop_conv1 = Cropping2D(cropping=(ch,cw))(conv1)
-        # up9 = concatenate([up_conv8, crop_conv1], axis=concat_axis)
-        # conv9 = Conv2D(32, (3, 3), activation='relu', padding='same')(up9)
-        # conv9 = Conv2D(32, (3, 3), activation='relu', padding='same')(conv9)
-
-        # ch, cw = self.get_crop_shape(inputs, conv9)
-        # conv9 = ZeroPadding2D(padding=((ch[0], ch[1]), (cw[0], cw[1])))(conv9)
-        
-        # # ##Output Layer
-        # #conv10 = Conv2D(3, 1, activation = 'sigmoid')(conv9)
-        # #conv10 = Conv2D(1, 1, activation = 'sigmoid')(conv9)
-        # conv10 = Conv2D(1, 1, activation = 'sigmoid')(conv9)
-        
-
-        # model = Model(inputs=inputs, outputs=conv10)
-
         ##Compiling Model
         model.compile(optimizer = Adam(learning_rate = 1e-4), 
                       loss = 'binary_crossentropy', 
@@ -142,8 +84,7 @@ class Unet():
                                 Precision(name="precision"),
                                 Recall(name="recall"),
                                 AUC(name="auc"),
-                                BinaryAccuracy(threshold=0.5),
-                                self.jacard_coef]
+                                BinaryAccuracy(name="binary_accuracy", threshold=0.5)]
                     )
 
                              
@@ -156,14 +97,86 @@ class Unet():
         return model
 
 
-    def jacard_coef(self, y_true, y_pred):
-        y_true_f = K.flatten(y_true)
-        y_pred_f = K.flatten(y_pred)
-        intersection = K.sum(y_true_f * y_pred_f)
-        return (intersection + 1.0) / (K.sum(y_true_f) + K.sum(y_pred_f) - intersection + 1.0)
 
+    def create_model_zizhaozhang(self, pretrained_weights = None, input_size = (256,256, 3), num_class = 2):
+        inputs = Input( shape=input_size )
+        concat_axis = 3 
 
-    def jacard_coef_loss(self, y_true, y_pred):
-        return -self.jacard_coef(y_true, y_pred)
+        # replacing zhixuhao for zizhaozhang, to avoid different shapes of layers
+        conv1 = Conv2D(32, (3, 3), activation='relu', padding='same', name='conv1_1')(inputs)
+        conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(conv1)
+        pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
+        conv2 = Conv2D(64, (3, 3), activation='relu', padding='same')(pool1)
+        conv2 = Conv2D(64, (3, 3), activation='relu', padding='same')(conv2)
+        pool2 = MaxPooling2D(pool_size=(2, 2))(conv2)
 
+        conv3 = Conv2D(128, (3, 3), activation='relu', padding='same')(pool2)
+        conv3 = Conv2D(128, (3, 3), activation='relu', padding='same')(conv3)
+        pool3 = MaxPooling2D(pool_size=(2, 2))(conv3)
+
+        conv4 = Conv2D(256, (3, 3), activation='relu', padding='same')(pool3)
+        conv4 = Conv2D(256, (3, 3), activation='relu', padding='same')(conv4)
+        pool4 = MaxPooling2D(pool_size=(2, 2))(conv4)
+
+        conv5 = Conv2D(512, (3, 3), activation='relu', padding='same')(pool4)
+        conv5 = Conv2D(512, (3, 3), activation='relu', padding='same')(conv5)
+
+        up_conv5 = UpSampling2D(size=(2, 2))(conv5)
+        ch, cw = self.get_crop_shape(conv4, up_conv5)
+        crop_conv4 = Cropping2D(cropping=(ch,cw))(conv4)
+        up6 = concatenate([up_conv5, crop_conv4], axis=concat_axis)
+        conv6 = Conv2D(256, (3, 3), activation='relu', padding='same')(up6)
+        conv6 = Conv2D(256, (3, 3), activation='relu', padding='same')(conv6)
+
+        up_conv6 = UpSampling2D(size=(2, 2))(conv6)
+        ch, cw = self.get_crop_shape(conv3, up_conv6)
+        crop_conv3 = Cropping2D(cropping=(ch,cw))(conv3)
+        up7 = concatenate([up_conv6, crop_conv3], axis=concat_axis) 
+        conv7 = Conv2D(128, (3, 3), activation='relu', padding='same')(up7)
+        conv7 = Conv2D(128, (3, 3), activation='relu', padding='same')(conv7)
+
+        up_conv7 = UpSampling2D(size=(2, 2))(conv7)
+        ch, cw = self.get_crop_shape(conv2, up_conv7)
+        crop_conv2 = Cropping2D(cropping=(ch,cw))(conv2)
+        up8 = concatenate([up_conv7, crop_conv2], axis=concat_axis)
+        conv8 = Conv2D(64, (3, 3), activation='relu', padding='same')(up8)
+        conv8 = Conv2D(64, (3, 3), activation='relu', padding='same')(conv8)
+
+        up_conv8 = UpSampling2D(size=(2, 2))(conv8)
+        ch, cw = self.get_crop_shape(conv1, up_conv8)
+        crop_conv1 = Cropping2D(cropping=(ch,cw))(conv1)
+        up9 = concatenate([up_conv8, crop_conv1], axis=concat_axis)
+        conv9 = Conv2D(32, (3, 3), activation='relu', padding='same')(up9)
+        conv9 = Conv2D(32, (3, 3), activation='relu', padding='same')(conv9)
+
+        ch, cw = self.get_crop_shape(inputs, conv9)
+        conv9 = ZeroPadding2D(padding=((ch[0], ch[1]), (cw[0], cw[1])))(conv9)
+        
+        # ##Output Layer
+        #conv10 = Conv2D(3, 1, activation = 'sigmoid')(conv9)
+        #conv10 = Conv2D(1, 1, activation = 'sigmoid')(conv9)
+        conv10 = Conv2D(1, 1, activation = 'sigmoid')(conv9)
+        
+
+        model = Model(inputs=inputs, outputs=conv10)
+
+        ##Compiling Model
+        model.compile(optimizer = Adam(learning_rate = 1e-4), 
+                      loss = 'binary_crossentropy', 
+                      metrics = [MeanIoU(num_classes=2, name="meaniou"),
+                                Precision(name="precision"),
+                                Recall(name="recall"),
+                                AUC(name="auc"),
+                                BinaryAccuracy(name="binary_accuracy", threshold=0.5),
+                                self.jacard_coef]
+                    )
+
+                             
+
+        model.summary()
+
+        if(pretrained_weights):
+            model.load_weights(pretrained_weights)
+
+        return model
 

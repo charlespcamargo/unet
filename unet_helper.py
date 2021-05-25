@@ -1,5 +1,6 @@
 from model import *
 from data import *
+from custom_metrics import *
 
 from pathlib import Path
 import sys
@@ -11,30 +12,19 @@ import traceback
 
 from datetime import datetime
 import pytz
-import errno
-
-# curva roc e UAC
-import numpy as np
-
-# import pandas as pd
-import matplotlib.pyplot as plt
 
 # import seaborn as sns
-
-from sklearn.metrics import roc_curve
-from sklearn.metrics import roc_auc_score
 
 import tensorflow as tf
 
 # import tensorflow.keras
 from tensorflow.keras.callbacks import *
-from tensorflow.keras import backend as K 
 
 
 class UnetHelper:
     # training vars
     model = None
-    batch_size = 1
+    batch_size = 4
     steps_per_epoch = 100
     epochs = 10
 
@@ -44,10 +34,10 @@ class UnetHelper:
 
     # paths
     base_folder = "../../datasets/hedychium_coronarium/"
-    train_folder = base_folder + "train_splits/"
+    train_folder = base_folder + "train/"
     augmentation_folder = train_folder + "aug/"
-    validation_folder = base_folder + "val_splits/"
-    test_folder = base_folder + "test_splits/"
+    validation_folder = base_folder + "val/"
+    test_folder = base_folder + "test/"
     image_folder = "images"
     label_folder = "masks"
     patience = 5
@@ -60,7 +50,7 @@ class UnetHelper:
     flag_multi_class = True
     early_stopping_monitor = "val_binary_accuracy"
     model_monitor = "val_binary_accuracy"
-    validation_steps = 200
+    validation_steps = 100
     use_numpy = False
 
     def main(self, args):
@@ -127,7 +117,7 @@ class UnetHelper:
         flag_multi_class=True,
         early_stopping_monitor="val_binary_accuracy",
         model_monitor="val_binary_accuracy",
-        validation_steps=800,
+        validation_steps=100,
         use_numpy = False
     ):
         self.batch_size = batch_size
@@ -136,10 +126,10 @@ class UnetHelper:
         self.target_size = target_size
         self.input_shape = input_shape
         self.base_folder = base_folder
-        self.train_folder = base_folder + "train_splits/"
+        self.train_folder = base_folder + "train/"
         self.augmentation_folder = self.train_folder + "aug/"
-        self.validation_folder = base_folder + "val_splits/"
-        self.test_folder = base_folder + "test_splits/"
+        self.validation_folder = base_folder + "val/"
+        self.test_folder = base_folder + "test/"
         self.image_folder = image_folder
         self.label_folder = label_folder
         self.patience = patience
@@ -348,7 +338,8 @@ class UnetHelper:
                 epochs=self.epochs,
                 validation_data=generator_val,
                 validation_steps=self.validation_steps,
-                callbacks=[earlystopper, model_checkpoint, tb_cb]
+                callbacks=[earlystopper, model_checkpoint, tb_cb],
+                verbose=2
             )
 
             self.evaluate(model, generator_train, history)
@@ -373,7 +364,7 @@ class UnetHelper:
 
     def evaluate(self, model: Model, dataGenerator, history):
         _, acc = model.evaluate(dataGenerator, verbose=1)
-        print('Evaluate data - acc: %.3f', acc)
+        print('Evaluate data - acc: %.3f - and plotting...', acc)
         
         # plot training history
         plt.plot(history.history['loss'], label='train')
@@ -381,7 +372,7 @@ class UnetHelper:
         plt.legend()
         plt.show()
 
-    def test(self, args, steps_to_test = 2000):
+    def test(self, args, steps_to_test = 100):
 
         if not args.n:
             args.n = "train_weights/20200420_0817_unet-100-100-loss0_431_acc0_9837.hdf5"
@@ -501,75 +492,3 @@ class UnetHelper:
     def move_ignored_items(self, data_path):
         move_all_ignored_folders_to_test(data_path)
 
-
-
-    def get_recall(self, tp, fn):
-        recall = tp / (tp + fn)
-        print(f"The recall value is: {recall}")
-        return recall
-
-    def get_precision(self, tp, tn):
-        precision = tp / (tp + tp)
-        print(f"The precision value is: {precision}")
-        return precision
-
-    def get_f1_measure(self, y_true, y_pred):
-        precision = self.get_precision(y_true, y_pred)
-        recall = self.recall_m(y_true, y_pred)
-        return 2*((precision*recall)/(precision+recall+K.epsilon()))
-
-    def get_fscore(self, recall, precision):
-        f_score = (2 * recall * precision) / (recall + precision)
-        print(f"The f_score value is: {f_score}")
-        return f_score
-
-    def get_fbetaScore(self, beta, precision, recall):
-
-        # F0.5-Measure  (beta=0.5): More weight on precision, less weight on recall
-        # F1-Measure    (beta=1.0): Balance the weight on precision and recall
-        # F2-Measure    (beta=2.0): Less weight on precision, more weight on recall
-        f_beta_score = ((1 + beta ** 2) * precision * recall) / (
-            beta ** 2 * precision + recall
-        )
-        print(f"The f_beta_score value is: {f_beta_score}")
-        return f_beta_score
-
-    def plot_roc_curve(self, fpr, tpr):
-        plt.plot(fpr, tpr, color="orange", label="ROC")
-        plt.plot([0, 1], [0, 1], color="darkblue", linestyle="--")
-        plt.xlabel("False Positive Rate")
-        plt.ylabel("True Positive Rate")
-        plt.title("Receiver Operating Characteristic (ROC) Curve")
-        plt.legend()
-        plt.show()
-
-    def get_auc(self, model, testX, testY):
-        probs = model.predict_proba(testX)
-        probs = probs[:, 1]
-
-        auc = roc_auc_score(testY, probs)
-        print("AUC: %.2f" % auc)
-
-        fpr, tpr, thresholds = roc_curve(testY, probs)
-        self.plot_roc_curve(fpr, tpr)
-
-        return auc
-
-    # Jaccard Index
-    def iou_coef(self, y_true, y_pred, smooth=1):
-        intersection = K.sum(K.abs(y_true * y_pred), axis=[1, 2, 3])
-        union = K.sum(y_true, [1, 2, 3]) + K.sum(y_pred, [1, 2, 3]) - intersection
-        iou = K.mean((intersection + smooth) / (union + smooth), axis=0)
-        return iou
-
-    # def recall_m(self, y_true, y_pred):
-    #     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
-    #     possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
-    #     recall = true_positives / (possible_positives + K.epsilon())
-    #     return recall
-
-    # def precision_m(self, y_true, y_pred):
-    #     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
-    #     predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
-    #     precision = true_positives / (predicted_positives + K.epsilon())
-    #     return precision
