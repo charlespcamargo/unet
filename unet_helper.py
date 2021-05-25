@@ -29,15 +29,15 @@ class UnetHelper:
     epochs = 10
 
     # image sizes
-    target_size = (400, 320)  # (1280, 1792) #
-    input_shape = (400, 320, 3)  # (1280, 1792, 3) #
+    target_size = (416, 320)  # (1280, 1792) #
+    input_shape = (416, 320, 3)  # (1280, 1792, 3) #
 
     # paths
     base_folder = "../../datasets/hedychium_coronarium/"
-    train_folder = base_folder + "train/"
+    train_folder = base_folder + "train_splits/"
     augmentation_folder = train_folder + "aug/"
-    validation_folder = base_folder + "val/"
-    test_folder = base_folder + "test/"
+    validation_folder = base_folder + "val_splits/"
+    test_folder = base_folder + "test_splits/"
     image_folder = "images"
     label_folder = "masks"
     patience = 5
@@ -80,7 +80,7 @@ class UnetHelper:
                                       'test',
                                       "images", 
                                       "masks", 
-                                      400,
+                                      416,
                                       320)
 
     def show_arguments(self):
@@ -108,8 +108,8 @@ class UnetHelper:
         batch_size=4,
         steps_per_epoch=50,
         epochs=15,
-        target_size=(400, 320),
-        input_shape=(400, 320, 3),
+        target_size=(416, 320),
+        input_shape=(416, 320, 3),
         base_folder="../hedychium_coronarium/",
         image_folder="images",
         label_folder="masks",
@@ -126,10 +126,10 @@ class UnetHelper:
         self.target_size = target_size
         self.input_shape = input_shape
         self.base_folder = base_folder
-        self.train_folder = base_folder + "train/"
+        self.train_folder = base_folder + "train_splits/"
         self.augmentation_folder = self.train_folder + "aug/"
-        self.validation_folder = base_folder + "val/"
-        self.test_folder = base_folder + "test/"
+        self.validation_folder = base_folder + "val_splits/"
+        self.test_folder = base_folder + "test_splits/"
         self.image_folder = image_folder
         self.label_folder = label_folder
         self.patience = patience
@@ -479,16 +479,6 @@ class UnetHelper:
 
         return tb_cb
 
-    def crop_images_in_tiles(self, data_path, train_folder, val_folder, test_folder, image_folder, mask_folder, w, h):
-        if(train_folder):
-            crop_image(data_path, train_folder, image_folder, mask_folder , w, h, True)
-        if(val_folder):
-            crop_image(data_path, val_folder, image_folder, mask_folder , w, h)
-        if(test_folder):
-            crop_image(data_path, test_folder, image_folder, mask_folder , w, h)
-
-        self.move_ignored_items(data_path)
-
-    def move_ignored_items(self, data_path):
+ 
         move_all_ignored_folders_to_test(data_path)
 

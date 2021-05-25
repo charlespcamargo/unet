@@ -27,7 +27,6 @@ class Unet():
 
         return (ch1, ch2), (cw1, cw2)
 
-
     def create_model(self, pretrained_weights = None, input_size = (256,256, 3), num_class = 2):
         inputs = Input( shape=input_size )
         concat_axis = 3 
@@ -95,8 +94,6 @@ class Unet():
             model.load_weights(pretrained_weights)
 
         return model
-
-
 
     def create_model_zizhaozhang(self, pretrained_weights = None, input_size = (256,256, 3), num_class = 2):
         inputs = Input( shape=input_size )
