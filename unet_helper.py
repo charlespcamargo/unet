@@ -1,6 +1,7 @@
 from model import *
 from data import *
 from custom_metrics import *
+from pre_processing_data import *
 
 from pathlib import Path
 import sys
@@ -74,7 +75,7 @@ class UnetHelper:
             self.get_fbetaScore(args.b, args.p, args.r)
 
         elif args.t == 5:
-            self.crop_images_in_tiles('../../datasets/hedychium_coronarium/', 
+            PreProcessingData.crop_images_in_tiles('../../datasets/hedychium_coronarium/', 
                                       'train',
                                       'val',
                                       'test',

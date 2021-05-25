@@ -2,6 +2,7 @@ from data import *
 
 class PreProcessingData():
 
+    @staticmethod
     def crop_image(data_path, data_folder, image_folder="images", mask_folder="masks", w=400, h=320, validate_class_to_discard = False):
         image_path = os.path.join(data_path, data_folder, image_folder)
         mask_path = os.path.join(data_path, data_folder, image_folder)
@@ -56,6 +57,7 @@ class PreProcessingData():
             print(f"items: {len(arr_weigths)}")
             print(f"mean(black, white): {np.mean(arr_weigths, axis=0)}\n")
 
+    @staticmethod
     def crop_images_in_tiles(self, data_path, train_folder, val_folder, test_folder, image_folder, mask_folder, w, h):
         if(train_folder):
             self.crop_image(data_path, train_folder, image_folder, mask_folder , w, h, True)
@@ -66,9 +68,11 @@ class PreProcessingData():
 
         self.move_ignored_items(data_path)
 
+    @staticmethod
     def move_ignored_items(self, data_path):
         self.move_all_ignored_folders_to_test(data_path)
     
+    @staticmethod
     def move_all_ignored_folders_to_test(self, data_path):
         self.move_ignored_folder_to_test(data_path, "train", "images")
         self.move_ignored_folder_to_test(data_path, "train", "masks")
@@ -79,6 +83,7 @@ class PreProcessingData():
         self.move_ignored_folder_to_test(data_path, "val", "images")
         self.move_ignored_folder_to_test(data_path, "val", "masks")
 
+    @staticmethod
     def move_ignored_folder_to_test(self, data_path, stage, folder):
         img_path = data_path.split("/")
         image_folder = img_path
