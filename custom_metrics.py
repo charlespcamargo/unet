@@ -129,4 +129,4 @@ class CustomMetrics:
 
     @staticmethod
     def loss(y_true, y_pred):
-        return binary_crossentropy(y_true, y_pred) - tf.log(CustomMetrics.dice_coefficient(y_true, y_pred) + tf.keras.backend.epsilon())
+        return binary_crossentropy(y_true, y_pred) - tf.math.log(CustomMetrics.dice_coefficient(y_true, y_pred) + tf.keras.backend.epsilon())
