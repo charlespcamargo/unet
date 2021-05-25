@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve
 from sklearn.metrics import roc_auc_score
 from tensorflow.keras import backend as K 
+import tensorflow as tf
+
+from tensorflow.keras.metrics import *
 
 class CustomMetrics:
     
@@ -115,3 +118,15 @@ class CustomMetrics:
     @staticmethod
     def dice_coef_loss(y_true, y_pred):
         return K.mean(1-CustomMetrics.dice_coef(y_true, y_pred),axis=-1)
+
+
+    @staticmethod
+    def dice_coefficient(y_true, y_pred):
+        numerator = 2 * tf.reduce_sum(y_true * y_pred)
+        denominator = tf.reduce_sum(y_true + y_pred)
+
+        return numerator / (denominator + tf.keras.backend.epsilon())
+
+    @staticmethod
+    def loss(y_true, y_pred):
+        return binary_crossentropy(y_true, y_pred) - tf.log(CustomMetrics.dice_coefficient(y_true, y_pred) + tf.keras.backend.epsilon())
