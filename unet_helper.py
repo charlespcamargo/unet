@@ -51,7 +51,7 @@ class UnetHelper:
     flag_multi_class = True
     early_stopping_monitor = "val_binary_accuracy"
     model_monitor = "val_loss"
-    validation_steps = 100
+    validation_steps = 200
     use_numpy = False
 
     def main(self, args):
@@ -118,7 +118,7 @@ class UnetHelper:
         flag_multi_class=True,
         early_stopping_monitor="val_binary_accuracy",
         model_monitor="val_loss",
-        validation_steps=100,
+        validation_steps=200,
         use_numpy = False
     ):
         self.batch_size = batch_size
@@ -344,10 +344,10 @@ class UnetHelper:
             )
 
             print('Evaluating train...')
-            self.evaluate(model, generator_train, history)
+            #self.evaluate(model, generator_train, history)
             
             print('Evaluating val...')
-            self.evaluate(model, generator_val, history)
+            #self.evaluate(model, generator_val, history)
 
             self.show_execution_time(writeInFile=True)
             model.save_weights(f"train_weights/final_{self.path}_unet.hdf5")

@@ -31,6 +31,11 @@ class Unet():
         inputs = Input( shape=input_size )
         concat_axis = 3 
 
+        #https://stackoverflow.com/questions/53975502/where-to-add-kernal-regularizers-in-an-u-net
+        #c1 = Conv2D(8, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(w_decay)) (s)
+        #c1 = Conv2D(8, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(w_decay)) (c1)
+        #, kernel_regularizer=regularizers.l2(w_decay)
+
         conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(inputs)    
         conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv1)    
         pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
