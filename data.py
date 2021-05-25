@@ -291,7 +291,7 @@ def create_split_dir_to_ignore(ignore_path, size, is_mask = False):
     if not os.path.exists(ignore_path):
         os.makedirs(ignore_path + "/")
 
-def should_I_discard(im):    
+def should_I_discard(im, threshold = 15):    
     w,h = im.size
     colors = im.getcolors(w*h)
     colordict = { x[1]:x[0] for x in colors }
@@ -314,6 +314,6 @@ def should_I_discard(im):
     whitepercent = (whitepx/totalpx)*100
     blackpercent = (blackpx/totalpx)*100
 
-    discard = (whitepercent < 25)
+    discard = (whitepercent < threshold)
 
     return discard, (blackpercent, whitepercent)
