@@ -50,7 +50,7 @@ class UnetHelper:
     my_validation_gene = None
     flag_multi_class = True
     early_stopping_monitor = "val_binary_accuracy"
-    model_monitor = "val_binary_accuracy"
+    model_monitor = "val_loss"
     validation_steps = 100
     use_numpy = False
 
@@ -117,7 +117,7 @@ class UnetHelper:
         patience=5,
         flag_multi_class=True,
         early_stopping_monitor="val_binary_accuracy",
-        model_monitor="val_binary_accuracy",
+        model_monitor="val_loss",
         validation_steps=100,
         use_numpy = False
     ):
