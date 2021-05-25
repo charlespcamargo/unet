@@ -322,7 +322,7 @@ class UnetHelper:
             model_checkpoint = ModelCheckpoint(
                 f"train_weights/{self.path}_unet.hdf5",
                 monitor=self.model_monitor,
-                mode='max',
+                mode='min',
                 verbose=1,
                 save_best_only=True,
                 save_weights_only=True
