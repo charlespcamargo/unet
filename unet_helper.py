@@ -340,7 +340,7 @@ class UnetHelper:
                 validation_data=generator_val,
                 validation_steps=self.validation_steps,
                 callbacks=[earlystopper, model_checkpoint, tb_cb],
-                verbose=2
+                verbose=1
             )
 
             self.evaluate(model, generator_train, history)
@@ -373,7 +373,7 @@ class UnetHelper:
         plt.legend()
         plt.show()
 
-    def test(self, args, steps_to_test = 100):
+    def test(self, args, steps_to_test = 200):
 
         if not args.n:
             args.n = "train_weights/20200420_0817_unet-100-100-loss0_431_acc0_9837.hdf5"
@@ -479,7 +479,4 @@ class UnetHelper:
         self.create_directory(basePath, path)
 
         return tb_cb
-
- 
-        move_all_ignored_folders_to_test(data_path)
 

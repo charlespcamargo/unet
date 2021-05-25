@@ -97,3 +97,8 @@ class CustomMetrics:
     @staticmethod
     def jacard_coef_loss(y_true, y_pred):
         return -CustomMetrics.jacard_coef(y_true, y_pred)
+
+
+    @staticmethod
+    def root_mean_squared_error(y_true, y_pred):
+        return K.sqrt(K.mean(K.square(y_pred - y_true))) 

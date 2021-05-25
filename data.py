@@ -6,7 +6,7 @@ import shutil
 import glob
 import skimage.io as io
 import skimage.transform as trans
-from skimage.util import img_as_float, img_as_ubyte
+from skimage.util import img_as_uint
 from pathlib import Path
 
 from sklearn.utils import class_weight
@@ -238,7 +238,7 @@ def save_result(save_path, npyfile, imgs, flag_multi_class=False, num_class=2):
         img[img > 0.5] = 1
         img[img <= 0.5] = 0
 
-        io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_float(img))
+        io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_uint(img))
 
 def get_name(file_name, frame_num, discard_folder):
     x = file_name.split("/")
