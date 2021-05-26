@@ -37,7 +37,7 @@ class Unet():
         #c1 = Conv2D(8, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(w_decay))) (c1)
         #, kernel_regularizer=regularizers.l2(w_decay))
 
-        w_decay = 0.00002  # weight decay coefficient
+        w_decay = 0.00005  # weight decay coefficient
 
         conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(inputs)    
         conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(conv1)    
