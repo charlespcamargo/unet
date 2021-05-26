@@ -316,13 +316,13 @@ class UnetHelper:
                 patience=self.patience,
                 verbose=1,
                 monitor=self.early_stopping_monitor,
-                mode="max",
+                mode="auto",
             )
 
             model_checkpoint = ModelCheckpoint(
                 f"train_weights/{self.path}_unet.hdf5",
                 monitor=self.model_monitor,
-                mode='min',
+                mode='auto',
                 verbose=1,
                 save_best_only=True,
                 save_weights_only=True
