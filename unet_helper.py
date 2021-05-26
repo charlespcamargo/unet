@@ -50,7 +50,9 @@ class UnetHelper:
     my_validation_gene = None
     flag_multi_class = True
     early_stopping_monitor = "val_mean_iou"
+    early_stopping_monitor_mode = "auto"
     model_monitor = "val_binary_accuracy"
+    model_monitor_mode = "auto"
     validation_steps = 200
     use_numpy = False
 
@@ -100,7 +102,9 @@ class UnetHelper:
         print("patience: ", self.patience)
         print("flag_multi_class: ", self.flag_multi_class)
         print("early_stopping_monitor: ", self.early_stopping_monitor)
+        print("early_stopping_monitor_mode: ", self.early_stopping_monitor_mode)
         print("model_monitor: ", self.model_monitor)
+        print("model_monitor_mode: ", self.model_monitor_mode)
         print("validation_steps: ", self.validation_steps)
         print("use_numpy: ", self.use_numpy)
 
@@ -117,7 +121,9 @@ class UnetHelper:
         patience=5,
         flag_multi_class=True,
         early_stopping_monitor="val_mean_iou",
-        model_monitor="val_binary_accuracy",
+        early_stopping_monitor_mode ="auto",
+        model_monitor = "val_binary_accuracy",
+        model_monitor_mode = "auto",
         validation_steps=200,
         use_numpy = False
     ):
@@ -136,7 +142,9 @@ class UnetHelper:
         self.patience = patience
         self.flag_multi_class = flag_multi_class
         self.early_stopping_monitor = early_stopping_monitor
+        self.early_stopping_monitor_mode = early_stopping_monitor_mode
         self.model_monitor = model_monitor
+        self.model_monitor_mode = model_monitor_mode
         self.class_weights = None
         self.validation_steps = validation_steps
         self.use_numpy = use_numpy
@@ -316,13 +324,13 @@ class UnetHelper:
                 patience=self.patience,
                 verbose=1,
                 monitor=self.early_stopping_monitor,
-                mode="auto",
+                mode=self.early_stopping_monitor_mode,
             )
 
             model_checkpoint = ModelCheckpoint(
                 f"train_weights/{self.path}_unet.hdf5",
                 monitor=self.model_monitor,
-                mode='auto',
+                mode=self.model_monitor_mode,
                 verbose=1,
                 save_best_only=True,
                 save_weights_only=True
