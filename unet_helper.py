@@ -49,8 +49,8 @@ class UnetHelper:
     my_train_gene = None
     my_validation_gene = None
     flag_multi_class = True
-    early_stopping_monitor = "val_binary_accuracy"
-    model_monitor = "val_loss"
+    early_stopping_monitor = "val_mean_iou"
+    model_monitor = "val_binary_accuracy"
     validation_steps = 200
     use_numpy = False
 
@@ -116,8 +116,8 @@ class UnetHelper:
         label_folder="masks",
         patience=5,
         flag_multi_class=True,
-        early_stopping_monitor="val_binary_accuracy",
-        model_monitor="val_loss",
+        early_stopping_monitor="val_mean_iou",
+        model_monitor="val_binary_accuracy",
         validation_steps=200,
         use_numpy = False
     ):
@@ -343,14 +343,14 @@ class UnetHelper:
                 verbose=1
             )
 
-            print('Evaluating train...')
+            #print('Evaluating train...')
             #self.evaluate(model, generator_train, history)
             
-            print('Evaluating val...')
+            #print('Evaluating val...')
             #self.evaluate(model, generator_val, history)
 
             self.show_execution_time(writeInFile=True)
-            model.save_weights(f"train_weights/final_{self.path}_unet.hdf5")
+            #model.save_weights(f"train_weights/final_{self.path}_unet.hdf5")
 
         except Exception as e:
             self.show_execution_time(success=False, writeInFile=True)
@@ -372,7 +372,7 @@ class UnetHelper:
         
         # plot training history
         plt.plot(history.history['loss'], label='train')
-        plt.plot(history.history['val_loss'], label='test')
+        plt.plot(history.history['val_binary_accuracy'], label='test')
         plt.legend()
         plt.show()
 
