@@ -79,10 +79,10 @@ class Unet():
         conv9 = Conv2D(2, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(conv9)
         
         ##Output Layer
-        conv10 = Conv2D(1, 1, activation = 'sigmoid')(conv9)
+        output_layer = Conv2D(1, 1, activation = 'sigmoid', padding = 'same')(conv9)
 
         ##Defining Model
-        model = Model(inputs, conv10)
+        model = Model(inputs, output_layer)
 
         ##Compiling Model
         model.compile(optimizer = Adam(learning_rate = 1e-4), 
