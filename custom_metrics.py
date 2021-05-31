@@ -114,6 +114,13 @@ class CustomMetrics:
         union = K.dot(y_true,K.transpose(y_true))+K.dot(y_pred,K.transpose(y_pred))
         return (2. * intersection + smooth) / (union + smooth)
 
+    @staticmethod
+    def dice_coef2(y_true, y_pred, smooth=1):
+        intersection = K.sum(y_true * y_pred, axis=[1,2,3])
+        union = K.sum(y_true, axis=[1,2,3]) + K.sum(y_pred, axis=[1,2,3])
+        dice = K.mean((2. * intersection + smooth)/(union + smooth), axis=0)
+        return dice
+
 
     @staticmethod
     def dice_coef_loss(y_true, y_pred):
