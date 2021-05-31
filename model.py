@@ -193,6 +193,11 @@ class Unet():
         inputs = Input(shape=img_size + (3,))
 
         ### [First half of the network: downsampling inputs] ###
+        #2021-05-31 18:27:21.499535: W tensorflow/core/framework/op_kernel.cc:1767] OP_REQUIRES failed at conv_ops_fused_impl.h:769 : 
+        # Invalid argument: input depth must be evenly divisible by filter depth: 3 vs 2
+        ##Incompatible shapes: [4,416,320,2] vs. [4,416,320,3]
+	    #[[node gradient_tape/binary_crossentropy/logistic_loss/mul/BroadcastGradientArgs (defined at /Users/charles/GoogleDrive/Mestrado/_orientacao/codes/unet/unet_helper.py:344) ]] [Op:__inference_train_function_6536]
+
 
         # Entry block
         x = Conv2D(32, 3, strides=2, padding="same")(inputs)
@@ -240,7 +245,7 @@ class Unet():
             previous_block_activation = x  # Set aside next residual
 
         # Add a per-pixel classification layer
-        outputs = Conv2D(num_classes, 3, activation="softmax", padding="same")(x)
+        outputs = Conv2D(3, 3, activation="softmax", padding="same")(x)
 
         # Define the model
         model = Model(inputs, outputs)
