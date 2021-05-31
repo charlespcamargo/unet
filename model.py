@@ -93,7 +93,7 @@ class Unet():
                                  Recall(name="recall"),
                                  MeanIoU(num_classes=2, name="mean_iou"),
                                  AUC(name="auc"),
-                                 CustomMetrics.jacard_coef,
+                                 #CustomMetrics.jacard_coef,
                                  CustomMetrics.dice_coefficient]
                     )
 
