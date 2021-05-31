@@ -244,6 +244,22 @@ class Unet():
 
         # Define the model
         model = Model(inputs, outputs)
+        model.compile(optimizer = Adam(learning_rate = 1e-4), 
+                      loss = 'binary_crossentropy',
+                            # 'binary_crossentropy',
+                      metrics = [BinaryAccuracy(name="binary_accuracy", threshold=0.5),
+                                 Precision(name="precision"),
+                                 Recall(name="recall"),
+                                 MeanIoU(num_classes=2, name="mean_iou"),
+                                 AUC(name="auc"),
+                                 #CustomMetrics.jacard_coef,
+                                 CustomMetrics.dice_coefficient]
+                    )
+
+                             
+
+        model.summary()
+
         return model
 
 
