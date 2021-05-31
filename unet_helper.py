@@ -372,7 +372,9 @@ class UnetHelper:
 
     def get_model(self):
         unet = Unet()
-        return unet.create_model(pretrained_weights=None, input_size=self.input_shape, num_class=2)
+        # return unet.create_model(pretrained_weights=None, input_size=self.input_shape, num_class=2)
+        self.input_shape = (416, 320)
+        return unet.create_model_keras(img_size=self.input_shape, num_classes=2)
 
     def evaluate(self, model: Model, dataGenerator, history):
         _, acc = model.evaluate(dataGenerator, verbose=1)
