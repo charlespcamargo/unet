@@ -133,10 +133,10 @@ class UnetHelper:
         self.target_size = target_size
         self.input_shape = input_shape
         self.base_folder = base_folder
-        self.train_folder = base_folder + "train/"
+        self.train_folder = base_folder + "train_splits/"
         self.augmentation_folder = self.train_folder + "aug/"
-        self.validation_folder = base_folder + "val/"
-        self.test_folder = base_folder + "test/"
+        self.validation_folder = base_folder + "val_splits/"
+        self.test_folder = base_folder + "test_splits/"
         self.image_folder = image_folder
         self.label_folder = label_folder
         self.patience = patience
