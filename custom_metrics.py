@@ -23,12 +23,6 @@ class CustomMetrics:
         return precision
 
     @staticmethod
-    def get_f1_measure(y_true, y_pred):
-        precision = CustomMetrics.get_precision(y_true, y_pred)
-        recall = CustomMetrics.recall_m(y_true, y_pred)
-        return 2*((precision*recall)/(precision+recall+K.epsilon()))
-
-    @staticmethod
     def get_fscore(recall, precision):
         f_score = (2 * recall * precision) / (recall + precision)
         print(f"The f_score value is: {f_score}")
@@ -76,6 +70,29 @@ class CustomMetrics:
         union = K.sum(y_true, axis=[1, 2, 3]) + K.sum(y_pred, axis=[1, 2, 3]) - intersection
         iou = K.mean((intersection + smooth) / (union + smooth), axis=0)
         return iou
+    
+    @staticmethod
+    def iou(y_true, y_pred, label: int):
+        """
+        Return the Intersection over Union (IoU) for a given label.
+        Args:
+            y_true: the expected y values as a one-hot
+            y_pred: the predicted y values as a one-hot or softmax output
+            label: the label to return the IoU for
+        Returns:
+            the IoU for the given label
+        """
+        # extract the label values using the argmax operator then
+        # calculate equality of the predictions and truths to the label
+        y_true = K.cast(K.equal(K.argmax(y_true), label), K.floatx())
+        y_pred = K.cast(K.equal(K.argmax(y_pred), label), K.floatx())
+        # calculate the |intersection| (AND) of the labels
+        intersection = K.sum(y_true * y_pred)
+        # calculate the |union| (OR) of the labels
+        union = K.sum(y_true) + K.sum(y_pred) - intersection
+        # avoid divide by zero - if the union is zero, return 1
+        # otherwise, return the intersection over union
+        return K.switch(K.equal(union, 0), 1.0, intersection / union)
 
     def recall_m(y_true, y_pred):
         true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
@@ -134,7 +151,4 @@ class CustomMetrics:
         denominator = tf.reduce_sum(y_true + y_pred)
 
         return numerator / (denominator + tf.keras.backend.epsilon())
-
-    @staticmethod
-    def loss(y_true, y_pred):
-        return binary_crossentropy(y_true, y_pred) - tf.math.log(CustomMetrics.dice_coefficient(y_true, y_pred) + tf.keras.backend.epsilon())
+ 

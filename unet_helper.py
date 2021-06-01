@@ -133,10 +133,10 @@ class UnetHelper:
         self.target_size = target_size
         self.input_shape = input_shape
         self.base_folder = base_folder
-        self.train_folder = base_folder + "train_splits/"
+        self.train_folder = base_folder + "train/"
         self.augmentation_folder = self.train_folder + "aug/"
-        self.validation_folder = base_folder + "val_splits/"
-        self.test_folder = base_folder + "test_splits/"
+        self.validation_folder = base_folder + "val/"
+        self.test_folder = base_folder + "test/"
         self.image_folder = image_folder
         self.label_folder = label_folder
         self.patience = patience
@@ -372,9 +372,9 @@ class UnetHelper:
 
     def get_model(self):
         unet = Unet()
-        # return unet.create_model(pretrained_weights=None, input_size=self.input_shape, num_class=2)
-        self.input_shape = (416, 320)
-        return unet.create_model_keras(img_size=self.input_shape, num_classes=2)
+        return unet.create_model(pretrained_weights=None, input_size=self.input_shape, num_class=2)
+        #self.input_shape = (416, 320)
+        #return unet.create_model_keras(img_size=self.input_shape, num_classes=2)
 
     def evaluate(self, model: Model, dataGenerator, history):
         _, acc = model.evaluate(dataGenerator, verbose=1)

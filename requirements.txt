@@ -5,3 +5,5 @@ scikit-image
 pytz
 seaborn
 colabcode
+tensorflow-addons
+easydict

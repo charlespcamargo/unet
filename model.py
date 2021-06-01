@@ -1,11 +1,12 @@
 import tensorflow as tf
+import tensorflow_addons as tfa
 from tensorflow.keras.models import *
 from tensorflow.keras.layers import *
 from tensorflow.keras.optimizers import *
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from tensorflow.keras.metrics import *  
 from tensorflow.keras import backend as K
-from tensorflow.python.keras import regularizers
+from tensorflow.python.keras import losses, regularizers
 from tensorflow.python.keras.backend import backend
 from custom_metrics import *
 
@@ -80,23 +81,29 @@ class Unet():
         conv9 = Conv2D(2, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(conv9)
         
         ##Output Layer
-        output_layer = Conv2D(1, 1, activation = 'sigmoid', padding = 'same')(conv9)
+        output_layer = Conv2D(3, 3, activation = tfa.activations.sparsemax, padding = 'same')(conv9)
 
         ##Defining Model
         model = Model(inputs, output_layer)
 
-        ##Compiling Model
+        ##Compiling Model 
         model.compile(optimizer = Adam(learning_rate = 1e-4), 
-                      loss = 'binary_crossentropy',
-                            # 'binary_crossentropy',
-                      metrics = [BinaryAccuracy(name="binary_accuracy", threshold=0.5),
-                                 Precision(name="precision"),
-                                 Recall(name="recall"),
-                                 MeanIoU(num_classes=2, name="mean_iou"),
-                                 AUC(name="auc"),
-                                 #CustomMetrics.jacard_coef,
-                                 CustomMetrics.dice_coefficient]
-                    )
+                    loss = tfa.losses.SparsemaxLoss(from_logits = True,
+                                                    reduction = tf.keras.losses.Reduction.SUM_OVER_BATCH_SIZE,
+                                                    name = 'sparsemax_loss'),
+                    metrics = [MeanIoU(num_classes=2, name="mean_iou"),
+                                Accuracy(name="accuracy"),
+                                Precision(name="precision"),
+                                Recall(name="recall"),
+                                AUC(name="auc"),
+                                CustomMetrics.jacard_coef,
+                                CustomMetrics.dice_coefficient,
+                                tfa.metrics.F1Score(
+                                                        num_classes = 2,
+                                                        average = 'micro',
+                                                        name = 'f1_score'
+                                                    )]
+                )
 
                              
 
@@ -250,17 +257,20 @@ class Unet():
         # Define the model
         model = Model(inputs, outputs)
         model.compile(optimizer = Adam(learning_rate = 1e-4), 
-                      loss = 'binary_crossentropy',
+                      loss = tfa.losses.GIoULoss(
+                              mode = 'iou',
+                              reduction = tf.keras.losses.Reduction.AUTO,
+                              name = 'iou_loss'
+                            ),
                             # 'binary_crossentropy',
-                      metrics = [BinaryAccuracy(name="binary_accuracy", threshold=0.5),
+                      metrics = [MeanIoU(num_classes=2, name="mean_iou"),
+                                 Accuracy(name="accuracy"),
                                  Precision(name="precision"),
                                  Recall(name="recall"),
-                                 MeanIoU(num_classes=2, name="mean_iou"),
                                  AUC(name="auc"),
-                                 #CustomMetrics.jacard_coef,
+                                 CustomMetrics.jacard_coef,
                                  CustomMetrics.dice_coefficient]
                     )
-
                              
 
         model.summary()
