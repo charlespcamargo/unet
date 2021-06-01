@@ -114,6 +114,7 @@ class CustomMetrics:
         union = K.dot(y_true,K.transpose(y_true))+K.dot(y_pred,K.transpose(y_pred))
         return (2. * intersection + smooth) / (union + smooth)
 
+    #https://towardsdatascience.com/metrics-to-evaluate-your-semantic-segmentation-model-6bcb99639aa2
     @staticmethod
     def dice_coef2(y_true, y_pred, smooth=1):
         intersection = K.sum(y_true * y_pred, axis=[1,2,3])
