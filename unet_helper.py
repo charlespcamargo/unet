@@ -35,10 +35,10 @@ class UnetHelper:
 
     # paths
     base_folder = "../../datasets/hedychium_coronarium/"
-    train_folder = base_folder + "train/"
+    train_folder = base_folder + "train_splits/"
     augmentation_folder = train_folder + "aug/"
-    validation_folder = base_folder + "val/"
-    test_folder = base_folder + "test/"
+    validation_folder = base_folder + "val_splits/"
+    test_folder = base_folder + "test_splits/"
     image_folder = "images"
     label_folder = "masks"
     patience = 5
