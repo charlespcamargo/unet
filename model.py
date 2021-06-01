@@ -7,9 +7,9 @@ from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from tensorflow.keras.metrics import *  
 from tensorflow.keras import backend as K
 from tensorflow.python.keras import losses, regularizers
-from tensorflow.python.keras.backend import backend
-from custom_metrics import *
-import segmentation_models as sm
+from tensorflow.python.keras.backend import backend, softmax
+from custom_metrics import * 
+
 
 class Unet():
 
@@ -32,60 +32,81 @@ class Unet():
         return (ch1, ch2), (cw1, cw2)
 
     def create_model(self, pretrained_weights = None, input_size = (256,256, 3), num_class = 2):
-        inputs = Input( shape=input_size )
-        concat_axis = 3 
+        #inputs = Input( shape=input_size )
+
+        import os
+        os.environ["SM_FRAMEWORK"] = "tf.keras"
+        import segmentation_models as sm
+
+        # load pre_trainned
+        BACKBONE = 'vgg16'
+        #preprocess_input = sm.get_preprocessing(BACKBONE)        
+        base_model = sm.Unet(BACKBONE, input_shape=input_size, encoder_weights='imagenet') 
+
+        inp = Input(shape=input_size)
+        l1 = Conv2D(3, (1, 1))(inp) # map N channels data to 3 channels
+        out = base_model(l1)
+        model = Model(inp, out, name=base_model.name)
+        
+        # (backbone_name=’vgg16’, input_shape=(None, None, 3), classes=1, activation=’sigmoid’, encoder_weights=’imagenet’, encoder_freeze=False,
+        # encoder_features=’default’, decoder_block_type=’upsampling’, decoder_filters=(256, 128, 64, 32, 16), decoder_use_batchnorm=True, **kwargs
+
+
+
+
+        # concat_axis = 3 
 
         #https://stackoverflow.com/questions/53975502/where-to-add-kernal-regularizers-in-an-u-net
         #c1 = Conv2D(8, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(w_decay))) (s)
         #c1 = Conv2D(8, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(w_decay))) (c1)
         #, kernel_regularizer=regularizers.l2(w_decay))
 
-        w_decay = 0.00009 # weight decay coefficient
+        #w_decay = 0.00009 # weight decay coefficient
 
-        conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(inputs)    
-        conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(conv1)    
-        pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
-        conv2 = Conv2D(128, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(pool1)
-        conv2 = Conv2D(128, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(conv2)
-        pool2 = MaxPooling2D(pool_size=(2, 2))(conv2)
-        conv3 = Conv2D(256, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(pool2)
-        conv3 = Conv2D(256, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(conv3)
-        pool3 = MaxPooling2D(pool_size=(2, 2))(conv3)
-        conv4 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(pool3)
-        conv4 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(conv4)
-        drop4 = Dropout(0.5)(conv4)
-        pool4 = MaxPooling2D(pool_size=(2, 2))(drop4)
+        # conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(inputs)    
+        # conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv1)    
+        # pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
+        # conv2 = Conv2D(128, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(pool1)
+        # conv2 = Conv2D(128, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv2)
+        # pool2 = MaxPooling2D(pool_size=(2, 2))(conv2)
+        # conv3 = Conv2D(256, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(pool2)
+        # conv3 = Conv2D(256, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv3)
+        # pool3 = MaxPooling2D(pool_size=(2, 2))(conv3)
+        # conv4 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(pool3)
+        # conv4 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv4)
+        # drop4 = Dropout(0.5)(conv4)
+        # pool4 = MaxPooling2D(pool_size=(2, 2))(drop4)
 
-        conv5 = Conv2D(1024, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(pool4)
-        conv5 = Conv2D(1024, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(conv5)
-        drop5 = Dropout(0.5)(conv5)
+        # conv5 = Conv2D(1024, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(pool4)
+        # conv5 = Conv2D(1024, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv5)
+        # drop5 = Dropout(0.5)(conv5)
 
-        up6 = Conv2D(512, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(UpSampling2D(size = (2,2))(drop5))
-        merge6 = concatenate([drop4,up6], axis=concat_axis)
-        conv6 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(merge6)
-        conv6 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(conv6)
+        # up6 = Conv2D(512, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(UpSampling2D(size = (2,2))(drop5))
+        # merge6 = concatenate([drop4,up6], axis=concat_axis)
+        # conv6 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(merge6)
+        # conv6 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv6)
 
-        up7 = Conv2D(256, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(UpSampling2D(size = (2,2))(conv6))
-        merge7 = concatenate([conv3,up7], axis=concat_axis)
-        conv7 = Conv2D(256, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(merge7)
-        conv7 = Conv2D(256, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(conv7)
+        # up7 = Conv2D(256, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(UpSampling2D(size = (2,2))(conv6))
+        # merge7 = concatenate([conv3,up7], axis=concat_axis)
+        # conv7 = Conv2D(256, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(merge7)
+        # conv7 = Conv2D(256, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv7)
 
-        up8 = Conv2D(128, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(UpSampling2D(size = (2,2))(conv7))
-        merge8 = concatenate([conv2,up8], axis=concat_axis)
-        conv8 = Conv2D(128, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(merge8)
-        conv8 = Conv2D(128, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(conv8)
+        # up8 = Conv2D(128, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(UpSampling2D(size = (2,2))(conv7))
+        # merge8 = concatenate([conv2,up8], axis=concat_axis)
+        # conv8 = Conv2D(128, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(merge8)
+        # conv8 = Conv2D(128, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv8)
 
-        up9 = Conv2D(64, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(UpSampling2D(size = (2,2))(conv8))
-        merge9 = concatenate([conv1,up9], axis=concat_axis)
-        conv9 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(merge9)
-        conv9 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(conv9)
-        conv9 = Conv2D(2, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', kernel_regularizer=regularizers.l2(w_decay))(conv9)
+        # up9 = Conv2D(64, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(UpSampling2D(size = (2,2))(conv8))
+        # merge9 = concatenate([conv1,up9], axis=concat_axis)
+        # conv9 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(merge9)
+        # conv9 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv9)
+        # conv9 = Conv2D(2, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv9)
         
-        ##Output Layer
-        output_layer = Conv2D(3, 3, activation = tfa.activations.sparsemax, padding = 'same')(conv9)
+        # ##Output Layer
+        # output_layer = Conv2D(3, 3, activation = softmax, padding = 'same')(conv9)
 
-        ##Defining Model
-        model = Model(inputs, output_layer)
+        # ##Defining Model
+        #model = Model(inputs, output_layer)
 
         ##Compiling Model 
         model.compile(optimizer = Adam(learning_rate = 1e-4), 
