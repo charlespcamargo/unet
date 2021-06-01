@@ -36,10 +36,13 @@ class Unet():
 
         import os
         os.environ["SM_FRAMEWORK"] = "tf.keras"
+
         import segmentation_models as sm
+        from segmentation_models.utils import set_trainable
+
 
         # load pre_trainned
-        BACKBONE = 'vgg16'
+        BACKBONE = 'resnet34'
         #preprocess_input = sm.get_preprocessing(BACKBONE)        
         base_model = sm.Unet(BACKBONE, input_shape=input_size, encoder_weights='imagenet') 
 
@@ -47,6 +50,10 @@ class Unet():
         l1 = Conv2D(3, (1, 1))(inp) # map N channels data to 3 channels
         out = base_model(l1)
         model = Model(inp, out, name=base_model.name)
+
+        
+        # release all layers for training
+        #set_trainable(model) # set all layers trainable and recompile model
         
         # (backbone_name=’vgg16’, input_shape=(None, None, 3), classes=1, activation=’sigmoid’, encoder_weights=’imagenet’, encoder_freeze=False,
         # encoder_features=’default’, decoder_block_type=’upsampling’, decoder_filters=(256, 128, 64, 32, 16), decoder_use_batchnorm=True, **kwargs
@@ -116,7 +123,7 @@ class Unet():
                                 Precision(name="precision"),
                                 Recall(name="recall"),
                                 AUC(name="auc"),
-                                CustomMetrics.jacard_coef,
+                                #CustomMetrics.jacard_coef,
                                 CustomMetrics.dice_coefficient,
                                 tfa.metrics.F1Score(
                                                         num_classes = 2,

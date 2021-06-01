@@ -30,8 +30,8 @@ class UnetHelper:
     epochs = 10
 
     # image sizes
-    target_size = (416, 320)  # (1280, 1792) #
-    input_shape = (416, 320, 3)  # (1280, 1792, 3) #
+    target_size = (500, 500)  # (1280, 1792) #
+    input_shape = (500, 500, 3)  # (1280, 1792, 3) #
 
     # paths
     base_folder = "../../datasets/hedychium_coronarium/"
@@ -113,8 +113,8 @@ class UnetHelper:
         batch_size=4,
         steps_per_epoch=50,
         epochs=15,
-        target_size=(416, 320),
-        input_shape=(416, 320, 3),
+        target_size=(500, 500),
+        input_shape=(500, 500, 3),
         base_folder="../hedychium_coronarium/",
         image_folder="images",
         label_folder="masks",
