@@ -40,16 +40,26 @@ class Unet():
         import segmentation_models as sm
         from segmentation_models.utils import set_trainable
 
-
+       
         # load pre_trainned
-        BACKBONE = 'resnet34'
+        BACKBONE = 'vgg16'
         #preprocess_input = sm.get_preprocessing(BACKBONE)        
-        base_model = sm.Unet(BACKBONE, input_shape=input_size, encoder_weights='imagenet') 
+        base_model = sm.Unet(BACKBONE,        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+                            encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
+                            classes=num_class,
+                            input_shape=input_size) 
+
+        #A `Concatenate` layer requires inputs with matching shapes except for the concat axis. Got inputs shapes: [(None, 64, 64, 256), (None, 63, 63, 512)]
+        #A `Concatenate` layer requires inputs with matching shapes except for the concat axis. Got inputs shapes: [(None, 64, 64, 256), (None, 63, 63, 128)]
+
+
 
         inp = Input(shape=input_size)
-        l1 = Conv2D(3, (1, 1))(inp) # map N channels data to 3 channels
+        l1 = Conv2D(Conv2D(3, 3, activation = softmax, padding = 'same'))(inp) # map N channels data to 3 channels
         out = base_model(l1)
+        #output_layer = Conv2D(3, 3, activation = softmax, padding = 'same')(conv9)
         model = Model(inp, out, name=base_model.name)
+        
 
         
         # release all layers for training
