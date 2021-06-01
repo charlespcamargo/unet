@@ -9,6 +9,7 @@ from tensorflow.keras import backend as K
 from tensorflow.python.keras import losses, regularizers
 from tensorflow.python.keras.backend import backend
 from custom_metrics import *
+import segmentation_models as sm
 
 class Unet():
 
@@ -88,9 +89,7 @@ class Unet():
 
         ##Compiling Model 
         model.compile(optimizer = Adam(learning_rate = 1e-4), 
-                    loss = tfa.losses.SparsemaxLoss(from_logits = True,
-                                                    reduction = tf.keras.losses.Reduction.SUM_OVER_BATCH_SIZE,
-                                                    name = 'sparsemax_loss'),
+                    loss = sm.losses.bce_jaccard_loss,
                     metrics = [MeanIoU(num_classes=2, name="mean_iou"),
                                 Accuracy(name="accuracy"),
                                 Precision(name="precision"),
@@ -102,7 +101,8 @@ class Unet():
                                                         num_classes = 2,
                                                         average = 'micro',
                                                         name = 'f1_score'
-                                                    )]
+                                                    ),
+                                sm.metrics.iou_score]
                 )
 
                              

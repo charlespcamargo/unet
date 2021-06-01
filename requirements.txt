@@ -7,3 +7,4 @@ seaborn
 colabcode
 tensorflow-addons
 easydict
+segmentation_models

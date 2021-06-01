@@ -291,7 +291,7 @@ def create_split_dir_to_ignore(ignore_path, size, is_mask = False):
     if not os.path.exists(ignore_path):
         os.makedirs(ignore_path + "/")
 
-def should_I_discard(im, threshold = 70):    
+def should_I_discard(im, threshold = 50):    
     w,h = im.size
     colors = im.getcolors(w*h)
     colordict = { x[1]:x[0] for x in colors }
