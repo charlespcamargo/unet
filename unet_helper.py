@@ -65,7 +65,7 @@ class UnetHelper:
             self.train(args)
 
         elif args.t == 1:
-            self.test(args)
+            self.test(args, steps_to_test = 200, cnn_type = 2)
 
         elif args.t == 2:
             self.show_summary(args)
@@ -370,13 +370,13 @@ class UnetHelper:
             self.show_execution_time(
                 success=False, originalMsg=error_Msg, writeInFile=True
             )
-            raise e
+            raise e 
 
-    def get_model(self, cnn_type = 2):
+    def get_model(self, pretrained_weights = None, cnn_type = 0):
         unet = Unet()
 
         if(cnn_type == 0):
-            return unet.create_model(pretrained_weights=None, input_size=self.input_shape, num_class=2)        
+            return unet.create_model(pretrained_weights=pretrained_weights, input_size=self.input_shape, num_class=2)        
         elif(cnn_type == 1):
             self.input_shape = (416, 320)
             return unet.create_model_keras(img_size=self.input_shape, num_classes=2)        
@@ -395,7 +395,7 @@ class UnetHelper:
         plt.legend()
         plt.show()
 
-    def test(self, args, steps_to_test = 200):
+    def test(self, args, steps_to_test = 200, cnn_type = 2):
 
         if not args.n:
             args.n = "train_weights/20200420_0817_unet-100-100-loss0_431_acc0_9837.hdf5"
@@ -421,7 +421,7 @@ class UnetHelper:
                 )
 
                 unet = Unet()
-                model = unet.create_model(pretrained_weights=args.n, input_size=self.input_shape, num_class=2)
+                model = self.get_model(pretrained_weights=args.n, cnn_type = cnn_type)
 
                 results = model.predict(testGene, steps=steps_to_test, batch_size=self.batch_size, callbacks=[tb_cb], verbose=1,use_multiprocessing=False)
 

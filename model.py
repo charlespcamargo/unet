@@ -7,7 +7,7 @@ from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from tensorflow.keras.metrics import *  
 from tensorflow.keras import backend as K
 from tensorflow.python.keras import losses, regularizers
-from tensorflow.python.keras.backend import backend, softmax
+from tensorflow.python.keras.backend import backend, sigmoid, softmax
 from custom_metrics import * 
 
 
@@ -32,12 +32,12 @@ class Unet():
         return (ch1, ch2), (cw1, cw2)
 
     def create_model(self, pretrained_weights = None, input_size = (256,256, 3), num_class = 2):
-        inputs = Input( shape=input_size )
+        inputs = Input( shape=(input_size) )
 
-        import os
-        os.environ["SM_FRAMEWORK"] = "tf.keras"
+        # import os
+        # os.environ["SM_FRAMEWORK"] = "tf.keras"
 
-        import segmentation_models as sm
+        # import segmentation_models as sm
         #from segmentation_models.utils import set_trainable
 
        
@@ -116,27 +116,33 @@ class Unet():
         conv9 = Conv2D(2, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv9)
         
         ##Output Layer
-        output_layer = Conv2D(1, 1, activation = softmax)(conv9)
+        output_layer = Conv2D(3, 1, activation = 'sigmoid')(conv9)
 
         ##Defining Model
         model = Model(inputs, output_layer)
 
         ##Compiling Model 
         model.compile(optimizer = Adam(learning_rate = 1e-4), 
-                    loss = 'binary_crossentropy',
-                    metrics = [MeanIoU(num_classes=2, name="mean_iou"),
-                                Accuracy(name="accuracy"),
-                                Precision(name="precision"),
-                                Recall(name="recall"),
-                                AUC(name="auc"),
-                                #CustomMetrics.jacard_coef,
-                                CustomMetrics.dice_coefficient,
-                                tfa.metrics.F1Score(
+                     loss = 'binary_crossentropy',
+                     metrics = [
+                               MeanIoU(num_classes=2, name="mean_iou"),
+                               Accuracy(name="accuracy"),
+                               Precision(name="precision"),
+                               Recall(name="recall"),
+                               AUC(name="auc"),
+                               #CustomMetrics.jacard_coef,
+                               CustomMetrics.dice_coefficient,
+                               tfa.metrics.F1Score(
                                                         num_classes = 2,
                                                         average = 'micro',
                                                         name = 'f1_score'
                                                     ),
-                                sm.metrics.iou_score]
+                                tfa.metrics.F1Score(
+                                                        num_classes = 1,
+                                                        average = 'micro',
+                                                        name = 'f1_score_1'
+                                                    )
+                            ]
                 )
 
                              
@@ -211,27 +217,27 @@ class Unet():
         # ##Output Layer
         #conv10 = Conv2D(3, 1, activation = 'sigmoid')(conv9)
         #conv10 = Conv2D(1, 1, activation = 'sigmoid')(conv9)
-        conv10 = Conv2D(3, 1, activation = 'sigmoid')(conv9)
+        conv10 = Conv2D(1, 1, (1,1), activation = 'sigmoid')(conv9)
         
 
         model = Model(inputs=inputs, outputs=conv10)
 
         ##Compiling Model
         model.compile(optimizer = Adam(learning_rate = 1e-4), 
-                    loss = sm.losses.bce_jaccard_loss,
+                    loss = CustomMetrics.dice_loss,
                     metrics = [MeanIoU(num_classes=2, name="mean_iou"),
-                                Accuracy(name="accuracy"),
-                                Precision(name="precision"),
-                                Recall(name="recall"),
-                                AUC(name="auc"),
-                                #CustomMetrics.jacard_coef,
-                                CustomMetrics.dice_coefficient,
-                                tfa.metrics.F1Score(
+                               Accuracy(name="accuracy"),
+                               Precision(name="precision"),
+                               Recall(name="recall"),
+                               AUC(name="auc"),
+                               #CustomMetrics.jacard_coef,
+                               CustomMetrics.dice_coefficient,
+                               tfa.metrics.F1Score(
                                                         num_classes = 2,
                                                         average = 'micro',
                                                         name = 'f1_score'
                                                     ),
-                                sm.metrics.iou_score]
+                               sm.metrics.iou_score]
                 )
 
                              

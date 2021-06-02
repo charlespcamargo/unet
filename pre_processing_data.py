@@ -89,7 +89,6 @@ class PreProcessingData():
             print(f'\n{data_folder} - discarded_img: {discarded_img} - not_discarded: {not_discarded} - total: {discarded_img+not_discarded}')
             print(f"items: {len(arr_weigths)}")
             print(f"mean(black, white): {np.mean(arr_weigths, axis=0)}\n")
-            print(f"mean(black, white) 2: {np.mean(arr_weigths, axis=(0,1))}\n")
     
     @staticmethod
     def move_ignored_items(data_path):

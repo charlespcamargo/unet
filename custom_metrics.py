@@ -131,6 +131,15 @@ class CustomMetrics:
         union = K.dot(y_true,K.transpose(y_true))+K.dot(y_pred,K.transpose(y_pred))
         return (2. * intersection + smooth) / (union + smooth)
 
+    @staticmethod
+    def dice_loss(y_true, y_pred):
+        y_true = tf.cast(y_true, tf.float32)
+        y_pred = tf.math.sigmoid(y_pred)
+        numerator = 2 * tf.reduce_sum(y_true * y_pred)
+        denominator = tf.reduce_sum(y_true + y_pred)
+
+        return 1 - numerator / denominator
+
     #https://towardsdatascience.com/metrics-to-evaluate-your-semantic-segmentation-model-6bcb99639aa2
     @staticmethod
     def dice_coef2(y_true, y_pred, smooth=1):
