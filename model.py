@@ -116,8 +116,7 @@ class Unet():
         conv9 = Conv2D(2, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv9)
         
         ##Output Layer
-        output_layer = Conv2D(3, 1, activation = 'sigmoid')(conv9)
-
+        output_layer = Conv2D(3, 1, (1, 1), activation = 'sigmoid')(conv9)
         ##Defining Model
         model = Model(inputs, output_layer)
 
@@ -127,6 +126,7 @@ class Unet():
                      metrics = [
                                MeanIoU(num_classes=2, name="mean_iou"),
                                Accuracy(name="accuracy"),
+                               BinaryAccuracy(name="binary_accuracy"),
                                Precision(name="precision"),
                                Recall(name="recall"),
                                AUC(name="auc"),

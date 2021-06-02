@@ -420,9 +420,8 @@ class UnetHelper:
                     as_gray=False,
                 )
 
-                unet = Unet()
+                #unet = Unet()
                 model = self.get_model(pretrained_weights=args.n, cnn_type = cnn_type)
-
                 results = model.predict(testGene, steps=steps_to_test, batch_size=self.batch_size, callbacks=[tb_cb], verbose=1,use_multiprocessing=False)
 
                 save_result(
