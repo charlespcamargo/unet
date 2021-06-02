@@ -84,7 +84,9 @@ class UnetHelper:
                                       "images", 
                                       "masks", 
                                       416,
-                                      320)
+                                      320,
+                                      threshold = 50,
+                                      force_delete = False)
 
     def show_arguments(self):
         print("batch_size: ", self.batch_size)
@@ -257,11 +259,11 @@ class UnetHelper:
 
     def generate_my_gen(self, args):
         data_gen_args = dict(
-            rotation_range=0.15,
-            zoom_range=0.015,
-            width_shift_range=0.15,
-            height_shift_range=0.15,
-            shear_range=0.15,
+            rotation_range=1,
+            zoom_range=0.05,
+            width_shift_range=0.5,
+            height_shift_range=0.5,
+            shear_range=0.5,
             horizontal_flip=True,
             fill_mode="wrap",
         )
@@ -370,11 +372,18 @@ class UnetHelper:
             )
             raise e
 
-    def get_model(self):
+    def get_model(self, cnn_type = 2):
         unet = Unet()
-        return unet.create_model(pretrained_weights=None, input_size=self.input_shape, num_class=2)
-        #self.input_shape = (416, 320)
-        #return unet.create_model_keras(img_size=self.input_shape, num_classes=2)
+
+        if(cnn_type == 0):
+            return unet.create_model(pretrained_weights=None, input_size=self.input_shape, num_class=2)        
+        elif(cnn_type == 1):
+            self.input_shape = (416, 320)
+            return unet.create_model_keras(img_size=self.input_shape, num_classes=2)        
+        else:
+            return unet.create_model_zizhaozhang(input_size = self.input_shape, num_class = 2)
+
+        #return unet.get_unet(self.input_shape, n_filters = 16, dropout = 0.1, batchnorm = True)
 
     def evaluate(self, model: Model, dataGenerator, history):
         _, acc = model.evaluate(dataGenerator, verbose=1)

@@ -2,7 +2,6 @@ from __future__ import print_function
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import numpy as np
 import os
-import shutil
 import glob
 import skimage.io as io
 import skimage.transform as trans
@@ -239,81 +238,3 @@ def save_result(save_path, npyfile, imgs, flag_multi_class=False, num_class=2):
         img[img <= 0.5] = 0
 
         io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_uint(img))
-
-def get_name(file_name, frame_num, discard_folder):
-    x = file_name.split("/")
-    size = len(x)
-    
-    if(discard_folder):
-        x[size - 3] = x[size - 3] + "_splits/ignore"
-    else:
-        x[size - 3] = x[size - 3] + "_splits/"
-
-    name_ext = f"{x[size-1]}".split(".")
-    name = name_ext[0] + "_part_{:02}.".format(frame_num) + name_ext[1]
-    x[size-1] = name
-    x = os.path.join("/".join(x))
-
-    return x
-
-def create_split_dirs(data_path):
-    img_path = data_path.split("/")
-    size = len(img_path)
-    img_path[size - 2] = img_path[size - 2] + "_splits"
-    x = os.path.join("/".join(img_path))
-
-    if os.path.exists(x):
-        shutil.rmtree(x, ignore_errors=False, onerror=None)
-
-    os.makedirs(x + "/")
-
-    img_path[size - 1] = "masks"
-    y = os.path.join("/".join(img_path))
-    
-    if os.path.exists(y):
-        shutil.rmtree(y, ignore_errors=False, onerror=None)
-
-    os.makedirs(y + "/")
-
-    create_split_dir_to_ignore(data_path.split("/"), size)
-    create_split_dir_to_ignore(data_path.split("/"), size, True)
-
-def create_split_dir_to_ignore(ignore_path, size, is_mask = False):
-    ignore_path[size - 2] = ignore_path[size - 2] + "_splits"
-    
-    if(not is_mask):
-        ignore_path[size - 1] = "ignore/images"
-    else: 
-        ignore_path[size - 1] = "ignore/masks"
-
-    ignore_path = os.path.join("/".join(ignore_path))
-
-    if not os.path.exists(ignore_path):
-        os.makedirs(ignore_path + "/")
-
-def should_I_discard(im, threshold = 50):    
-    w,h = im.size
-    colors = im.getcolors(w*h)
-    colordict = { x[1]:x[0] for x in colors }
-
-    # get the amount of black pixels in image in RGB black is 0,0,0
-    blackpx = colordict.get((0,0,0))
-
-    # get the amount of white pixels in image in RGB white is 255,255,255
-    whitepx = colordict.get((255,255,255))  
-
-    if(not blackpx):
-        blackpx = 0
-
-    if(not whitepx):
-        whitepx = 0    
-
-    # percentage
-    w,h = im.size
-    totalpx = w*h
-    whitepercent = (whitepx/totalpx)*100
-    blackpercent = (blackpx/totalpx)*100
-
-    discard = (whitepercent < threshold)
-
-    return discard, (blackpercent, whitepercent)
