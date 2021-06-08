@@ -262,10 +262,11 @@ class UnetHelper:
             width_shift_range=0.5,
             height_shift_range=0.5,
             shear_range=0.5,
-            zoom_range=0.5,
+            zoom_range=0.075,
             rotation_range=0.5,
             horizontal_flip=True,
-            fill_mode="wrap",
+            vertical_flip=True,
+            fill_mode="wrap"        
         )
 
         save_to_dir = None
