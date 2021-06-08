@@ -102,6 +102,9 @@ class PreProcessingData():
         PreProcessingData.move_ignored_folder_to_test(data_path, "val", "images")
         PreProcessingData.move_ignored_folder_to_test(data_path, "val", "masks")
 
+        PreProcessingData.move_ignored_folder_to_test(data_path, "aug", "images")
+        PreProcessingData.move_ignored_folder_to_test(data_path, "aug", "masks")
+
     @staticmethod
     def move_ignored_folder_to_test(data_path, stage, folder):
         img_path = data_path.split("/")

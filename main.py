@@ -8,7 +8,7 @@ if __name__ == "__main__":
 
     args = easydict.EasyDict({
         't': 0, # "Informe o tipo  '--t -1' parametros, '--t 0' treino, '--t 1' teste, '--t 2' sumario', '--t 3' avaliacao, '--t 4' f-beta-score, '--t 5' crop_images")
-        'g': 0, # Gerar arquivos '--g 0' para nao gerar arquivos ou '--g 1' para gerar
+        'g': 1, # Gerar arquivos '--g 0' para nao gerar arquivos ou '--g 1' para gerar
         'q': 0, # Quantidade de arquivos para teste '--q 0' para nao gerar arquivos ou '--q 1' para gerar
         'n': '2021.06.02_201514_unet.hdf5', # Informe o nome do arquivo de pesos para executar o teste ou ler o sumario
         'b': None, # Informe o beta para calcular o f-beta score

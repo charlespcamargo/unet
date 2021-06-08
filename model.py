@@ -32,49 +32,9 @@ class Unet():
         return (ch1, ch2), (cw1, cw2)
 
     def create_model(self, pretrained_weights = None, input_size = (256,256, 3), num_class = 2):
-        inputs = Input( shape=(input_size) )
+        inputs = Input( shape=(input_size) ) 
 
-        # import os
-        # os.environ["SM_FRAMEWORK"] = "tf.keras"
-
-        # import segmentation_models as sm
-        #from segmentation_models.utils import set_trainable
-
-       
-        # load pre_trainned
-        #BACKBONE = 'vgg16'
-        #preprocess_input = sm.get_preprocessing(BACKBONE)        
-       # base_model = sm.Unet(BACKBONE,        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
-       #                     encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
-       #                     classes=num_class,
-       #                     input_shape=input_size) 
-
-        #A `Concatenate` layer requires inputs with matching shapes except for the concat axis. Got inputs shapes: [(None, 64, 64, 256), (None, 63, 63, 512)]
-        #A `Concatenate` layer requires inputs with matching shapes except for the concat axis. Got inputs shapes: [(None, 64, 64, 256), (None, 63, 63, 128)]
-
-
-
-        #inp = Input(shape=input_size)
-        #l1 = Conv2D(Conv2D(3, 3, activation = softmax, padding = 'same'))(inp) # map N channels data to 3 channels
-        #out = base_model(l1)
-        #output_layer = Conv2D(3, 3, activation = softmax, padding = 'same')(conv9)
-        #model = Model(inp, out, name=base_model.name)
-        
-
-        
-        # release all layers for training
-        #set_trainable(model) # set all layers trainable and recompile model
-        
-        # (backbone_name=’vgg16’, input_shape=(None, None, 3), classes=1, activation=’sigmoid’, encoder_weights=’imagenet’, encoder_freeze=False,
-        # encoder_features=’default’, decoder_block_type=’upsampling’, decoder_filters=(256, 128, 64, 32, 16), decoder_use_batchnorm=True, **kwargs
-
-        concat_axis = 3 
-        #https://stackoverflow.com/questions/53975502/where-to-add-kernal-regularizers-in-an-u-net
-        #c1 = Conv2D(8, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(w_decay))) (s)
-        #c1 = Conv2D(8, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(w_decay))) (c1)
-        #, kernel_regularizer=regularizers.l2(w_decay))
-
-        #w_decay = 0.00009 # weight decay coefficient
+        concat_axis = 3  
 
         conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(inputs)    
         conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv1)    
@@ -114,11 +74,14 @@ class Unet():
         conv9 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(merge9)
         conv9 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv9)
         conv9 = Conv2D(2, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv9)
-        
+        print("conv9 shape:", conv9.shape)
+
         ##Output Layer
-        output_layer = Conv2D(3, 1, (1, 1), activation = 'sigmoid')(conv9)
+        output_layer = Conv2D(1, 1, padding="same", activation = 'sigmoid')(conv9)
+        print(output_layer)
+
         ##Defining Model
-        model = Model(inputs, output_layer)
+        model = Model(inputs=inputs, outputs=output_layer)
 
         ##Compiling Model 
         model.compile(optimizer = Adam(learning_rate = 1e-4), 
@@ -130,18 +93,18 @@ class Unet():
                                Precision(name="precision"),
                                Recall(name="recall"),
                                AUC(name="auc"),
-                               #CustomMetrics.jacard_coef,
+                               CustomMetrics.jacard_coef,
                                CustomMetrics.dice_coefficient,
-                               tfa.metrics.F1Score(
-                                                        num_classes = 2,
-                                                        average = 'micro',
-                                                        name = 'f1_score'
-                                                    ),
-                                tfa.metrics.F1Score(
-                                                        num_classes = 1,
-                                                        average = 'micro',
-                                                        name = 'f1_score_1'
-                                                    )
+                            #    tfa.metrics.F1Score(
+                            #                             num_classes = 2,
+                            #                             average = 'micro',
+                            #                             name = 'f1_score'
+                            #                         ),
+                            #     tfa.metrics.F1Score(
+                            #                             num_classes = 1,
+                            #                             average = 'micro',
+                            #                             name = 'f1_score_1'
+                            #                         )
                             ]
                 )
 

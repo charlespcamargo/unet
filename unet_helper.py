@@ -153,7 +153,7 @@ class UnetHelper:
 
     def get_folder_name(self, basePath):
         now = datetime.now()
-        self.path = now.strftime("%Y.%m.%d_%H%M%S")
+        self.path = now.strftime("%Y%m%d_%H%M%S")
         Path(basePath + self.path).mkdir(parents=True, exist_ok=True)
         return basePath + self.path
 
@@ -260,10 +260,10 @@ class UnetHelper:
     def generate_my_gen(self, args):
         data_gen_args = dict(
             rotation_range=1,
-            zoom_range=0.05,
-            width_shift_range=0.5,
-            height_shift_range=0.5,
-            shear_range=0.5,
+            zoom_range=0.25,
+            width_shift_range=0.25,
+            height_shift_range=0.25,
+            shear_range=0.25,
             horizontal_flip=True,
             fill_mode="wrap",
         )
