@@ -154,8 +154,8 @@ class UnetHelper:
     def get_folder_name(self, basePath):
         now = datetime.now()
         self.path = now.strftime("%Y%m%d_%H%M%S")
-        Path(basePath + self.path).mkdir(parents=True, exist_ok=True)
-        return basePath + self.path
+        Path(basePath).mkdir(parents=True, exist_ok=True)
+        return basePath
 
     def get_files_count(
         self,
