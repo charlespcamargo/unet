@@ -110,7 +110,11 @@ class PreProcessingData():
         img_path = data_path.split("/")
         image_folder = img_path
         
-        base_stage_path = os.path.join("/".join(image_folder)) + f"{stage}_splits/ignore/{folder}/"
+        if(stage!='aug'):
+            base_stage_path = os.path.join("/".join(image_folder)) + f"{stage}_splits/ignore/{folder}/"
+        else:
+            base_stage_path = os.path.join("/".join(image_folder)) + f"{stage}/ignore/{folder}/"
+
         dest_stage_path = os.path.join("/".join(image_folder)) + f"test_splits/{folder}/"
 
         if(os.path.exists(base_stage_path) and os.path.exists(dest_stage_path)):

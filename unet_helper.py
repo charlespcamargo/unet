@@ -259,11 +259,11 @@ class UnetHelper:
 
     def generate_my_gen(self, args):
         data_gen_args = dict(
-            rotation_range=1,
-            zoom_range=0.25,
-            width_shift_range=0.25,
-            height_shift_range=0.25,
-            shear_range=0.25,
+            width_shift_range=0.5,
+            height_shift_range=0.5,
+            shear_range=0.5,
+            zoom_range=0.5,
+            rotation_range=0.5,
             horizontal_flip=True,
             fill_mode="wrap",
         )
