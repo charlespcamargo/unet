@@ -283,7 +283,7 @@ class UnetHelper:
                 flag_multi_class=args.flag_multi_class,
                 target_size=self.target_size,
                 image_color_mode="rgb",
-                save_to_dir=save_to_dir,
+                save_to_dir=save_to_dir
             )
 
             self.my_validation_gene = Data.data_generator(

@@ -148,6 +148,7 @@ class Data():
             img, mask = self.adjust_data(img, mask, flag_multi_class, num_class)
             yield (img, mask)
 
+    @staticmethod
     def test_generator(self, 
         path,
         ext=".JPG",
@@ -179,6 +180,7 @@ class Data():
 
             yield img
 
+    @staticmethod
     def gene_data_npy(self, 
         data_path,
         flag_multi_class=False,
@@ -233,6 +235,7 @@ class Data():
 
         return image_arr, mask_arr
 
+    @staticmethod
     def label_visualize(self, num_class, color_dict, img):
         img = img[:, :, 0] if len(img.shape) == 3 else img
         img_out = np.zeros(img.shape + (3,))
@@ -240,6 +243,7 @@ class Data():
             img_out[img == i, :] = color_dict[i]
         return img_out / 255
 
+    @staticmethod
     def save_result(self, save_path, npyfile, imgs, flag_multi_class=False, num_class=2):
 
         Path(save_path).mkdir(parents=True, exist_ok=True)
