@@ -163,7 +163,8 @@ def test_generator(
     x = trans.resize(x, target_size)
     x = np.reshape(x, x.shape + (1,)) if (not flag_multi_class) else x
     x = np.reshape(x, (1,) + x.shape)
-    print(f'3 - reverse: {reverse} - a: {x.shape + (1,)} - b: {(1,) + x.shape}')
+    print(f'3 - reverse: {reverse} - a: {x.shape } - b: {x.shape}')
+    print(f'4: {target_size}')
 
     for item in imgs:
         # os.path.join(test_path,"%d.jpg"%i)
