@@ -248,7 +248,7 @@ class Data():
 
         Path(save_path).mkdir(parents=True, exist_ok=True)
 
-        print(f'npy files: {npyfile}')
+        print(f'npy files: {len(npyfile)}')
         print(f'npy shape: {npyfile[0].shape}')
 
 
