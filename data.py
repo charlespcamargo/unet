@@ -155,7 +155,15 @@ def test_generator(
 ):
     imgs = glob.glob(path + "/*" + ext)
     reverse = (target_size[1], target_size[0], target_size[2])
-    print(f'reverse: {reverse} - a: {imgs[0].shape + (1,)} - b: {(1,) + imgs[0].shape}')
+
+    x = io.imread(imgs[0], as_gray=as_gray)
+    print(f'reverse: {reverse} - a: {x.shape + (1,)} - b: {(1,) + x.shape}')
+
+    y = x / 255
+    print(f'reverse: {reverse} - a: {y.shape + (1,)} - b: {(1,) + y.shape}')
+
+    z = x / 255.
+    print(f'reverse: {reverse} - a: {z.shape + (1,)} - b: {(1,) + z.shape}')
 
     for item in imgs:
         # os.path.join(test_path,"%d.jpg"%i)
