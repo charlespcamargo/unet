@@ -254,7 +254,7 @@ class Data():
 
         for i, item in enumerate(npyfile):
             img = Data.label_visualize(num_class, Data.COLOR_DICT, item) if flag_multi_class else item[:,:,0]
-            file_path = os.path.join(save_path, imgs[i], "_predict.png")
+            file_path = os.path.join(save_path, imgs[i] + "_predict.png")
             print(f'file_path: {file_path}')
             io.imsave(file_path, img)
             # if flag_multi_class:
