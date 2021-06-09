@@ -256,7 +256,8 @@ class Data():
             img = Data.label_visualize(num_class, Data.COLOR_DICT, item) if flag_multi_class else item[:,:,0]
             file_path = os.path.join(save_path, imgs[i] + "_predict.png")
             print(f'file_path: {file_path}')
-            io.imsave(file_path, img)
+            io.imsave(file_path, img_as_uint(img))
+            
             # if flag_multi_class:
             #    img = label_visualize(num_class,COLOR_DICT,item)
             # else:

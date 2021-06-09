@@ -426,7 +426,7 @@ class UnetHelper:
                 results = model.predict(testGene, steps=steps_to_test, batch_size=self.batch_size, callbacks=[tb_cb], verbose=1,use_multiprocessing=False)
 
                 Data.save_result(
-                    save_path=self.test_folder + "/results",
+                    save_path=self.test_folder + "results",
                     npyfile=results,
                     imgs=imgs,
                     flag_multi_class=args.flag_multi_class,
