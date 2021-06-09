@@ -157,13 +157,13 @@ def test_generator(
     reverse = (target_size[1], target_size[0], target_size[2])
 
     x = io.imread(imgs[0], as_gray=as_gray)
-    print(f'reverse: {reverse} - a: {x.shape + (1,)} - b: {(1,) + x.shape}')
-
-    y = x / 255
-    print(f'reverse: {reverse} - a: {y.shape + (1,)} - b: {(1,) + y.shape}')
-
-    z = x / 255.
-    print(f'reverse: {reverse} - a: {z.shape + (1,)} - b: {(1,) + z.shape}')
+    print(f'1 - reverse: {reverse} - a: {x.shape + (1,)} - b: {(1,) + x.shape}')
+    x = x / 255
+    print(f'2 - reverse: {reverse} - a: {x.shape + (1,)} - b: {(1,) + x.shape}')
+    x = trans.resize(x, target_size)
+    x = np.reshape(x, x.shape + (1,)) if (not flag_multi_class) else x
+    x = np.reshape(x, (1,) + x.shape)
+    print(f'3 - reverse: {reverse} - a: {x.shape + (1,)} - b: {(1,) + x.shape}')
 
     for item in imgs:
         # os.path.join(test_path,"%d.jpg"%i)
