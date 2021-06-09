@@ -163,7 +163,7 @@ def test_generator(
     x = trans.resize(x, target_size)
     x = np.reshape(x, x.shape + (1,)) if (not flag_multi_class) else x
     x = np.reshape(x, (1,) + x.shape)
-    print(f'3 - reverse: {reverse} - a: {x.shape } - b: {x.shape}')
+    print(f'3 - reverse: {reverse} - normal: {target_size} -  a: {x.shape} - b: {x.shape}')
     print(f'4: {target_size}')
 
     for item in imgs:
@@ -241,6 +241,11 @@ def save_result(save_path, npyfile, imgs, flag_multi_class=False, num_class=2):
 
     Path(save_path).mkdir(parents=True, exist_ok=True)
 
+    print(f'npy files: {npyfile}')
+    print(f'npy file: {npyfile[0]}')
+    print(f'npy shape: {npyfile[0].shape}')
+
+
     for i, item in enumerate(npyfile):
         # if flag_multi_class:
         #    img = label_visualize(num_class,COLOR_DICT,item)
@@ -250,6 +255,6 @@ def save_result(save_path, npyfile, imgs, flag_multi_class=False, num_class=2):
         img[img > 0.50] = 1
         img[img <= 0.50] = 0
 
-        cv2.imwrite(os.path.join(save_path, imgs[i] + "_predict_cv2.png"), img)
-        io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_uint(img))
+        cv2.imwrite(os.path.join(save_path, imgs[i] + "_predict_cv2.png"), img_as_uint(img))
+        io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_uint(img), cmap=cm.gray)
         
