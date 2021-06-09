@@ -7,7 +7,7 @@ import skimage.io as io
 import skimage.transform as trans
 from skimage.util import img_as_uint
 from pathlib import Path
-
+import cv2
 from sklearn.utils import class_weight
 from PIL import Image
 from tensorflow.python.keras.preprocessing.image import DirectoryIterator
@@ -251,3 +251,4 @@ def save_result(save_path, npyfile, imgs, flag_multi_class=False, num_class=2):
         img[img <= 0.10] = 0
 
         io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_uint(img))
+        cv2.imwrite(os.path.join(save_path, imgs[i] + "_predict_cv2.png"), img_as_uint(img))
