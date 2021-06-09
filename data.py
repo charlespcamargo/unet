@@ -164,8 +164,8 @@ class Data():
             img = io.imread(item, as_gray=as_gray)
             img = img / 255
 
-            w = img.shape[0]
-            h = img.shape[1]
+            w = img.shape[1]
+            h = img.shape[0]
             c = img.shape[2]
             inverted = (w,h,c)
 
