@@ -163,9 +163,15 @@ class Data():
             # os.path.join(test_path,"%d.jpg"%i)
             img = io.imread(item, as_gray=as_gray)
             img = img / 255
-            img = trans.resize(img, target_size)
-            img = np.reshape(img, img.shape + (1,)) if (not flag_multi_class) else img
-            img = np.reshape(img, (1,) + img.shape)
+
+            w = img.shape[0]
+            h = img.shape[1]
+            c = img.shape[2]
+            inverted = (w,h,c)
+
+            img = trans.resize(img, inverted)
+            img = np.reshape(img, inverted + (1,)) if (not flag_multi_class) else img
+            img = np.reshape(img, (1,) + inverted)
 
             yield img
 
