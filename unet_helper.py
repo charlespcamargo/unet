@@ -429,7 +429,7 @@ class UnetHelper:
                     save_path=self.test_folder + "results",
                     npyfile=results,
                     imgs=imgs,
-                    flag_multi_class=True,
+                    flag_multi_class=False,
                 )   
 
                 res = model.evaluate(x=results, verbose=1, callbacks=[tb_cb])
