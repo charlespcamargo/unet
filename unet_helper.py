@@ -414,6 +414,7 @@ class UnetHelper:
                 )
 
                 tb_cb = self.create_tensor_board_callback()
+                model = self.get_model(pretrained_weights=args.n, cnn_type = cnn_type)
                 testGene = test_generator(
                     self.test_folder + self.image_folder + "/",
                     flag_multi_class=args.flag_multi_class,
@@ -422,7 +423,6 @@ class UnetHelper:
                 )
 
                 #unet = Unet()
-                model = self.get_model(pretrained_weights=args.n, cnn_type = cnn_type)
                 results = model.predict(testGene, steps=steps_to_test, batch_size=self.batch_size, callbacks=[tb_cb], verbose=1,use_multiprocessing=False)
 
                 save_result(
