@@ -155,15 +155,16 @@ def test_generator(
 ):
     imgs = glob.glob(path + "/*" + ext)
     reverse = (target_size[1], target_size[0], target_size[2])
-    print(f'reverse: {reverse}')
+    print(f'reverse: {reverse} - a: {imgs[0].shape + (1,)} - b: {(1,) + imgs[0].shape}'))
 
     for item in imgs:
         # os.path.join(test_path,"%d.jpg"%i)
         img = io.imread(item, as_gray=as_gray)
         img = img / 255
-        img = trans.resize(img, reverse)
+        img = trans.resize(img, target_size)
         img = np.reshape(img, img.shape + (1,)) if (not flag_multi_class) else img
         img = np.reshape(img, (1,) + img.shape)
+
         yield img
 
 def gene_data_npy(
