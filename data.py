@@ -158,18 +158,7 @@ class Data():
         as_gray=False,
     ):
         imgs = glob.glob(path + "/*" + ext)
-        reverse = (target_size[1], target_size[0], target_size[2])
-
-        x = io.imread(imgs[0], as_gray=as_gray)
-        print(f'1 - reverse: {reverse} - a: {x.shape + (1,)} - b: {(1,) + x.shape}')
-        x = x / 255
-        print(f'2 - reverse: {reverse} - a: {x.shape + (1,)} - b: {(1,) + x.shape}')
-        x = trans.resize(x, target_size)
-        x = np.reshape(x, x.shape + (1,)) if (not flag_multi_class) else x
-        x = np.reshape(x, (1,) + x.shape)
-        print(f'3 - reverse: {reverse} - normal: {target_size} -  a: {x.shape} - b: {x.shape}')
-        print(f'4: {target_size}')
-
+        
         for item in imgs:
             # os.path.join(test_path,"%d.jpg"%i)
             img = io.imread(item, as_gray=as_gray)
@@ -248,10 +237,6 @@ class Data():
 
         Path(save_path).mkdir(parents=True, exist_ok=True)
 
-        print(f'npy files: {len(npyfile)}')
-        print(f'npy shape: {npyfile[0].shape}')
-
-
         for i, item in enumerate(npyfile):
             img = Data.label_visualize(num_class, Data.COLOR_DICT, item) if flag_multi_class else item[:,:,0]
 
@@ -262,18 +247,12 @@ class Data():
                 img = Data.label_visualize(num_class, Data.COLOR_DICT, item)
                 io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img)
             else:
-                img = item[:, :, 0]
-
-            if(i == 0):
-                print(f'print 2: {img}')
+                img = item[:, :, 0] 
 
             img[img > 0.50] = 1
-            img[img <= 0.50] = 0
-
-            if(i == 0):
-                print(f'print 3: {img}')
+            img[img <= 0.50] = 0 
 
             # cv2.imwrite(os.path.join(save_path, imgs[i] + "_predict_cv2.png"), img_as_uint(img))
             # io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_uint(img)) #, cmap=cm.gray)
-            io.imsave(os.path.join(save_path, imgs[i] + "_predict_2.png"), img)
+            io.imsave(os.path.join(save_path, imgs[i] + "_predict002.png"), img)
         
