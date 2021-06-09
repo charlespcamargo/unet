@@ -260,6 +260,7 @@ class Data():
 
             if flag_multi_class:
                 img = Data.label_visualize(num_class, Data.COLOR_DICT, item)
+                io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img)
             else:
                 img = item[:, :, 0]
 
@@ -274,5 +275,5 @@ class Data():
 
             # cv2.imwrite(os.path.join(save_path, imgs[i] + "_predict_cv2.png"), img_as_uint(img))
             # io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_uint(img)) #, cmap=cm.gray)
-            io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img)
+            io.imsave(os.path.join(save_path, imgs[i] + "_predict_2.png"), img)
         
