@@ -247,8 +247,9 @@ def save_result(save_path, npyfile, imgs, flag_multi_class=False, num_class=2):
         # else:
         img = item[:, :, 0]
 
-        img[img > 0.90] = 1
-        img[img <= 0.10] = 0
+        img[img > 0.50] = 1
+        img[img <= 0.50] = 0
 
+        cv2.imwrite(os.path.join(save_path, imgs[i] + "_predict_cv2.png"), img)
         io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_uint(img))
-        cv2.imwrite(os.path.join(save_path, imgs[i] + "_predict_cv2.png"), img_as_uint(img))
+        
