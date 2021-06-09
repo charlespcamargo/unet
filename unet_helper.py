@@ -396,7 +396,7 @@ class UnetHelper:
         plt.legend()
         plt.show()
 
-    def test(self, args, steps_to_test = 200, cnn_type = 2):
+    def test(self, args, steps_to_test = 200, cnn_type = 0):
 
         if not args.n:
             args.n = "train_weights/20200420_0817_unet-100-100-loss0_431_acc0_9837.hdf5"

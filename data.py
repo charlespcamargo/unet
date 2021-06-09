@@ -157,7 +157,7 @@ def test_generator(
     for item in imgs:
         # os.path.join(test_path,"%d.jpg"%i)
         img = io.imread(item, as_gray=as_gray)
-        img = img / 255.0
+        img = img / 255
         img = trans.resize(img, target_size)
         img = np.reshape(img, img.shape + (1,)) if (not flag_multi_class) else img
         img = np.reshape(img, (1,) + img.shape)
@@ -234,7 +234,7 @@ def save_result(save_path, npyfile, imgs, flag_multi_class=False, num_class=2):
         # else:
         img = item[:, :, 0]
 
-        img[img > 0.5] = 1
-        img[img <= 0.5] = 0
+        img[img > 0.75] = 1
+        img[img <= 0.25] = 0
 
         io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_uint(img))
