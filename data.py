@@ -11,7 +11,7 @@ import cv2
 from sklearn.utils import class_weight
 from PIL import Image
 from tensorflow.python.keras.preprocessing.image import DirectoryIterator
-
+from data import *
 
 Sky = [128, 128, 128]  # gray
 Building = [128, 0, 0]  # red
@@ -242,19 +242,21 @@ def save_result(save_path, npyfile, imgs, flag_multi_class=False, num_class=2):
     Path(save_path).mkdir(parents=True, exist_ok=True)
 
     print(f'npy files: {npyfile}')
-    print(f'npy file: {npyfile[0]}')
     print(f'npy shape: {npyfile[0].shape}')
 
 
     for i, item in enumerate(npyfile):
+        img = labelVisualize(num_class, COLOR_DICT, item) if flag_multi_class else item[:,:,0]
+        io.imsave(os.path.join(save_path,"%d_predict.png"%i),img)
+
         # if flag_multi_class:
         #    img = label_visualize(num_class,COLOR_DICT,item)
         # else:
-        img = item[:, :, 0]
+        # img = item[:, :, 0]
 
-        img[img > 0.50] = 1
-        img[img <= 0.50] = 0
+        # img[img > 0.50] = 1
+        # img[img <= 0.50] = 0
 
-        cv2.imwrite(os.path.join(save_path, imgs[i] + "_predict_cv2.png"), img_as_uint(img))
-        io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_uint(img), cmap=cm.gray)
+        # cv2.imwrite(os.path.join(save_path, imgs[i] + "_predict_cv2.png"), img_as_uint(img))
+        # io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_uint(img)) #, cmap=cm.gray)
         
