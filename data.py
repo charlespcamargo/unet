@@ -154,11 +154,13 @@ def test_generator(
     as_gray=False,
 ):
     imgs = glob.glob(path + "/*" + ext)
+    reverse = (target_size[1], target_size[0], target_size[2])
+    print(f'reverse: {reverse}')
+
     for item in imgs:
         # os.path.join(test_path,"%d.jpg"%i)
         img = io.imread(item, as_gray=as_gray)
         img = img / 255
-        reverse = (target_size[1], target_size[0], target_size[2])
         img = trans.resize(img, reverse)
         img = np.reshape(img, img.shape + (1,)) if (not flag_multi_class) else img
         img = np.reshape(img, (1,) + img.shape)
@@ -234,7 +236,7 @@ def save_result(save_path, npyfile, imgs, flag_multi_class=False, num_class=2):
         #    img = label_visualize(num_class,COLOR_DICT,item)
         # else:
         img = item[:, :, 0]
-    
+
         img[img > 0.90] = 1
         img[img <= 0.10] = 0
 
