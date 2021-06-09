@@ -254,16 +254,25 @@ class Data():
 
         for i, item in enumerate(npyfile):
             img = Data.label_visualize(num_class, Data.COLOR_DICT, item) if flag_multi_class else item[:,:,0]
-            io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img)
 
-            # if flag_multi_class:
-            #    img = label_visualize(num_class,COLOR_DICT,item)
-            # else:
-            # img = item[:, :, 0]
+            if(i == 0):
+                print(f'print 1: {img}')
 
-            # img[img > 0.50] = 1
-            # img[img <= 0.50] = 0
+            if flag_multi_class:
+                img = Data.label_visualize(num_class, Data.COLOR_DICT, item)
+            else:
+                img = item[:, :, 0]
+
+            if(i == 0):
+                print(f'print 2: {img}')
+
+            img[img > 0.50] = 1
+            img[img <= 0.50] = 0
+
+            if(i == 0):
+                print(f'print 3: {img}')
 
             # cv2.imwrite(os.path.join(save_path, imgs[i] + "_predict_cv2.png"), img_as_uint(img))
             # io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_uint(img)) #, cmap=cm.gray)
+            io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img)
         
