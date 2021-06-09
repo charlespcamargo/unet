@@ -155,7 +155,7 @@ def test_generator(
 ):
     imgs = glob.glob(path + "/*" + ext)
     reverse = (target_size[1], target_size[0], target_size[2])
-    print(f'reverse: {reverse} - a: {imgs[0].shape + (1,)} - b: {(1,) + imgs[0].shape}'))
+    print(f'reverse: {reverse} - a: {imgs[0].shape + (1,)} - b: {(1,) + imgs[0].shape}')
 
     for item in imgs:
         # os.path.join(test_path,"%d.jpg"%i)
