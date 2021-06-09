@@ -45,7 +45,7 @@ class Data():
     )
 
     @staticmethod
-    def adjust_data(self, img, mask, flag_multi_class, num_class):
+    def adjust_data(img, mask, flag_multi_class, num_class):
         if flag_multi_class:
             img = img / 255
             mask = mask[:, :, :, 0] if (len(mask.shape) == 4) else mask[:, :, 0]
@@ -82,7 +82,7 @@ class Data():
         return (img, mask)
     
     @staticmethod
-    def get_class_weights(self, mask):
+    def get_class_weights(mask):
         (unique, counts) = np.unique(mask, return_counts=True)
         frequencies = np.asarray((unique, counts)).T
 
@@ -96,7 +96,7 @@ class Data():
         return (x_weights, y_weights)
 
     @staticmethod
-    def data_generator(self, 
+    def data_generator(
         batch_size,
         data_path,
         image_folder,
@@ -145,11 +145,11 @@ class Data():
 
         generator = zip(image_generator, mask_generator)
         for (img, mask) in generator:
-            img, mask = self.adjust_data(img, mask, flag_multi_class, num_class)
+            img, mask = Data.adjust_data(img, mask, flag_multi_class, num_class)
             yield (img, mask)
 
     @staticmethod
-    def test_generator(self, 
+    def test_generator(
         path,
         ext=".JPG",
         num_image=30,
@@ -181,7 +181,7 @@ class Data():
             yield img
 
     @staticmethod
-    def gene_data_npy(self, 
+    def gene_data_npy(
         data_path,
         flag_multi_class=False,
         num_class=2,
@@ -208,7 +208,7 @@ class Data():
                 as_gray=mask_as_gray,
             )
             mask = np.reshape(mask, mask.shape + (1,)) if mask_as_gray else mask
-            img, mask = self.adjust_data(img, mask, flag_multi_class, num_class)
+            img, mask = Data.adjust_data(img, mask, flag_multi_class, num_class)
             image_arr.append(img)
             mask_arr.append(mask)
 
@@ -236,7 +236,7 @@ class Data():
         return image_arr, mask_arr
 
     @staticmethod
-    def label_visualize(self, num_class, color_dict, img):
+    def label_visualize(num_class, color_dict, img):
         img = img[:, :, 0] if len(img.shape) == 3 else img
         img_out = np.zeros(img.shape + (3,))
         for i in range(num_class):
@@ -244,7 +244,7 @@ class Data():
         return img_out / 255
 
     @staticmethod
-    def save_result(self, save_path, npyfile, imgs, flag_multi_class=False, num_class=2):
+    def save_result(save_path, npyfile, imgs, flag_multi_class=False, num_class=2):
 
         Path(save_path).mkdir(parents=True, exist_ok=True)
 
@@ -253,7 +253,7 @@ class Data():
 
 
         for i, item in enumerate(npyfile):
-            img = self.labelVisualize(num_class, self.COLOR_DICT, item) if flag_multi_class else item[:,:,0]
+            img = Data.labelVisualize(num_class, Data.COLOR_DICT, item) if flag_multi_class else item[:,:,0]
             io.imsave(os.path.join(save_path,"%d_predict.png"%i),img)
 
             # if flag_multi_class:
