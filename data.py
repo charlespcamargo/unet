@@ -254,5 +254,5 @@ class Data():
 
             # cv2.imwrite(os.path.join(save_path, imgs[i] + "_predict_cv2.png"), img_as_uint(img))
             # io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_uint(img)) #, cmap=cm.gray)
-            io.imsave(os.path.join(save_path, imgs[i] + "_predict002.png"), img)
+            io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img)
         
