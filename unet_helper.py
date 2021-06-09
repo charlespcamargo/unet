@@ -274,7 +274,7 @@ class UnetHelper:
             save_to_dir = self.get_folder_name(self.augmentation_folder)
 
         if (not self.use_numpy):
-            self.my_train_gene = data_generator(
+            self.my_train_gene = Data.data_generator(
                 self.batch_size,
                 self.train_folder,
                 self.image_folder,
@@ -286,7 +286,7 @@ class UnetHelper:
                 save_to_dir=save_to_dir,
             )
 
-            self.my_validation_gene = data_generator(
+            self.my_validation_gene = Data.data_generator(
                 self.batch_size,
                 self.validation_folder,
                 self.image_folder,
@@ -300,8 +300,8 @@ class UnetHelper:
             return (self.my_train_gene, self.my_validation_gene)
 
         else:
-            self.my_train_gene_npy = gene_data_npy(self.train_folder, flag_multi_class=args.flag_multi_class)
-            self.my_validation_gene_npy = gene_data_npy(self.validation_folder, flag_multi_class=args.flag_multi_class)
+            self.my_train_gene_npy = Data.gene_data_npy(self.train_folder, flag_multi_class=args.flag_multi_class)
+            self.my_validation_gene_npy = Data.gene_data_npy(self.validation_folder, flag_multi_class=args.flag_multi_class)
 
             return (self.my_train_gene_npy, self.my_validation_gene_npy)
 
@@ -415,7 +415,7 @@ class UnetHelper:
 
                 tb_cb = self.create_tensor_board_callback()
                 model = self.get_model(pretrained_weights=args.n, cnn_type = cnn_type)
-                testGene = test_generator(
+                testGene = Data.test_generator(
                     self.test_folder + self.image_folder + "/",
                     flag_multi_class=args.flag_multi_class,
                     target_size=self.input_shape,
@@ -425,7 +425,7 @@ class UnetHelper:
                 #unet = Unet()
                 results = model.predict(testGene, steps=steps_to_test, batch_size=self.batch_size, callbacks=[tb_cb], verbose=1,use_multiprocessing=False)
 
-                save_result(
+                Data.save_result(
                     save_path=self.test_folder + "/results",
                     npyfile=results,
                     imgs=imgs,
