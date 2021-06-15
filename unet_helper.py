@@ -48,7 +48,7 @@ class UnetHelper:
     path = datetime.now().strftime("%Y.%m.%d_%H%M%S")
     my_train_gene = None
     my_validation_gene = None
-    flag_multi_class = True
+    flag_multi_class = False
     early_stopping_monitor = "val_mean_iou"
     early_stopping_monitor_mode = "auto"
     model_monitor = "val_binary_accuracy"
@@ -65,7 +65,7 @@ class UnetHelper:
             self.train(args)
 
         elif args.t == 1:
-            self.test(args, steps_to_test = 200, cnn_type = 2)
+            self.test(args, steps_to_test = 200, cnn_type = 0)
 
         elif args.t == 2:
             self.show_summary(args)
@@ -112,7 +112,7 @@ class UnetHelper:
 
     def set_arguments(
         self,
-        batch_size=4,
+        batch_size=2,
         steps_per_epoch=50,
         epochs=15,
         target_size=(416, 320),
@@ -121,7 +121,7 @@ class UnetHelper:
         image_folder="images",
         label_folder="masks",
         patience=5,
-        flag_multi_class=True,
+        flag_multi_class=False,
         early_stopping_monitor="val_mean_iou",
         early_stopping_monitor_mode ="auto",
         model_monitor = "val_binary_accuracy",
@@ -259,13 +259,14 @@ class UnetHelper:
 
     def generate_my_gen(self, args):
         data_gen_args = dict(
-            width_shift_range=0.5,
-            height_shift_range=0.5,
-            shear_range=0.5,
-            zoom_range=0.075,
-            rotation_range=0.5,
+            width_shift_range=0.0,
+            height_shift_range=0.0,
+            shear_range=1.0,
+            zoom_range=0.025,
+            rotation_range=90,
             horizontal_flip=True,
             vertical_flip=True,
+            brightness_range=[0.2,0.2],
             fill_mode="wrap"        
         )
 

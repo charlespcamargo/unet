@@ -1,5 +1,5 @@
 from __future__ import print_function
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
 import numpy as np
 import os
 import glob
@@ -12,6 +12,9 @@ from sklearn.utils import class_weight
 from PIL import Image
 from tensorflow.python.keras.preprocessing.image import DirectoryIterator
 from data import *
+from tensorflow.keras import backend as K
+import matplotlib.pyplot as plt
+
 
 class Data():
     Sky = [128, 128, 128]  # gray
@@ -79,6 +82,12 @@ class Data():
 
             # get_class_weights(mask)
 
+        # dpi = 80
+        # figsize = 416 / float(dpi), 320 / float(dpi)
+        # plt.figure(figsize=figsize)
+        # plt.imshow(img[0,:,:,:])
+        # plt.show()
+
         return (img, mask)
     
     @staticmethod
@@ -130,6 +139,7 @@ class Data():
             save_to_dir=save_to_dir,
             save_prefix=image_save_prefix,
             seed=seed,
+            save_format='jpg'
         )
         mask_generator = mask_datagen.flow_from_directory(
             data_path,
@@ -141,6 +151,7 @@ class Data():
             save_to_dir=save_to_dir,
             save_prefix=mask_save_prefix,
             seed=seed,
+            save_format='jpg'
         )
 
         generator = zip(image_generator, mask_generator)
@@ -164,14 +175,14 @@ class Data():
             img = io.imread(item, as_gray=as_gray)
             img = img / 255
 
-            w = img.shape[1]
-            h = img.shape[0]
-            c = img.shape[2]
-            inverted = (w,h,c)
+            # w = img.shape[1]
+            # h = img.shape[0]
+            # c = img.shape[2]
+            # inverted = (w,h,c)
 
-            img = trans.resize(img, inverted)
-            img = np.reshape(img, inverted + (1,)) if (not flag_multi_class) else img
-            img = np.reshape(img, (1,) + inverted)
+            img = trans.resize(img, img.shape)
+            img = np.reshape(img, img.shape + (1,)) if (not flag_multi_class) else img
+            img = np.reshape(img, (1,) + img.shape)
 
             yield img
 
@@ -251,14 +262,14 @@ class Data():
 
             if flag_multi_class:
                 img = Data.label_visualize(num_class, Data.COLOR_DICT, item)
-                io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img)
+                io.imsave(os.path.join(save_path, imgs[i] + "_predict.jpg"), img)
             else:
-                img = item[:, :, 0] 
+                img = item[:, :, 0]
+                img[img > 0.50] = 1
+                img[img <= 0.50] = 0
+                io.imsave(os.path.join(save_path, imgs[i] + "_predict.jpg"), img_as_uint(img)) 
 
-            img[img > 0.50] = 1
-            img[img <= 0.50] = 0 
-
-            # cv2.imwrite(os.path.join(save_path, imgs[i] + "_predict_cv2.png"), img_as_uint(img))
-            # io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_uint(img)) #, cmap=cm.gray)
-            io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img_as_uint(img))
+            # img[img > 0.50] = 1
+            # img[img <= 0.50] = 0 
+            
         

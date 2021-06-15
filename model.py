@@ -85,7 +85,7 @@ class Unet():
         model = Model(inputs=inputs, outputs=output_layer)
 
         ##Compiling Model 
-        model.compile(optimizer = Adam(learning_rate = 1e-4), 
+        model.compile(optimizer = SGD(learning_rate = 1e-3), 
                      loss = 'binary_crossentropy',
                      metrics = [
                                MeanIoU(num_classes=2, name="mean_iou"),
