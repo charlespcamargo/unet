@@ -180,7 +180,7 @@ class Data():
             # c = img.shape[2]
             # inverted = (w,h,c)
 
-            img = trans.resize(img, img.shape)
+            img = trans.resize(img, target_size)
             img = np.reshape(img, img.shape + (1,)) if (not flag_multi_class) else img
             img = np.reshape(img, (1,) + img.shape)
 
