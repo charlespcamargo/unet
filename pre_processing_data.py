@@ -21,7 +21,7 @@ class PreProcessingData():
 
 
     @staticmethod
-    def crop_image(data_path, data_folder, force_delete, image_folder="images", mask_folder="masks", w=416, h=320, validate_class_to_discard = False, threshold = 50):
+    def crop_image(data_path, data_folder, force_delete, image_folder="images", mask_folder="masks", w=512, h=512, validate_class_to_discard = False, threshold = 20):
         image_path = os.path.join(data_path, data_folder, image_folder)
         mask_path = os.path.join(data_path, data_folder, image_folder)
         image_name_arr = glob.glob(os.path.join(image_path, "*.JPG"))

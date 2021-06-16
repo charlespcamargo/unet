@@ -30,8 +30,8 @@ class UnetHelper:
     epochs = 10
 
     # image sizes
-    target_size = (416, 320)  # (1280, 1792) #
-    input_shape = (416, 320, 3)  # (1280, 1792, 3) #
+    target_size = (512, 512)  # (1280, 1792) #
+    input_shape = (512, 512, 3)  # (1280, 1792, 3) #
 
     # paths
     base_folder = "../../datasets/hedychium_coronarium/"
@@ -83,9 +83,9 @@ class UnetHelper:
                                       'test',
                                       "images", 
                                       "masks", 
-                                      416,
-                                      320,
-                                      threshold = 50,
+                                      512,
+                                      512,
+                                      threshold = 25,
                                       force_delete = False)
 
     def show_arguments(self):
@@ -115,8 +115,8 @@ class UnetHelper:
         batch_size=2,
         steps_per_epoch=50,
         epochs=15,
-        target_size=(416, 320),
-        input_shape=(416, 320, 3),
+        target_size=(512, 512),
+        input_shape=(512, 512, 3),
         base_folder="../hedychium_coronarium/",
         image_folder="images",
         label_folder="masks",
@@ -380,7 +380,6 @@ class UnetHelper:
         if(cnn_type == 0):
             return unet.create_model(pretrained_weights=pretrained_weights, input_size=self.input_shape, num_class=2)        
         elif(cnn_type == 1):
-            self.input_shape = (416, 320)
             return unet.create_model_keras(img_size=self.input_shape, num_classes=2)        
         else:
             return unet.create_model_zizhaozhang(input_size = self.input_shape, num_class = 2)
