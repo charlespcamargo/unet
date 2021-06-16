@@ -29,7 +29,9 @@ if __name__ == "__main__":
         'model_monitor': 'val_auc', 
         'model_monitor_mode': 'max', 
         'validation_steps': 200, 
-        'use_numpy': False
+        'use_numpy': False,
+        'learning_rate': 1e-4,
+        'momentum': 0.90
     })
 
     myhelper.main(args) 
