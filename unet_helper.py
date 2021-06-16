@@ -30,8 +30,8 @@ class UnetHelper:
     epochs = 10
 
     # image sizes
-    target_size = (512, 512)  # (1280, 1792) #
-    input_shape = (512, 512, 3)  # (1280, 1792, 3) #
+    target_size = (416, 416)  # (1280, 1792) #
+    input_shape = (416, 416, 3)  # (1280, 1792, 3) #
 
     # paths
     base_folder = "../../datasets/hedychium_coronarium/"
@@ -83,9 +83,9 @@ class UnetHelper:
                                       'test',
                                       "images", 
                                       "masks", 
-                                      512,
-                                      512,
-                                      threshold = 25,
+                                      416,
+                                      416,
+                                      threshold = 20,
                                       force_delete = False)
 
     def show_arguments(self):
@@ -109,14 +109,17 @@ class UnetHelper:
         print("model_monitor_mode: ", self.model_monitor_mode)
         print("validation_steps: ", self.validation_steps)
         print("use_numpy: ", self.use_numpy)
+        print("learning_rate: ", self.learning_rate)
+        print("momentum:", self.momentum)
+
 
     def set_arguments(
         self,
         batch_size=2,
         steps_per_epoch=50,
         epochs=15,
-        target_size=(512, 512),
-        input_shape=(512, 512, 3),
+        target_size=(416, 416),
+        input_shape=(416, 416, 3),
         base_folder="../hedychium_coronarium/",
         image_folder="images",
         label_folder="masks",
@@ -127,7 +130,9 @@ class UnetHelper:
         model_monitor = "val_binary_accuracy",
         model_monitor_mode = "auto",
         validation_steps=200,
-        use_numpy = False
+        use_numpy = False,
+        learning_rate = 1e-4,
+        momentum = 0.90
     ):
         self.batch_size = batch_size
         self.steps_per_epoch = steps_per_epoch
@@ -150,6 +155,8 @@ class UnetHelper:
         self.class_weights = None
         self.validation_steps = validation_steps
         self.use_numpy = use_numpy
+        self.learning_rate = learning_rate
+        self.momentum = momentum
 
     def get_folder_name(self, basePath):
         now = datetime.now()
@@ -374,11 +381,11 @@ class UnetHelper:
             )
             raise e 
 
-    def get_model(self, pretrained_weights = None, cnn_type = 0):
+    def get_model(self, pretrained_weights = None, cnn_type = 0, learning_rate = 1e-4, momentum = 0.90):
         unet = Unet()
 
         if(cnn_type == 0):
-            return unet.create_model(pretrained_weights=pretrained_weights, input_size=self.input_shape, num_class=2)        
+            return unet.create_model(pretrained_weights=pretrained_weights, input_size=self.input_shape, num_class=2, learning_rate = self.learning_rate, momentum = self.momentum)
         elif(cnn_type == 1):
             return unet.create_model_keras(img_size=self.input_shape, num_classes=2)        
         else:

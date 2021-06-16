@@ -31,7 +31,7 @@ class Unet():
 
         return (ch1, ch2), (cw1, cw2)
 
-    def create_model(self, pretrained_weights = None, input_size = (256,256, 3), num_class = 2):
+    def create_model(self, pretrained_weights = None, input_size = (256,256, 3), num_class = 2, learning_rate = 1e-4, momentum = 0.90):
         inputs = Input( shape=(input_size) ) 
 
         concat_axis = 3  
@@ -85,7 +85,7 @@ class Unet():
         model = Model(inputs=inputs, outputs=output_layer)
 
         ##Compiling Model 
-        model.compile(optimizer = SGD(learning_rate = 1e-6, momentum = 0.90), 
+        model.compile(optimizer = SGD(learning_rate = learning_rate, momentum = momentum), 
                      loss = 'binary_crossentropy',
                      metrics = [
                                MeanIoU(num_classes=2, name="mean_iou"),
@@ -95,17 +95,7 @@ class Unet():
                                Recall(name="recall"),
                                AUC(name="auc"),
                                CustomMetrics.jacard_coef,
-                               CustomMetrics.dice_coefficient,
-                            #    tfa.metrics.F1Score(
-                            #                             num_classes = 2,
-                            #                             average = 'micro',
-                            #                             name = 'f1_score'
-                            #                         ),
-                            #     tfa.metrics.F1Score(
-                            #                             num_classes = 1,
-                            #                             average = 'micro',
-                            #                             name = 'f1_score_1'
-                            #                         )
+                               CustomMetrics.dice_coefficient
                             ]
                 )
 
