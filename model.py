@@ -31,7 +31,7 @@ class Unet():
 
         return (ch1, ch2), (cw1, cw2)
 
-    def create_model(self, pretrained_weights = None, input_size = (256,256, 3), num_class = 2, learning_rate = 1e-4, momentum = 0.90):
+    def create_model(self, pretrained_weights = None, input_size = (256,256, 3), num_class = 2, learning_rate = 1e-4, momentum = 0.90, use_sgd = False):
         inputs = Input( shape=(input_size) ) 
 
         concat_axis = 3  
@@ -84,8 +84,13 @@ class Unet():
         ##Defining Model
         model = Model(inputs=inputs, outputs=output_layer)
 
+        if(use_sgd == True):
+            opt = SGD(learning_rate = learning_rate, momentum = momentum)
+        else:
+            opt = Adam(learning_rate = learning_rate)
+
         ##Compiling Model 
-        model.compile(optimizer = SGD(learning_rate = learning_rate, momentum = momentum), 
+        model.compile(optimizer = opt, 
                      loss = 'binary_crossentropy',
                      metrics = [
                                MeanIoU(num_classes=2, name="mean_iou"),

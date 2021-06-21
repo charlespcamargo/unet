@@ -55,6 +55,8 @@ class UnetHelper:
     model_monitor_mode = "auto"
     validation_steps = 200
     use_numpy = False
+    learning_rate = 1e-4
+    momentum = 0.90
 
     def main(self, args):
 
@@ -381,11 +383,11 @@ class UnetHelper:
             )
             raise e 
 
-    def get_model(self, pretrained_weights = None, cnn_type = 0, learning_rate = 1e-4, momentum = 0.90):
+    def get_model(self, pretrained_weights = None, cnn_type = 0, use_sgd = False):
         unet = Unet()
 
         if(cnn_type == 0):
-            return unet.create_model(pretrained_weights=pretrained_weights, input_size=self.input_shape, num_class=2, learning_rate = self.learning_rate, momentum = self.momentum)
+            return unet.create_model(pretrained_weights=pretrained_weights, input_size=self.input_shape, num_class=2, learning_rate = self.learning_rate, momentum = self.momentum, use_sgd = use_sgd)
         elif(cnn_type == 1):
             return unet.create_model_keras(img_size=self.input_shape, num_classes=2)        
         else:
