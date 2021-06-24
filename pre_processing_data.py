@@ -245,6 +245,12 @@ class PreProcessingData():
             
             i += 1
 
-        black, white = np.mean(arr_weigths, axis=0)
+        print(f'arr_weigths: {arr_weigths}')
+        media = np.mean(arr_weigths, axis=0)        
+        print(f'média: {media}')
+        
+        black = media[0]
+        white = media[1]
+
         print(f"mean(black, white): {black}, {white}\n")
         return (round(black, 2), round(white, 2))
