@@ -216,29 +216,34 @@ class PreProcessingData():
         img_path = data_path.split("/")
         base_train_path = os.path.join("/".join(img_path)) + f"train_splits/masks/"
         
+        i = 0
         arr_weigths = []
         for each_mask in Path(base_train_path).glob('*.JPG'):
             img = Image.open(each_mask)
-            (unique, counts) = np.unique(img, return_counts=True)
-            frequencies = np.asarray((unique, counts)).T
-            black = 0
-            white = 255
-            
-            x = 0
-            el = [x for x in frequencies if x[0] == black]
-            if(el):
-                x = el[0][1]
-            
-            y = 0
-            el = [x for x in frequencies if x[0] == white]
-            if(el):
-                y = el[0][1]
+            black = (0, 0, 0)
+            white = (255, 255, 255) 
 
-            total = x + y
-            x_weights = round(x / total, 2)
-            y_weights = round(y / total, 2)            
+            px_black = 0
+            px_white = 0
+            px_other = 0
+
+            for pixel in img.getdata():
+                if pixel == black:
+                    px_black += 1
+                elif pixel == white:
+                    px_white += 1
+                else:
+                    px_other += 1
+
+            total = px_black + px_white + px_other
+            x_weights = round(px_black / total, 2)
+            y_weights = round(px_white / total, 2)            
 
             arr_weigths.append((x_weights, y_weights))
+            if(i > 0 and i % 100 == 0):
+                print(f'calc the class weights: {i}')
+            
+            i += 1
 
         black, white = np.mean(arr_weigths, axis=0)
         print(f"mean(black, white): {black}, {white}\n")
