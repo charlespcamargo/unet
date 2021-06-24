@@ -210,3 +210,36 @@ class PreProcessingData():
 
         if not os.path.exists(ignore_path):
             os.makedirs(ignore_path + "/")
+   
+    @staticmethod
+    def get_train_class_weights(data_path):
+        img_path = data_path.split("/")
+        base_train_path = os.path.join("/".join(img_path)) + f"train_splits/masks/"
+        
+        arr_weigths = []
+        for each_mask in Path(base_train_path).glob('*.JPG'):
+            img = Image.open(each_mask)
+            (unique, counts) = np.unique(img, return_counts=True)
+            frequencies = np.asarray((unique, counts)).T
+            black = 0
+            white = 255
+            
+            x = 0
+            el = [x for x in frequencies if x[0] == black]
+            if(el):
+                x = el[0][1]
+            
+            y = 0
+            el = [x for x in frequencies if x[0] == white]
+            if(el):
+                y = el[0][1]
+
+            total = x + y
+            x_weights = round(x / total, 2)
+            y_weights = round(y / total, 2)            
+
+            arr_weigths.append((x_weights, y_weights))
+
+        (black, white) = np.mean(arr_weigths, axis=0)
+        print(f"mean(black, white): {black}, {white}\n")
+        return (black, white)

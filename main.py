@@ -26,6 +26,7 @@ if __name__ == "__main__":
         'patience': 10,
         'early_stopping_monitor': 'val_acc', 
         'early_stopping_monitor_mode': 'max', 
+        'class_weights': None,
         'model_monitor': 'val_auc', 
         'model_monitor_mode': 'max', 
         'validation_steps': 200, 

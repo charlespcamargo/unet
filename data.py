@@ -89,20 +89,6 @@ class Data():
         # plt.show()
 
         return (img, mask)
-    
-    @staticmethod
-    def get_class_weights(mask):
-        (unique, counts) = np.unique(mask, return_counts=True)
-        frequencies = np.asarray((unique, counts)).T
-
-        x = frequencies[0][1]
-        y = frequencies[1][1]
-        total = x + y
-
-        x_weights = x / total
-        y_weights = y / total
-
-        return (x_weights, y_weights)
 
     @staticmethod
     def data_generator(

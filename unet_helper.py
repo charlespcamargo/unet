@@ -51,8 +51,9 @@ class UnetHelper:
     flag_multi_class = False
     early_stopping_monitor = "val_mean_iou"
     early_stopping_monitor_mode = "auto"
+    class_weight = None
     model_monitor = "val_binary_accuracy"
-    model_monitor_mode = "auto"
+    model_monitor_mode = "auto"    
     validation_steps = 200
     use_numpy = False
     learning_rate = 1e-4
@@ -91,6 +92,9 @@ class UnetHelper:
                                       threshold = 20,
                                       force_delete = False)
 
+        elif args.t == 6:            
+            PreProcessingData.get_train_class_weights('../../datasets/hedychium_coronarium/')
+
     def show_arguments(self):
         print("batch_size: ", self.batch_size)
         print("target_size: ", self.target_size)
@@ -108,6 +112,7 @@ class UnetHelper:
         print("flag_multi_class: ", self.flag_multi_class)
         print("early_stopping_monitor: ", self.early_stopping_monitor)
         print("early_stopping_monitor_mode: ", self.early_stopping_monitor_mode)
+        print("class_weight: ", self.class_weight)
         print("model_monitor: ", self.model_monitor)
         print("model_monitor_mode: ", self.model_monitor_mode)
         print("validation_steps: ", self.validation_steps)
@@ -133,6 +138,7 @@ class UnetHelper:
         early_stopping_monitor_mode ="auto",
         model_monitor = "val_binary_accuracy",
         model_monitor_mode = "auto",
+        class_weights = None,
         validation_steps=200,
         use_numpy = False,
         learning_rate = 1e-4,
@@ -157,7 +163,7 @@ class UnetHelper:
         self.early_stopping_monitor_mode = early_stopping_monitor_mode
         self.model_monitor = model_monitor
         self.model_monitor_mode = model_monitor_mode
-        self.class_weights = None
+        self.class_weights = class_weights
         self.validation_steps = validation_steps
         self.use_numpy = use_numpy
         self.learning_rate = learning_rate
@@ -354,7 +360,10 @@ class UnetHelper:
             )
 
             # classe desbalanceada
-            # self.class_weights = { 0: 0.80, 1: 0.20}
+            (black, white) = PreProcessingData.get_train_class_weights('../../datasets/hedychium_coronarium/')
+            self.class_weights = { 0: white}
+            print(f"self.class_weights: {self.class_weights}")
+            #self.class_weights = { 0: 0.80, 1: 0.20}
 
             #model.summary()
 
@@ -365,7 +374,8 @@ class UnetHelper:
                 validation_data=generator_val,
                 validation_steps=self.validation_steps,
                 callbacks=[earlystopper, model_checkpoint, tb_cb],
-                verbose=1
+                verbose=1,
+                class_weight=self.class_weight
             )
 
             #print('Evaluating train...')
