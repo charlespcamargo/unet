@@ -240,6 +240,6 @@ class PreProcessingData():
 
             arr_weigths.append((x_weights, y_weights))
 
-        (black, white) = np.mean(arr_weigths, axis=0)
+        black, white = np.mean(arr_weigths, axis=0)
         print(f"mean(black, white): {black}, {white}\n")
         return (round(black, 2), round(white, 2))
