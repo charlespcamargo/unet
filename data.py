@@ -76,8 +76,11 @@ class Data():
             )
             mask = new_mask
         elif np.max(img) > 1:
-            img = (img / 255).astype('float32')
-            mask = (mask / 255).astype('float32')
+            img = img.astype('float32')
+            img = img / 255
+
+            mask = mask.astype('float32')
+            mask = mask / 255
             mask[mask > 0.5] = 1
             mask[mask <= 0.5] = 0
 
@@ -160,7 +163,8 @@ class Data():
         for item in imgs:
             # os.path.join(test_path,"%d.jpg"%i)
             img = io.imread(item, as_gray=as_gray)
-            img = (img / 255).astype('float32')
+            img = img.astype('float32')
+            img = img / 255.
 
             # w = img.shape[1]
             # h = img.shape[0]
@@ -171,7 +175,15 @@ class Data():
             img = np.reshape(img, img.shape + (1,)) if (not flag_multi_class) else img
             img = np.reshape(img, (1,) + img.shape)
 
-            yield img
+            yield img 
+
+        # for item in enumerate(imgs):
+        #     img = io.imread(item[1], as_gray = as_gray)
+        #     img = img / 255.
+        #     img = trans.resize(img, target_size)
+        #     img = np.reshape(img,img.shape+(1,)) if (not flag_multi_class) else img
+        #     img = np.reshape(img,(1,)+img.shape)
+        #     yield img
 
     @staticmethod
     def gene_data_npy(
@@ -234,7 +246,9 @@ class Data():
         img_out = np.zeros(img.shape + (3,))
         for i in range(num_class):
             img_out[img == i, :] = color_dict[i]
-        return (img_out / 255).astype('float32')
+
+        img_out = img_out.astype('float32')
+        return img_out / 255
 
     @staticmethod
     def save_result(save_path, npyfile, imgs, flag_multi_class=False, num_class=2):
@@ -242,8 +256,7 @@ class Data():
         Path(save_path).mkdir(parents=True, exist_ok=True)
 
         for i, item in enumerate(npyfile):
-            img = Data.label_visualize(num_class, Data.COLOR_DICT, item) if flag_multi_class else item[:,:,0]
-
+            
             if(i == 0):
                 print(f'print 1: {img}')
 
@@ -251,8 +264,9 @@ class Data():
                 img = Data.label_visualize(num_class, Data.COLOR_DICT, item)
                 io.imsave(os.path.join(save_path, imgs[i] + "_predict.jpg"), img)
             else:
-                img = (img / 255).astype('float32')
-                img = item[:, :, 0]
+                img = img.astype('float32')
+                img = img / 255
+                img = img[:, :, 0]
                 img[img > 0.50] = 1
                 img[img <= 0.50] = 0
                 io.imsave(os.path.join(save_path, imgs[i] + "_predict.jpg"), img_as_float32(img)) 
