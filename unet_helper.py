@@ -469,7 +469,7 @@ class UnetHelper:
                     flag_multi_class=False,
                 )   
 
-                res = model.evaluate(x=results, verbose=1, callbacks=[tb_cb])
+                #res = model.evaluate(x=results, verbose=1, callbacks=[tb_cb])
                 #self.evaluate(model, testGene, history)
 
                 self.show_execution_time(writeInFile=True)

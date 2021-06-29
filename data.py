@@ -267,15 +267,16 @@ class Data():
                 # 'DJI_0279_part_68.JPG', 'DJI_0603_part_51.JPG', 'DJI_0599_part_63.JPG', 'DJI_0598_part_44.JPG', 'DJI_0614_part_27.JPG']
 
         for i, item in enumerate(npyfile):
-            
-            if(imgs[i] in xpto):
-                print(f'indice: {i} - name: {imgs[i]} - img: \n{item}')
 
             if flag_multi_class:
                 img = Data.label_visualize(num_class, Data.COLOR_DICT, item)
                 io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img)
             else:
-                img = item #item[:, :, 0]
+                img = item[:, :, :] #item[:, :, 0]
+            
+                if(imgs[i] in xpto):
+                    print(f'indice: {i} - name: {imgs[i]} - img: \n{img}')
+
                 img = img.astype('float32')
                 # img = img / 255
                 img[img > 0.50] = 1
