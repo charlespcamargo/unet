@@ -257,8 +257,8 @@ class Data():
 
         for i, item in enumerate(npyfile):
             
-            if(i == 0):
-                print(f'print 1: {img}')
+            if(i % 500 == 0):
+                print(f'print {i}: {item}')
 
             if flag_multi_class:
                 img = Data.label_visualize(num_class, Data.COLOR_DICT, item)
