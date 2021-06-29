@@ -240,13 +240,12 @@ class PreProcessingData():
             y_weights = round(px_white / total, 2)            
 
             arr_weigths.append((x_weights, y_weights))
-            if(i > 0 and i % 100 == 0):
-                print(f'calc the class weights: {i}')
+            if(i > 0 and i % 500 == 0):
+                print(f'i: {i} - calc the class weights')
             
             i += 1
 
-        print(f'arr_weigths: {arr_weigths}')
         (black, white) = np.mean(arr_weigths, axis=0)                
-        print(f"mean(black, white): {black}, {white}\n")
+        print(f"\nmean(black, white): {black}, {white}\n")
 
         return (round(black, 2), round(white, 2))
