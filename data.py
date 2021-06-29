@@ -273,7 +273,7 @@ class Data():
 
             if flag_multi_class:
                 img = Data.label_visualize(num_class, Data.COLOR_DICT, item)
-                io.imsave(os.path.join(save_path, imgs[i] + "_predict.jpg"), img)
+                io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img)
             else:
                 img = item[:, :, 0]
                 img = img.astype('float32')
@@ -283,7 +283,7 @@ class Data():
 
                 #img = 255 * img # Now scale by 255
                 img = img.astype(np.uint8)
-                io.imsave(os.path.join(save_path, imgs[i] + "_predict.jpg"), img) 
+                io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img) 
 
             # img[img > 0.50] = 1
             # img[img <= 0.50] = 0 
