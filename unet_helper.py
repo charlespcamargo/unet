@@ -286,18 +286,20 @@ class UnetHelper:
 
     def generate_my_gen(self, args):
         
+        data_gen_args = dict()
+        
         if(self.use_augmentation):
             data_gen_args = dict(
-            zoom_range=0.025,  # alterar
-            brightness_range=[0.5,0.5], # alterar
-            #width_shift_range=0.0, # remover
-            #height_shift_range=0.0, # remover
-            #shear_range=1.0, # remover
-            #rotation_range=90,  # remover
-            #horizontal_flip=True, # remover
-            #vertical_flip=True, # remover            
-            #fill_mode="wrap"# remover        
-        )
+                                    zoom_range=0.025,  # alterar
+                                    brightness_range=[0.5,0.5], # alterar
+                                    #width_shift_range=0.0, # remover
+                                    #height_shift_range=0.0, # remover
+                                    #shear_range=1.0, # remover
+                                    #rotation_range=90,  # remover
+                                    #horizontal_flip=True, # remover
+                                    #vertical_flip=True, # remover            
+                                    #fill_mode="wrap"# remover        
+                                )
         else:
             print('without augmentation')
 
