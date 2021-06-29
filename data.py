@@ -254,11 +254,22 @@ class Data():
     def save_result(save_path, npyfile, imgs, flag_multi_class=False, num_class=2):
 
         Path(save_path).mkdir(parents=True, exist_ok=True)
+        
+        xpto = ['DJI_0635_part_20.JPG', 'DJI_0488_part_02.JPG', 'DJI_0630_part_27.JPG', 'DJI_0255_part_23.JPG', 'DJI_0662_part_50.JPG', 'DJI_0274_part_68.JPG']
+                # 'DJI_0540_part_05.JPG', 'DJI_0271_part_53.JPG', 'DJI_0645_part_70.JPG', 'DJI_0128_part_26.JPG', 'DJI_0244_part_74.JPG', 'DJI_0260_part_38.JPG', 
+                # 'DJI_0131_part_12.JPG', 'DJI_0270_part_40.JPG', 'DJI_0265_part_22.JPG', 'DJI_0244_part_76.JPG', 'DJI_0162_part_37.JPG', 'DJI_0595_part_68.JPG', 
+                # 'DJI_0643_part_06.JPG', 'DJI_0651_part_74.JPG', 'DJI_0428_part_10.JPG', 'DJI_0174_part_56.JPG', 'DJI_0665_part_42.JPG', 'DJI_0449_part_62.JPG', 
+                # 'DJI_0651_part_56.JPG', 'DJI_0262_part_27.JPG', 'DJI_0293_part_09.JPG', 'DJI_0538_part_44.JPG', 'DJI_0265_part_41.JPG', 'DJI_0267_part_21.JPG', 
+                # 'DJI_0596_part_71.JPG', 'DJI_0637_part_22.JPG', 'DJI_0255_part_35.JPG', 'DJI_0261_part_49.JPG', 'DJI_0640_part_08.JPG', 'DJI_0607_part_21.JPG', 
+                # 'DJI_0629_part_13.JPG', 'DJI_0466_part_51.JPG', 'DJI_0632_part_07.JPG', 'DJI_0666_part_66.JPG', 'DJI_0249_part_77.JPG', 'DJI_0255_part_29.JPG', 
+                # 'DJI_0608_part_09.JPG', 'DJI_0450_part_54.JPG', 'DJI_0639_part_22.JPG', 'DJI_0668_part_02.JPG', 'DJI_0651_part_68.JPG', 'DJI_0658_part_75.JPG', 
+                # 'DJI_0658_part_80.JPG', 'DJI_0258_part_24.JPG', 'DJI_0270_part_29.JPG', 'DJI_0268_part_38.JPG', 'DJI_0261_part_25.JPG', 'DJI_0429_part_18.JPG', 
+                # 'DJI_0279_part_68.JPG', 'DJI_0603_part_51.JPG', 'DJI_0599_part_63.JPG', 'DJI_0598_part_44.JPG', 'DJI_0614_part_27.JPG']
 
         for i, item in enumerate(npyfile):
             
-            if(i % 500 == 0):
-                print(f'print {i}: {item}')
+            if(imgs[i] in xpto):
+                print(f'indice: {i} - name: {imgs[i]} - img: \n{item}')
 
             if flag_multi_class:
                 img = Data.label_visualize(num_class, Data.COLOR_DICT, item)
