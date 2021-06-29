@@ -275,7 +275,7 @@ class Data():
                 img = Data.label_visualize(num_class, Data.COLOR_DICT, item)
                 io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img)
             else:
-                img = item[:, :, 0]
+                img = item #item[:, :, 0]
                 img = img.astype('float32')
                 # img = img / 255
                 img[img > 0.50] = 1
