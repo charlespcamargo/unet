@@ -59,6 +59,8 @@ class UnetHelper:
     learning_rate = 1e-4
     momentum = 0.90
     use_sgd = False
+    check_train_class_weights = False
+    use_augmentation = False
 
     def main(self, args):
 
@@ -120,6 +122,8 @@ class UnetHelper:
         print("learning_rate: ", self.learning_rate)
         print("momentum:", self.momentum)
         print("use_sgd:", self.use_sgd)
+        print("check_train_class_weights", self.check_train_class_weights)
+        print("use_augmentation", self.use_augmentation)
 
 
     def set_arguments(
@@ -143,7 +147,9 @@ class UnetHelper:
         use_numpy = False,
         learning_rate = 1e-4,
         momentum = 0.90,
-        use_sgd = False
+        use_sgd = False,
+        check_train_class_weights = False,
+        use_augmentation = False
     ):
         self.batch_size = batch_size
         self.steps_per_epoch = steps_per_epoch
@@ -169,6 +175,8 @@ class UnetHelper:
         self.learning_rate = learning_rate
         self.momentum = momentum
         self.use_sgd = use_sgd
+        self.check_train_class_weights = check_train_class_weights
+        self.use_augmentation = use_augmentation
 
     def get_folder_name(self, basePath):
         now = datetime.now()
@@ -277,18 +285,21 @@ class UnetHelper:
         return args
 
     def generate_my_gen(self, args):
-        # teste sem aug
-        data_gen_args = dict(
+        
+        if(self.use_augmentation):
+            data_gen_args = dict(
+            zoom_range=0.025,  # alterar
+            brightness_range=[0.5,0.5], # alterar
             #width_shift_range=0.0, # remover
             #height_shift_range=0.0, # remover
             #shear_range=1.0, # remover
-            zoom_range=0.025,  # alterar
             #rotation_range=90,  # remover
             #horizontal_flip=True, # remover
-            #vertical_flip=True, # remover
-            brightness_range=[0.5,0.5], # alterar
+            #vertical_flip=True, # remover            
             #fill_mode="wrap"# remover        
         )
+        else:
+            print('without augmentation')
 
         save_to_dir = None
         if args.g != 0:
@@ -361,10 +372,10 @@ class UnetHelper:
             )
 
             # classe desbalanceada
-            (black, white) = PreProcessingData.get_train_class_weights(self.base_folder)
-            self.class_weights = { 0: white }
-            print(f"self.class_weights: {self.class_weights}")
-            #self.class_weights = { 0: 0.80, 1: 0.20}
+            if(self.check_train_class_weights):
+                (black, white) = PreProcessingData.get_train_class_weights(self.base_folder)
+                self.class_weights = { 0: white }
+                print(f"self.class_weights: {self.class_weights}")
 
             #model.summary()
 

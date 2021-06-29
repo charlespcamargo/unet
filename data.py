@@ -164,7 +164,7 @@ class Data():
             # os.path.join(test_path,"%d.jpg"%i)
             img = io.imread(item, as_gray=as_gray)
             img = img.astype('float32')
-            img = img / 255.
+            img = img / 255
 
             # w = img.shape[1]
             # h = img.shape[0]
