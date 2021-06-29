@@ -77,7 +77,7 @@ class Unet():
         print("conv9 shape:", conv9.shape) 
 
         ##Output Layer
-        output_layer = Conv2D(1, 1, activation = 'sigmoid', dtype=tf.float32)(conv9)
+        output_layer = Conv2D(3, 1, activation = 'sigmoid', dtype=tf.float32)(conv9)
 
         print(output_layer)
 
