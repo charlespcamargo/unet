@@ -9,7 +9,7 @@ import shutil
 class PreProcessingData():
 
     @staticmethod
-    def crop_images_in_tiles(data_path, train_folder, val_folder, test_folder, image_folder, mask_folder, w, h, threshold = 50, force_delete = False):
+    def crop_images_in_tiles(data_path, train_folder, val_folder, test_folder, image_folder, mask_folder, w, h, threshold = 50, force_delete = False, move_ignored_to_test = False):
         if(train_folder):
             PreProcessingData.crop_image(data_path, train_folder, force_delete, image_folder, mask_folder , w, h, True, threshold)
         if(val_folder):
@@ -17,7 +17,8 @@ class PreProcessingData():
         if(test_folder):
             PreProcessingData.crop_image(data_path, test_folder, force_delete, image_folder, mask_folder , w, h, False, threshold)
 
-        PreProcessingData.move_ignored_items(data_path)
+        if(move_ignored_to_test):
+            PreProcessingData.move_all_ignored_folders_to_test(data_path)
 
 
     @staticmethod
@@ -89,10 +90,6 @@ class PreProcessingData():
             print(f'\n{data_folder} - discarded_img: {discarded_img} - not_discarded: {not_discarded} - total: {discarded_img+not_discarded}')
             print(f"items: {len(arr_weigths)}")
             print(f"mean(black, white): {np.mean(arr_weigths, axis=0)}\n")
-    
-    @staticmethod
-    def move_ignored_items(data_path):
-        PreProcessingData.move_all_ignored_folders_to_test(data_path)
     
     @staticmethod
     def move_all_ignored_folders_to_test(data_path):
