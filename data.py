@@ -272,6 +272,9 @@ class Data():
 
                 img = 255 * img # Now scale by 255
                 img = img.astype(np.uint8)
-                io.imsave(os.path.join(save_path, imgs[i] + "_predict.jpg"))  
+                io.imsave(os.path.join(save_path, imgs[i] + "_predict.jpg"), img) 
+
+            # img[img > 0.50] = 1
+            # img[img <= 0.50] = 0 
             
         
