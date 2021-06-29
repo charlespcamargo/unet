@@ -279,7 +279,7 @@ class Data():
 
                 img = img.astype('float32')
                 # img = img / 255
-                img[img > 0.50] = 1
+                img[img > 0.50] = 1 * 255
                 img[img <= 0.50] = 0
 
                 #img = 255 * img # Now scale by 255
