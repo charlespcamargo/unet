@@ -1,4 +1,5 @@
 from __future__ import print_function
+from skimage.util.dtype import img_as_float32
 from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
 import numpy as np
 import os
@@ -75,8 +76,8 @@ class Data():
             )
             mask = new_mask
         elif np.max(img) > 1:
-            img = img / 255
-            mask = mask / 255
+            img = (img / 255).astype('float32')
+            mask = (mask / 255).astype('float32')
             mask[mask > 0.5] = 1
             mask[mask <= 0.5] = 0
 
@@ -159,7 +160,7 @@ class Data():
         for item in imgs:
             # os.path.join(test_path,"%d.jpg"%i)
             img = io.imread(item, as_gray=as_gray)
-            img = img / 255
+            img = (img / 255).astype('float32')
 
             # w = img.shape[1]
             # h = img.shape[0]
@@ -233,7 +234,7 @@ class Data():
         img_out = np.zeros(img.shape + (3,))
         for i in range(num_class):
             img_out[img == i, :] = color_dict[i]
-        return img_out / 255
+        return (img_out / 255).astype('float32')
 
     @staticmethod
     def save_result(save_path, npyfile, imgs, flag_multi_class=False, num_class=2):
@@ -250,10 +251,11 @@ class Data():
                 img = Data.label_visualize(num_class, Data.COLOR_DICT, item)
                 io.imsave(os.path.join(save_path, imgs[i] + "_predict.jpg"), img)
             else:
+                img = (img / 255).astype('float32')
                 img = item[:, :, 0]
                 img[img > 0.50] = 1
                 img[img <= 0.50] = 0
-                io.imsave(os.path.join(save_path, imgs[i] + "_predict.jpg"), img_as_uint(img)) 
+                io.imsave(os.path.join(save_path, imgs[i] + "_predict.jpg"), img_as_float32(img)) 
 
             # img[img > 0.50] = 1
             # img[img <= 0.50] = 0 

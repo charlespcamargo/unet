@@ -277,16 +277,17 @@ class UnetHelper:
         return args
 
     def generate_my_gen(self, args):
+        # teste sem aug
         data_gen_args = dict(
-            width_shift_range=0.0,
-            height_shift_range=0.0,
-            shear_range=1.0,
-            zoom_range=0.025,
-            rotation_range=90,
-            horizontal_flip=True,
-            vertical_flip=True,
-            brightness_range=[0.2,0.2],
-            fill_mode="wrap"        
+            #width_shift_range=0.0, # remover
+            #height_shift_range=0.0, # remover
+            #shear_range=1.0, # remover
+            zoom_range=0.025,  # alterar
+            #rotation_range=90,  # remover
+            #horizontal_flip=True, # remover
+            #vertical_flip=True, # remover
+            brightness_range=[0.5,0.5], # alterar
+            #fill_mode="wrap"# remover        
         )
 
         save_to_dir = None

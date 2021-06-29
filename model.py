@@ -35,7 +35,7 @@ class Unet():
         inputs = Input( shape=(input_size) ) 
 
         concat_axis = 3  
-
+        # pesquisar camada de processamento
         conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(inputs)    
         conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv1)    
         pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
@@ -77,7 +77,7 @@ class Unet():
         print("conv9 shape:", conv9.shape) 
 
         ##Output Layer
-        output_layer = Conv2D(3, 1, activation = 'sigmoid')(conv9)
+        output_layer = Conv2D(1, 1, activation = 'sigmoid')(conv9)
 
         print(output_layer)
 
