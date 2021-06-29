@@ -361,7 +361,7 @@ class UnetHelper:
 
             # classe desbalanceada
             (black, white) = PreProcessingData.get_train_class_weights(self.base_folder)
-            self.class_weights = { 0: white}
+            self.class_weights = { 0: white }
             print(f"self.class_weights: {self.class_weights}")
             #self.class_weights = { 0: 0.80, 1: 0.20}
 

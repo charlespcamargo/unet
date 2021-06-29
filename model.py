@@ -74,10 +74,10 @@ class Unet():
         conv9 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(merge9)
         conv9 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv9)
         conv9 = Conv2D(2, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv9)
-        print("conv9 shape:", conv9.shape)
+        print("conv9 shape:", conv9.shape) 
 
         ##Output Layer
-        output_layer = Conv2D(3, 1, (1, 1), padding="same", activation = 'sigmoid')(conv9)
+        output_layer = Conv2D(3, 1, activation = 'sigmoid')(conv9)
 
         print(output_layer)
 
