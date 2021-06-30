@@ -94,8 +94,19 @@ class UnetHelper:
                                       threshold = 20,
                                       force_delete = False)
 
-        elif args.t == 6:            
-            PreProcessingData.get_train_class_weights('../../datasets/hedychium_coronarium/')
+        elif args.t == 6:
+            PreProcessingData.crop_all_images_in_tiles('../../datasets/all', 
+                                      "images", 
+                                      "masks", 
+                                      416,
+                                      416,
+                                      threshold = 5,
+                                      force_delete = False,
+                                      validate_class_to_discard = True,
+                                      move_ignored_to_test = False)
+
+        elif args.t == 7:            
+            PreProcessingData.get_train_class_weights('../../datasets/all')
 
     def show_arguments(self):
         print("batch_size: ", self.batch_size)

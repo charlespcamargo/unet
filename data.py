@@ -272,17 +272,16 @@ class Data():
                 img = Data.label_visualize(num_class, Data.COLOR_DICT, item)
                 io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img)
             else:
-                img = item[:, :, :] #item[:, :, 0]
+                img = item[:, :, :]
             
                 if(imgs[i] in xpto):
                     print(f'indice: {i} - name: {imgs[i]} - img: \n{img}')
 
-                img = img.astype('float32')
-                # img = img / 255
-                img[img > 0.50] = 1 * 255
-                img[img <= 0.50] = 0
+                #img = img.astype('float32')
+                
+                img[img > 0.5] = 1 * 255
+                img[img <= 0.5] = 0
 
-                #img = 255 * img # Now scale by 255
                 img = img.astype(np.uint8)
                 io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img) 
 
