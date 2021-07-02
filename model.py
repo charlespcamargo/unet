@@ -93,14 +93,14 @@ class Unet():
         model.compile(optimizer = opt, 
                      loss = 'binary_crossentropy',
                      metrics = [
-                               MeanIoU(num_classes=2, name="mean_iou"),
-                               Accuracy(name="accuracy"),
-                               BinaryAccuracy(name="binary_accuracy"),
-                               Precision(name="precision"),
-                               Recall(name="recall"),
-                               AUC(name="auc"),
-                               CustomMetrics.jacard_coef,
-                               CustomMetrics.dice_coefficient
+                                Precision(name="precision"),
+                                Recall(name="recall"),
+                                AUC(name="auc"),
+                                MeanIoU(num_classes=2, name="mean_iou"),
+                                Accuracy(name="accuracy"),
+                                BinaryAccuracy(name="binary_accuracy"),                               
+                                CustomMetrics.jacard_coef,
+                                CustomMetrics.dice_coefficient
                             ]
                 )
 

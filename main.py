@@ -7,21 +7,21 @@ if __name__ == "__main__":
     #args = helper.arguments()
 
     args = easydict.EasyDict({
-        't': 7, # "Informe o tipo  
+        't': 1, # "Informe o tipo  
          # '--t -1' parametros, '--t 0' treino, '--t 1' teste, '--t 2' sumario', '--t 3' avaliacao, '--t 4' f-beta-score, '--t 5' crop_images", '--t 5' crop_images", '--t 6' crop_all_images"
         'g': 1, # Gerar arquivos '--g 0' para nao gerar arquivos ou '--g 1' para gerar
         'q': 0, # Quantidade de arquivos para teste '--q 0' para nao gerar arquivos ou '--q 1' para gerar
-        'n': '2021.06.02_201514_unet.hdf5', # Informe o nome do arquivo de pesos para executar o teste ou ler o sumario
+        'n': '20210701_191701_unet.hdf5', # Informe o nome do arquivo de pesos para executar o teste ou ler o sumario
         'b': None, # Informe o beta para calcular o f-beta score
         'p': None, # Informe o precision para calcular o f-beta score
         'r': None, # Informe o recall para calcular o f-beta score,
         'flag_multi_class': False,
-        'batch_size': 4, 
-        'steps_per_epoch': 200, 
-        'epochs': 50, 
+        'batch_size': 1, 
+        'steps_per_epoch': 20, 
+        'epochs': 5, 
         'target_size': (416, 416), 
         'input_shape': (416, 416, 3),
-        'base_folder': '../hedychium_coronarium/', 
+        'base_folder': '/Users/charles/Downloads/hedychium_coronarium/', 
         'image_folder': 'images', 
         'label_folder': 'masks', 
         'patience': 10,

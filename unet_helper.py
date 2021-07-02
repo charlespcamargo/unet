@@ -10,6 +10,7 @@ import os
 import os.path
 import glob
 import traceback
+import math
 
 from datetime import datetime
 import pytz
@@ -20,25 +21,26 @@ import tensorflow as tf
 
 # import tensorflow.keras
 from tensorflow.keras.callbacks import *
+from skimage.util.dtype import img_as_float32, img_as_uint
 
 
 class UnetHelper:
     # training vars
     model = None
-    batch_size = 4
-    steps_per_epoch = 100
-    epochs = 10
+    batch_size = 1
+    steps_per_epoch = 5
+    epochs = 1
 
     # image sizes
     target_size = (416, 416)  # (1280, 1792) #
     input_shape = (416, 416, 3)  # (1280, 1792, 3) #
 
     # paths
-    base_folder = "../../datasets/hedychium_coronarium/"
-    train_folder = base_folder + "train_splits/"
+    base_folder = "/Users/charles/Downloads/hedychium_coronarium/"
+    train_folder = base_folder + "train/"
     augmentation_folder = train_folder + "aug/"
-    validation_folder = base_folder + "val_splits/"
-    test_folder = base_folder + "test_splits/"
+    validation_folder = base_folder + "val/"
+    test_folder = base_folder + "test/"
     image_folder = "images"
     label_folder = "masks"
     patience = 5
@@ -54,16 +56,17 @@ class UnetHelper:
     class_weight = None
     model_monitor = "val_binary_accuracy"
     model_monitor_mode = "auto"    
-    validation_steps = 200
+    validation_steps = 10
     use_numpy = False
     learning_rate = 1e-4
     momentum = 0.90
     use_sgd = False
     check_train_class_weights = False
     use_augmentation = False
+    use_splits = False
 
     def main(self, args):
-
+        
         if args.t == -1:
             self.show_arguments()
 
@@ -71,7 +74,7 @@ class UnetHelper:
             self.train(args)
 
         elif args.t == 1:
-            self.test(args, steps_to_test = 200, cnn_type = 0)
+            self.test(args)
 
         elif args.t == 2:
             self.show_summary(args)
@@ -95,18 +98,18 @@ class UnetHelper:
                                       force_delete = False)
 
         elif args.t == 6:
-            PreProcessingData.crop_all_images_in_tiles('../../datasets/all', 
+            PreProcessingData.crop_all_images_in_tiles('/Users/charles/Downloads/hedychium_coronarium/all', 
                                       "images", 
                                       "masks", 
                                       416,
                                       416,
-                                      threshold = 5,
+                                      threshold = 40,
                                       force_delete = False,
                                       validate_class_to_discard = True,
                                       move_ignored_to_test = False)
 
         elif args.t == 7:            
-            PreProcessingData.get_train_class_weights('../../datasets/all')
+            PreProcessingData.get_train_class_weights('../../datasets/all', use_splits=self.use_splits)
 
     def show_arguments(self):
         print("batch_size: ", self.batch_size)
@@ -135,6 +138,7 @@ class UnetHelper:
         print("use_sgd:", self.use_sgd)
         print("check_train_class_weights", self.check_train_class_weights)
         print("use_augmentation", self.use_augmentation)
+        print("use_splits", self.use_splits)
 
 
     def set_arguments(
@@ -160,7 +164,8 @@ class UnetHelper:
         momentum = 0.90,
         use_sgd = False,
         check_train_class_weights = False,
-        use_augmentation = False
+        use_augmentation = False,
+        use_splits = False,
     ):
         self.batch_size = batch_size
         self.steps_per_epoch = steps_per_epoch
@@ -188,6 +193,7 @@ class UnetHelper:
         self.use_sgd = use_sgd
         self.check_train_class_weights = check_train_class_weights
         self.use_augmentation = use_augmentation
+        self.use_splits = use_splits
 
     def get_folder_name(self, basePath):
         now = datetime.now()
@@ -301,8 +307,8 @@ class UnetHelper:
         
         if(self.use_augmentation):
             data_gen_args = dict(
-                                    zoom_range=0.025,  # alterar
-                                    brightness_range=[0.5,0.5], # alterar
+                                    zoom_range=0.1,  # alterar
+                                    brightness_range=[0.25,0.25], # alterar
                                     #width_shift_range=0.0, # remover
                                     #height_shift_range=0.0, # remover
                                     #shear_range=1.0, # remover
@@ -360,7 +366,7 @@ class UnetHelper:
         # tf.keras.mixed_precision.experimental.set_policy(policy) 
 
         try:
-            self.show_execution_time(originalMsg="Starting now...", writeInFile=True)
+            self.show_execution_time(original_msg="Starting now...", writeInFile=True)
 
             model = self.get_model()
             #model.reset_metrics()
@@ -414,11 +420,11 @@ class UnetHelper:
 
         except Exception as e:
             self.show_execution_time(success=False, writeInFile=True)
-            error_Msg = (
+            error_msg = (
                 "\ntype error: " + str(e) + " \ntraceback: " + traceback.format_exc()
             )
             self.show_execution_time(
-                success=False, originalMsg=error_Msg, writeInFile=True
+                success=False, original_msg=error_msg, writeInFile=True
             )
             raise e 
 
@@ -434,8 +440,8 @@ class UnetHelper:
 
         #return unet.get_unet(self.input_shape, n_filters = 16, dropout = 0.1, batchnorm = True)
 
-    def evaluate(self, model: Model, dataGenerator, history):
-        _, acc = model.evaluate(dataGenerator, verbose=1)
+    def evaluate(self, model: Model, data_generator, history):
+        _, acc = model.evaluate(data_generator, verbose=1)
         print('Evaluate data - acc: %.3f - and plotting...', acc)
         
         # plot training history
@@ -444,10 +450,85 @@ class UnetHelper:
         plt.legend()
         plt.show()
 
-    def test(self, args, steps_to_test = 200, cnn_type = 0):
+
+    def test2(self, args):
+        args.n = "train_weights/20210701_191701_unet.hdf5"
+        model = self.get_model(pretrained_weights=args.n, cnn_type = 0)
+        imgs = glob.glob(self.test_folder + self.image_folder + "/*.JPG")
+        
+        output_layer_name = model.layers[len(model.layers)-1].name
+        layer_output = model.get_layer(output_layer_name).output
+        intermediate_model = tf.keras.models.Model(inputs=model.input,outputs=layer_output)
+
+        for item in imgs:
+            img_original = io.imread(item, as_gray=False)
+            x = item.split('/')
+            l = len(x)
+            x[l-2] = 'masks'
+            mask_image =  os.path.join("/".join(x))
+            img_mask = io.imread(mask_image, as_gray=False)
+            img = img_original
+            img = img.astype('float32')
+            img = img / 255
+            img = trans.resize(img, self.target_size)
+            img = np.reshape(img, img.shape + (1,)) if (not False) else img
+            img = np.reshape(img, (1,) + img.shape)                 
+
+            # normalizando a saida
+            intermediate_prediction = intermediate_model.predict(img.reshape(1, 416, 416,3))        
+            prediction_binary = (np.mean(intermediate_prediction[0], axis=2) > 0.5) * 255
+            
+            w = 1500
+            h = 1500 
+            my_dpi = 96
+            #fig = plt.figure(figsize=(w/my_dpi, h/my_dpi), dpi=my_dpi)
+            
+            #fig = plt.figure()
+            #fig.add_subplot(2, 2, 1)
+
+            fig, ax = plt.subplots(nrows=2, ncols=2)            
+            ax[0][0].imshow(img_original)
+            ax[0][0].set_title(f'original: {x[l-1]}')
+            
+            ax[0][1].imshow(img_mask)
+            ax[0][1].set_title('mask')
+
+            ax[1][0].imshow(prediction_binary, cmap='gray')
+            ax[1][0].set_title('predict')
+            
+            img_mask = img_mask[:,:,0]
+            diff = np.abs(img_mask - prediction_binary)
+            ax[1][1].imshow(diff, cmap='summer')
+            ax[1][1].set_title('diff') 
+            
+
+            plt.show() 
+
+            # plt.imshow(prediction_binary, cmap='gray')
+            # plt.title('predict') 
+
+            # fig.add_subplot(2, 2, 2)
+            # img_mask = img_mask[:,:,0]
+            # diff = np.abs(img_mask - prediction_binary)
+            # plt.imshow(diff, cmap='Purples')
+            # plt.title('diff') 
+            
+            # fig.add_subplot(1, 2, 1)
+            # plt.imshow(img_original)
+            # plt.title(f'original: {x[l-1]}')
+
+            # fig.add_subplot(1, 2, 2)
+            # plt.imshow(img_mask)
+            # plt.title('mask')
+
+            # fig.tight_layout()    
+            # plt.show() 
+
+
+    def test(self, args, steps_to_test = 0, cnn_type = 0):
 
         if not args.n:
-            args.n = "train_weights/20200420_0817_unet-100-100-loss0_431_acc0_9837.hdf5"
+            args.n = "train_weights/20210701_191701_unet.hdf5"
         else:
             args.n = "train_weights/" + args.n
 
@@ -458,27 +539,46 @@ class UnetHelper:
         if qtd > 0:
             try:
                 self.show_execution_time(
-                    originalMsg="Starting now...", writeInFile=True
+                    original_msg="Starting now...", writeInFile=True
                 )
 
                 tb_cb = self.create_tensor_board_callback()
                 model = self.get_model(pretrained_weights=args.n, cnn_type = cnn_type)
-                testGene = Data.test_generator(
-                    self.test_folder + self.image_folder + "/",
-                    flag_multi_class=args.flag_multi_class,
-                    target_size=self.input_shape,
-                    as_gray=False,
-                )
 
-                #unet = Unet()
-                results = model.predict(testGene, steps=steps_to_test, batch_size=self.batch_size, callbacks=[tb_cb], verbose=1,use_multiprocessing=False)
+                steps_to_test = qtd if (steps_to_test <= 0) else steps_to_test
+                total = qtd if (qtd < steps_to_test) else steps_to_test
+                page_size = 20                 
+                page_size = qtd if (page_size > qtd) else page_size
+                pages = math.ceil(total / page_size) 
+                current_page = 0
+                results = {}
 
-                Data.save_result(
-                    save_path=self.test_folder + "results",
-                    npyfile=results,
-                    imgs=imgs,
-                    flag_multi_class=False,
-                )   
+                for current_page in range(0, pages):
+                    
+                    page_size = qtd if (page_size > qtd) else page_size
+                    if(page_size > 0):
+                        offset = current_page * page_size
+                        current_page_imgs = np.array(imgs)[offset : offset + page_size]
+                    else:
+                        current_page_imgs = imgs
+
+
+                    test_gene = Data.test_generator(
+                        current_page_imgs,
+                        self.test_folder + self.image_folder + "/",
+                        flag_multi_class = args.flag_multi_class,
+                        target_size = self.input_shape,
+                        as_gray = False
+                    )
+
+                    results = model.predict(test_gene, steps=len(current_page_imgs), batch_size=self.batch_size, max_queue_size=10, callbacks=[tb_cb], verbose=1,use_multiprocessing=False)
+                    
+                    Data.save_result(
+                        save_path=self.test_folder + "results",
+                        npyfile=results,
+                        imgs=current_page_imgs,
+                        flag_multi_class=False,
+                    )   
 
                 #res = model.evaluate(x=results, verbose=1, callbacks=[tb_cb])
                 #self.evaluate(model, testGene, history)
@@ -487,15 +587,15 @@ class UnetHelper:
 
             except Exception as e:
                 self.show_execution_time(success=False, writeInFile=True)
-                error_Msg = (
+                error_msg = (
                     "\ntype error: "
                     + str(e)
                     + " \ntraceback: "
                     + traceback.format_exc()
                 )
-                print(error_Msg)
+                print(error_msg)
                 self.show_execution_time(
-                    success=False, originalMsg=error_Msg, writeInFile=True
+                    success=False, original_msg=error_msg, writeInFile=True
                 )
                 pass
 
@@ -508,12 +608,12 @@ class UnetHelper:
         model.build(self.input_shape)
         model.summary()
 
-    def show_execution_time(self, success=True, originalMsg="", writeInFile=False):
+    def show_execution_time(self, success=True, original_msg="", writeInFile=False):
         end_time = datetime.now(tz=self.tz)
         elapsed = end_time - self.start_time
 
         msg = (
-            originalMsg + f"\n=================================================="
+            original_msg + f"\n=================================================="
             f"\nExecution checkpoint! Success: {success} "
             f'\nProcess Started: {self.start_time.strftime("%Y/%m/%d %H:%M")}'
             f'\nProcess Now: {end_time.strftime("%Y/%m/%d %H:%M")}'

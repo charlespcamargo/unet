@@ -286,9 +286,13 @@ class PreProcessingData():
             os.makedirs(ignore_path + "/")
    
     @staticmethod
-    def get_train_class_weights(data_path):
+    def get_train_class_weights(data_path, use_splits = False):
+        _splits = ''
+        if(use_splits):
+            _splits = '_splits'
+            
         img_path = data_path.split("/")
-        base_train_path = os.path.join("/".join(img_path)) + f"train_splits/masks/"
+        base_train_path = os.path.join("/".join(img_path)) + f"train{_splits}/masks/"
         
         i = 0
         arr_weigths = []
