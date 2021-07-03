@@ -202,7 +202,7 @@ class PreProcessingData():
             print(f"The directory does not exists: {base_stage_path} or {dest_stage_path}")
     
     @staticmethod
-    def should_I_discard(im, threshold):    
+    def should_discard(im, threshold):    
         w,h = im.size
         colors = im.getcolors(w*h)
         colordict = { x[1]:x[0] for x in colors }

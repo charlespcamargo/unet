@@ -1,11 +1,8 @@
-import numpy as np
-# import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve
 from sklearn.metrics import roc_auc_score
 from tensorflow.keras import backend as K 
 import tensorflow as tf
-
 from tensorflow.keras.metrics import *
 
 class CustomMetrics:
@@ -29,7 +26,7 @@ class CustomMetrics:
         return f_score
 
     @staticmethod
-    def get_fbetaScore(beta, precision, recall):
+    def get_fbeta_score(beta, precision, recall):
 
         # F0.5-Measure  (beta=0.5): More weight on precision, less weight on recall
         # F1-Measure    (beta=1.0): Balance the weight on precision and recall
@@ -51,14 +48,14 @@ class CustomMetrics:
         plt.show()
 
     @staticmethod
-    def get_auc(model, testX, testY):
-        probs = model.predict_proba(testX)
+    def get_auc(model, test_x, test_y):
+        probs = model.predict_proba(test_x)
         probs = probs[:, 1]
 
-        auc = roc_auc_score(testY, probs)
+        auc = roc_auc_score(test_y, probs)
         print("AUC: %.2f" % auc)
 
-        fpr, tpr, thresholds = roc_curve(testY, probs)
+        fpr, tpr, thresholds = roc_curve(test_y, probs)
         CustomMetrics.plot_roc_curve(fpr, tpr)
 
         return auc
@@ -94,6 +91,7 @@ class CustomMetrics:
         # otherwise, return the intersection over union
         return K.switch(K.equal(union, 0), 1.0, intersection / union)
 
+    @staticmethod
     def recall_m(y_true, y_pred):
         true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
         possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
@@ -125,8 +123,8 @@ class CustomMetrics:
 
     @staticmethod
     def dice_coef(y_true, y_pred, smooth=1):
-        y_true_f = K.flatten(y_true)
-        y_pred_f = K.flatten(y_pred)
+        # y_true_f = K.flatten(y_true)
+        # y_pred_f = K.flatten(y_pred)
         intersection = K.dot(y_true, K.transpose(y_pred))
         union = K.dot(y_true,K.transpose(y_true))+K.dot(y_pred,K.transpose(y_pred))
         return (2. * intersection + smooth) / (union + smooth)

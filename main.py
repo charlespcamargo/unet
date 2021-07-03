@@ -4,10 +4,9 @@ if __name__ == "__main__":
     
     import easydict
     myhelper = UnetHelper()
-    #args = helper.arguments()
 
     args = easydict.EasyDict({
-        't': 1, # "Informe o tipo  
+        't': 8, # "Informe o tipo  
          # '--t -1' parametros, '--t 0' treino, '--t 1' teste, '--t 2' sumario', '--t 3' avaliacao, '--t 4' f-beta-score, '--t 5' crop_images", '--t 5' crop_images", '--t 6' crop_all_images"
         'g': 1, # Gerar arquivos '--g 0' para nao gerar arquivos ou '--g 1' para gerar
         'q': 0, # Quantidade de arquivos para teste '--q 0' para nao gerar arquivos ou '--q 1' para gerar

@@ -10,41 +10,41 @@ from skimage.util import img_as_uint
 from pathlib import Path
 import cv2
 from sklearn.utils import class_weight
-from PIL import Image
+from PIL import Image, ImageOps
 from tensorflow.python.keras.preprocessing.image import DirectoryIterator
-from data import *
 from tensorflow.keras import backend as K
 import matplotlib.pyplot as plt
 
 
 class Data():
-    Sky = [128, 128, 128]  # gray
-    Building = [128, 0, 0]  # red
-    Pole = [192, 192, 128]  # bege
-    Road = [128, 64, 128]  # purple
-    Pavement = [60, 40, 222]  # blue
-    Tree = [128, 128, 0]  # Olive
-    SignSymbol = [192, 128, 128]  # almost red
-    Fence = [64, 64, 128]  # blue
-    Car = [64, 0, 128]  # dark purple
-    Pedestrian = [64, 64, 0]  # green or yellow, I dont know
-    Bicyclist = [0, 128, 192]  # dark washed azure
-    Unlabelled = [0, 0, 0]  # black
+    sky = [128, 128, 128]  # gray
+    building = [128, 0, 0]  # red
+    pole = [192, 192, 128]  # bege
+    road = [128, 64, 128]  # purple
+    pavement = [60, 40, 222]  # blue
+    tree = [128, 128, 0]  # Olive
+    sign_symbol = [192, 128, 128]  # almost red
+    fence = [64, 64, 128]  # blue
+    car = [64, 0, 128]  # dark purple
+    pedestrian = [64, 64, 0]  # green or yellow, I dont know
+    bicyclist = [0, 128, 192]  # dark washed azure
+    unlabelled = [0, 0, 0]  # black
+    predict_suffix = '_predict.png'
 
     COLOR_DICT = np.array(
         [
-            Sky,
-            Building,
-            Pole,
-            Road,
-            Pavement,
-            Tree,
-            SignSymbol,
-            Fence,
-            Car,
-            Pedestrian,
-            Bicyclist,
-            Unlabelled,
+            sky,
+            building,
+            pole,
+            road,
+            pavement,
+            tree,
+            sign_symbol,
+            fence,
+            car,
+            pedestrian,
+            bicyclist,
+            unlabelled,
         ]
     )
 
@@ -83,14 +83,6 @@ class Data():
             mask = mask / 255
             mask[mask > 0.5] = 1
             mask[mask <= 0.5] = 0
-
-            # get_class_weights(mask)
-
-        # dpi = 80
-        # figsize = 416 / float(dpi), 320 / float(dpi)
-        # plt.figure(figsize=figsize)
-        # plt.imshow(img[0,:,:,:])
-        # plt.show()
 
         return (img, mask)
 
@@ -159,15 +151,11 @@ class Data():
         flag_multi_class=False,
         as_gray=False
     ): 
-        #imgs = glob.glob(path + "/*" + ext)
-        
         for item in imgs:
-            # os.path.join(test_path,"%d.jpg"%i)
             img = io.imread(path + item, as_gray=as_gray)
             img = img.astype('float32')
             img = img / 255 
             img = trans.resize(img, target_size)
-            #img = np.reshape(img, img.shape + (1,)) if (not flag_multi_class) else img
             img = np.reshape(img, (1,) + img.shape)
 
             yield img        
@@ -189,9 +177,6 @@ class Data():
         image_arr = []
         mask_arr = []
 
-        # fp_images: np.memmap = None
-        # fp_masks: np.memmap = None
-
         for index, item in enumerate(image_name_arr):
             img = io.imread(item, as_gray=image_as_gray)
             img = np.reshape(img, img.shape + (1,)) if image_as_gray else img
@@ -206,21 +191,6 @@ class Data():
 
             if index % 50 == 0:
                 print(f"generate data - {index}/{len(image_name_arr)}")
-
-            # if(index > 0 and index % 5 == 0):
-            #     print(f'saving data... {index}/{len(image_name_arr)}')
-
-            #     if(fp_images == None or not fp_images.all()):
-            #         fp_images = np.memmap(f"{data_path}aug/images_arr.mymemmap", dtype='float32', mode='w+', shape=(np.shape(image_arr)))
-
-            #     if(fp_masks == None or not fp_masks.all()):
-            #         fp_masks = np.memmap(f"{data_path}aug/masks_arr.mymemmap", dtype='float32', mode='w+', shape=(np.shape(mask_arr)))
-
-            #     fp_images[:] = image_arr[:]
-            #     fp_masks[:] = mask_arr[:]
-
-            #     image_arr.clear()
-            #     mask_arr.clear()
 
         image_arr = np.array(image_arr)
         mask_arr = np.array(mask_arr)
@@ -246,11 +216,119 @@ class Data():
 
             if flag_multi_class:
                 img = Data.label_visualize(num_class, Data.COLOR_DICT, item)
-                io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), img)
+                io.imsave(os.path.join(save_path, imgs[i] + Data.predict_suffix), img)
             else:
                 img = item[:, :, :]
-                prediction_binary = (np.mean(img, axis=2) > 0.5) * 255
+                prediction_binary = np.abs(np.mean(img, axis=2) > 0.5) * 255
                 prediction_binary = prediction_binary.astype(np.uint8)
-                io.imsave(os.path.join(save_path, imgs[i] + "_predict.png"), prediction_binary)
-            
+                io.imsave(os.path.join(save_path, imgs[i] + Data.predict_suffix), prediction_binary)
+    
+    @staticmethod
+    def compare_result(base_path, imgs):
         
+        save_path = base_path + "diff/"    
+        Path(save_path).mkdir(parents=True, exist_ok=True)
+
+        for i, file_name in enumerate(imgs):
+            
+            images = Data.load_images_to_compare(base_path, file_name)
+            border = columns = 4
+            rows = 2
+            total_width, max_height, border, img_mais_larga, img_mais_alta = Data.get_sizes(images, border, columns, rows)
+            
+            composed_img = Image.new('RGBA', (total_width, max_height), color="gray")
+            x_offset = border
+            y_offset = border
+            total_imgs = (len(images) if rows * columns  > len(images)  else rows * columns) 
+            current_row = 0
+            
+            for j in range(0, total_imgs):
+                img = images[j]
+                composed_img.paste(img, (x_offset, y_offset))
+                x_offset += (img_mais_larga + border)
+
+                if(j == columns - 1):
+                    current_row += 1
+                    x_offset = border
+                    y_offset = border * (current_row + 1) + img_mais_alta
+
+            composed_img.save(os.path.join(save_path, imgs[i] + ".png"))
+
+            if(i >= 5):
+                break
+
+    @staticmethod
+    def load_images_to_compare(base_path, file_name):
+        original = io.imread(os.path.join(base_path, "images", file_name), as_gray=False)
+        mask = io.imread(os.path.join(base_path, "masks", file_name), as_gray=False)
+        predict = io.imread(os.path.join(base_path, "results", file_name + Data.predict_suffix), as_gray=False)
+
+        mask[mask >= 128] = 255
+        mask[mask < 128] = 0
+        mask_predict_diff = ((np.abs(mask[:,:,0] - predict) > 0.5) * 255).astype(np.uint8)
+
+        original = Image.fromarray(original)
+        original_rgba = original.convert("RGBA")
+        original_filter_mask = Image.alpha_composite(original_rgba, Data.parse_mask_to_rgba(mask, 0))
+        original_filter_predict = Image.alpha_composite(original_rgba, Data.parse_mask_to_rgba(predict, 1))
+        original_filter_diff = Image.alpha_composite(original_rgba, Data.parse_mask_to_rgba(mask_predict_diff, 2))
+
+        mask = Image.fromarray(mask).convert('RGB')
+        predict = Image.fromarray(predict).convert('RGB')
+        mask_predict_diff = Image.fromarray(mask_predict_diff).convert('RGB')
+
+        images = [
+                    original,
+                    mask,
+                    predict,
+                    mask_predict_diff,
+
+                    original,
+                    original_filter_mask,
+                    original_filter_predict,
+                    original_filter_diff,
+                    ]
+
+        return images
+
+    @staticmethod
+    def get_sizes(images, border, columns, rows):
+        widths, heights = zip(*(img.size for img in images))
+        img_mais_alta = max(widths)
+        img_mais_larga = max(heights)
+        total_width = (img_mais_alta * columns) + ((columns + 1) * border)
+        max_height = (img_mais_larga * rows) + ((rows + 1) * border)
+
+        return total_width, max_height, border, img_mais_larga, img_mais_alta
+
+    @staticmethod
+    def parse_mask_to_rgba(mask, mask_type):
+        mask = Image.fromarray(mask)
+        if(mask.mode != 'RGBA' and mask.mode != 'RGB'):
+            mask = mask.convert('RGB')
+
+        RGBA = np.dstack((mask, np.zeros(mask.size, dtype = np.uint8) + 255))            
+
+        # Make mask of black or white pixels too. - mask is True where image has the right color
+        mask_black = (RGBA[:, :, 0:3] == [0,0,0]).all(2)
+        white_black = (RGBA[:, :, 0:3] == [255,255,255]).all(2)
+        
+        # Make all pixels matched by mask into transparent ones
+        RGBA[mask_black] = (0,0,0,0)
+
+        # Make all pixels matched by mask into "filter" purple color with transparency
+        alpha_percent = 50
+        alpha = int(alpha_percent/100*255)
+
+        if(mask_type == 0):
+            color = (255, 131, 0, alpha) # purple
+        elif(mask_type == 1):            
+            color = (110, 0, 110, alpha) # purple
+        else:
+            alpha_percent = 75
+            alpha = int(alpha_percent/100*255)
+            color = (255, 0, 0, alpha)  # red
+
+        RGBA[white_black] = color
+
+        return Image.fromarray(RGBA)

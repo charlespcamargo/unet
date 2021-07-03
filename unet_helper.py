@@ -11,18 +11,10 @@ import os.path
 import glob
 import traceback
 import math
-
 from datetime import datetime
 import pytz
-
-# import seaborn as sns
-
 import tensorflow as tf
-
-# import tensorflow.keras
 from tensorflow.keras.callbacks import *
-from skimage.util.dtype import img_as_float32, img_as_uint
-
 
 class UnetHelper:
     # training vars
@@ -66,7 +58,7 @@ class UnetHelper:
     use_splits = False
 
     def main(self, args):
-        
+
         if args.t == -1:
             self.show_arguments()
 
@@ -110,6 +102,10 @@ class UnetHelper:
 
         elif args.t == 7:            
             PreProcessingData.get_train_class_weights('../../datasets/all', use_splits=self.use_splits)
+
+        elif args.t == 8:
+            self.compare_result(args)
+                    
 
     def show_arguments(self):
         print("batch_size: ", self.batch_size)
@@ -195,11 +191,11 @@ class UnetHelper:
         self.use_augmentation = use_augmentation
         self.use_splits = use_splits
 
-    def get_folder_name(self, basePath):
+    def get_folder_name(self, base_path):
         now = datetime.now()
         self.path = now.strftime("%Y%m%d_%H%M%S")
-        Path(basePath).mkdir(parents=True, exist_ok=True)
-        return basePath
+        Path(base_path).mkdir(parents=True, exist_ok=True)
+        return base_path
 
     def get_files_count(
         self,
@@ -214,16 +210,6 @@ class UnetHelper:
 
         for i, item in enumerate(imgs):
             imgs[i] = imgs[i].split("/")[parts]
-
-        # imgs = glob.glob(path + '/*' + ext)
-
-        # for item in enumerate(imgs):
-        #     img = io.imread(item[1], as_gray = as_gray)
-        #     img = img / 255.
-        #     img = trans.resize(img, target_size)
-        #     img = np.reshape(img,img.shape+(1,)) if (not flag_multi_class) else img
-        #     img = np.reshape(img,(1,)+img.shape)
-        #     yield img
 
         return len(imgs), imgs
 
@@ -366,7 +352,7 @@ class UnetHelper:
         # tf.keras.mixed_precision.experimental.set_policy(policy) 
 
         try:
-            self.show_execution_time(original_msg="Starting now...", writeInFile=True)
+            self.show_execution_time(original_msg="Starting now...", write_in_file=True)
 
             model = self.get_model()
             #model.reset_metrics()
@@ -409,34 +395,28 @@ class UnetHelper:
                 class_weight=self.class_weight
             )
 
-            #print('Evaluating train...')
-            #self.evaluate(model, generator_train, history)
-            
-            #print('Evaluating val...')
-            #self.evaluate(model, generator_val, history)
-
-            self.show_execution_time(writeInFile=True)
+            self.show_execution_time(write_in_file=True)
             #model.save_weights(f"train_weights/final_{self.path}_unet.hdf5")
 
         except Exception as e:
-            self.show_execution_time(success=False, writeInFile=True)
+            self.show_execution_time(success=False, write_in_file=True)
             error_msg = (
                 "\ntype error: " + str(e) + " \ntraceback: " + traceback.format_exc()
             )
             self.show_execution_time(
-                success=False, original_msg=error_msg, writeInFile=True
+                success=False, original_msg=error_msg, write_in_file=True
             )
             raise e 
 
     def get_model(self, pretrained_weights = None, cnn_type = 0):
         unet = Unet()
 
-        if(cnn_type == 0):
-            return unet.create_model(pretrained_weights=pretrained_weights, input_size=self.input_shape, num_class=2, learning_rate = self.learning_rate, momentum = self.momentum, use_sgd = self.use_sgd)
-        elif(cnn_type == 1):
-            return unet.create_model_keras(img_size=self.input_shape, num_classes=2)        
-        else:
-            return unet.create_model_zizhaozhang(input_size = self.input_shape, num_class = 2)
+        # if(cnn_type == 0):
+        return unet.create_model(pretrained_weights=pretrained_weights, input_size=self.input_shape, num_class=2, learning_rate = self.learning_rate, momentum = self.momentum, use_sgd = self.use_sgd)
+        # elif(cnn_type == 1):
+        #     return unet.create_model_keras(img_size=self.input_shape, num_classes=2)        
+        # else:
+        #     return unet.create_model_zizhaozhang(input_size = self.input_shape, num_class = 2)
 
         #return unet.get_unet(self.input_shape, n_filters = 16, dropout = 0.1, batchnorm = True)
 
@@ -450,80 +430,9 @@ class UnetHelper:
         plt.legend()
         plt.show()
 
-
-    def test2(self, args):
-        args.n = "train_weights/20210701_191701_unet.hdf5"
-        model = self.get_model(pretrained_weights=args.n, cnn_type = 0)
-        imgs = glob.glob(self.test_folder + self.image_folder + "/*.JPG")
-        
-        output_layer_name = model.layers[len(model.layers)-1].name
-        layer_output = model.get_layer(output_layer_name).output
-        intermediate_model = tf.keras.models.Model(inputs=model.input,outputs=layer_output)
-
-        for item in imgs:
-            img_original = io.imread(item, as_gray=False)
-            x = item.split('/')
-            l = len(x)
-            x[l-2] = 'masks'
-            mask_image =  os.path.join("/".join(x))
-            img_mask = io.imread(mask_image, as_gray=False)
-            img = img_original
-            img = img.astype('float32')
-            img = img / 255
-            img = trans.resize(img, self.target_size)
-            img = np.reshape(img, img.shape + (1,)) if (not False) else img
-            img = np.reshape(img, (1,) + img.shape)                 
-
-            # normalizando a saida
-            intermediate_prediction = intermediate_model.predict(img.reshape(1, 416, 416,3))        
-            prediction_binary = (np.mean(intermediate_prediction[0], axis=2) > 0.5) * 255
-            
-            w = 1500
-            h = 1500 
-            my_dpi = 96
-            #fig = plt.figure(figsize=(w/my_dpi, h/my_dpi), dpi=my_dpi)
-            
-            #fig = plt.figure()
-            #fig.add_subplot(2, 2, 1)
-
-            fig, ax = plt.subplots(nrows=2, ncols=2)            
-            ax[0][0].imshow(img_original)
-            ax[0][0].set_title(f'original: {x[l-1]}')
-            
-            ax[0][1].imshow(img_mask)
-            ax[0][1].set_title('mask')
-
-            ax[1][0].imshow(prediction_binary, cmap='gray')
-            ax[1][0].set_title('predict')
-            
-            img_mask = img_mask[:,:,0]
-            diff = np.abs(img_mask - prediction_binary)
-            ax[1][1].imshow(diff, cmap='summer')
-            ax[1][1].set_title('diff') 
-            
-
-            plt.show() 
-
-            # plt.imshow(prediction_binary, cmap='gray')
-            # plt.title('predict') 
-
-            # fig.add_subplot(2, 2, 2)
-            # img_mask = img_mask[:,:,0]
-            # diff = np.abs(img_mask - prediction_binary)
-            # plt.imshow(diff, cmap='Purples')
-            # plt.title('diff') 
-            
-            # fig.add_subplot(1, 2, 1)
-            # plt.imshow(img_original)
-            # plt.title(f'original: {x[l-1]}')
-
-            # fig.add_subplot(1, 2, 2)
-            # plt.imshow(img_mask)
-            # plt.title('mask')
-
-            # fig.tight_layout()    
-            # plt.show() 
-
+    def compare_result(self, args):
+        qtd, imgs = self.get_files_count(self.test_folder + self.image_folder, target_size=self.target_size)
+        Data.compare_result(self.test_folder, imgs)
 
     def test(self, args, steps_to_test = 0, cnn_type = 0):
 
@@ -532,30 +441,27 @@ class UnetHelper:
         else:
             args.n = "train_weights/" + args.n
 
-        qtd, imgs = self.get_files_count(
-            self.test_folder + self.image_folder, target_size=self.target_size
-        )
+        total, imgs = self.get_files_count(self.test_folder + self.image_folder, target_size=self.target_size)
 
-        if qtd > 0:
+        if total > 0:
             try:
                 self.show_execution_time(
-                    original_msg="Starting now...", writeInFile=True
+                    original_msg="Starting now...", write_in_file=True
                 )
 
-                tb_cb = self.create_tensor_board_callback()
-                model = self.get_model(pretrained_weights=args.n, cnn_type = cnn_type)
-
-                steps_to_test = qtd if (steps_to_test <= 0) else steps_to_test
-                total = qtd if (qtd < steps_to_test) else steps_to_test
+                steps_to_test = total if (steps_to_test <= 0) else steps_to_test
+                total = total if (total < steps_to_test) else steps_to_test
                 page_size = 20                 
-                page_size = qtd if (page_size > qtd) else page_size
+                page_size = total if (page_size > total) else page_size
                 pages = math.ceil(total / page_size) 
                 current_page = 0
                 results = {}
 
+                tb_cb = self.create_tensor_board_callback()
+                model = self.get_model(pretrained_weights=args.n, cnn_type = cnn_type)
+                
                 for current_page in range(0, pages):
-                    
-                    page_size = qtd if (page_size > qtd) else page_size
+                    page_size = total if (page_size > total) else page_size
                     if(page_size > 0):
                         offset = current_page * page_size
                         current_page_imgs = np.array(imgs)[offset : offset + page_size]
@@ -578,15 +484,13 @@ class UnetHelper:
                         npyfile=results,
                         imgs=current_page_imgs,
                         flag_multi_class=False,
-                    )   
-
-                #res = model.evaluate(x=results, verbose=1, callbacks=[tb_cb])
-                #self.evaluate(model, testGene, history)
-
-                self.show_execution_time(writeInFile=True)
+                    )
+                    
+                
+                self.show_execution_time(write_in_file=True)
 
             except Exception as e:
-                self.show_execution_time(success=False, writeInFile=True)
+                self.show_execution_time(success=False, write_in_file=True)
                 error_msg = (
                     "\ntype error: "
                     + str(e)
@@ -595,12 +499,11 @@ class UnetHelper:
                 )
                 print(error_msg)
                 self.show_execution_time(
-                    success=False, original_msg=error_msg, writeInFile=True
+                    success=False, original_msg=error_msg, write_in_file=True
                 )
-                pass
 
         else:
-            print("nenhum arquivo encontrado")
+            print("nenhum arquivo encontrado") 
 
     def show_summary(self, args):
         unet = Unet()
@@ -608,7 +511,7 @@ class UnetHelper:
         model.build(self.input_shape)
         model.summary()
 
-    def show_execution_time(self, success=True, original_msg="", writeInFile=False):
+    def show_execution_time(self, success=True, original_msg="", write_in_file=False):
         end_time = datetime.now(tz=self.tz)
         elapsed = end_time - self.start_time
 
@@ -621,32 +524,32 @@ class UnetHelper:
             f"\n=================================================="
             f"\n\n\n"
         )
-        if writeInFile:
-            basePath = f'.logs/{self.start_time.strftime("%Y%m%d")}/'
+        if write_in_file:
+            base_path = f'.logs/{self.start_time.strftime("%Y%m%d")}/'
             path = f'{self.start_time.strftime("%Y%m%d_%H%M")}/'
-            self.write_text_file(basePath, path, "execution_log.txt", msg)
+            self.write_text_file(base_path, path, "execution_log.txt", msg)
 
-    def write_text_file(self, basePath, path, file_name, text):
-        self.create_directory(basePath, path)
+    def write_text_file(self, base_path, path, file_name, text):
+        self.create_directory(base_path, path)
 
-        text_file = open(basePath + path + file_name, "a+")
-        n = text_file.write(text)
+        text_file = open(base_path + path + file_name, "a+")
+        text_file.write(text)
         text_file.close()
 
-    def create_directory(self, basePath, path):
-        if basePath and not os.path.exists(basePath):
-            os.makedirs(basePath)
+    def create_directory(self, base_path, path):
+        if base_path and not os.path.exists(base_path):
+            os.makedirs(base_path)
 
-        if basePath + path and not os.path.exists(basePath + "/" + path):
-            os.makedirs(basePath + "/" + path)
+        if base_path + path and not os.path.exists(base_path + "/" + path):
+            os.makedirs(base_path + "/" + path)
 
     def create_tensor_board_callback(self):
-        basePath = f'.logs/{self.start_time.strftime("%Y%m%d")}'
+        base_path = f'.logs/{self.start_time.strftime("%Y%m%d")}'
         path = self.start_time.strftime("%Y%m%d_%H%M")
-        tb_dir = f"{basePath}/{path}/"
+        tb_dir = f"{base_path}/{path}/"
         tb_cb = TensorBoard(log_dir=tb_dir, write_graph=True, update_freq=1)
 
-        self.create_directory(basePath, path)
+        self.create_directory(base_path, path)
 
         return tb_cb
 
