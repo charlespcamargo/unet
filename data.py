@@ -224,11 +224,11 @@ class Data():
                 io.imsave(os.path.join(save_path, imgs[i] + Data.predict_suffix), prediction_binary)
     
     @staticmethod
-    def compare_result(base_path, imgs):
+    def compare_result(base_path, imgs, font_path = 'assets/arial-unicode.ttf'):
         
         save_path = base_path + "diff/"    
         Path(save_path).mkdir(parents=True, exist_ok=True)
-        font = ImageFont.truetype("/assets/arial-unicode.ttf", 18)
+        font = ImageFont.truetype(font_path, 18)
         gsd = 1.73 # 1.73cm/px
 
         for i, file_name in enumerate(imgs):            

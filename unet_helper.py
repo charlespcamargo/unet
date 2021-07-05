@@ -28,7 +28,7 @@ class UnetHelper:
     input_shape = (416, 416, 3)  # (1280, 1792, 3) #
 
     # paths
-    base_folder = "/Users/charles/Downloads/hedychium_coronarium/imagenzona/"
+    base_folder = "/Users/charles/Downloads/hedychium_coronarium/"
     train_folder = base_folder + "train/"
     augmentation_folder = train_folder + "aug/"
     validation_folder = base_folder + "val/"
@@ -104,7 +104,7 @@ class UnetHelper:
             PreProcessingData.get_train_class_weights('../../datasets/all', use_splits=self.use_splits)
 
         elif args.t == 8:
-            self.compare_result(args)
+            self.compare_result()
                     
 
     def show_arguments(self):
@@ -351,7 +351,6 @@ class UnetHelper:
             self.show_execution_time(original_msg="Starting now...", write_in_file=True)
 
             model = self.get_model()
-            #model.reset_metrics()
 
             if(not generator_train or not generator_val):
                 (generator_train, generator_val) = self.generate_my_gen(args)
@@ -392,7 +391,10 @@ class UnetHelper:
             )
 
             self.show_execution_time(write_in_file=True)
-            #model.save_weights(f"train_weights/final_{self.path}_unet.hdf5")
+            
+            self.evaluate(args, model, history)
+
+            return history
 
         except Exception as e:
             self.show_execution_time(success=False, write_in_file=True)
@@ -416,15 +418,46 @@ class UnetHelper:
 
         #return unet.get_unet(self.input_shape, n_filters = 16, dropout = 0.1, batchnorm = True)
 
-    def evaluate(self, model: Model, data_generator, history):
-        _, acc = model.evaluate(data_generator, verbose=1)
-        print('Evaluate data - acc: %.3f - and plotting...', acc)
+    def evaluate(self, args, model: Model, history, steps_to_test = 100):
+
+        print('Evaluating model in test DB...')
+        total, imgs = self.get_files_count(self.test_folder + self.image_folder, target_size=self.target_size)
         
-        # plot training history
-        plt.plot(history.history['loss'], label='train')
-        plt.plot(history.history['val_binary_accuracy'], label='test')
-        plt.legend()
-        plt.show()
+        steps_to_test = total if (steps_to_test <= 0) else steps_to_test
+        total = total if (total < steps_to_test) else steps_to_test
+        page_size = 100                 
+        page_size = total if (page_size > total) else page_size
+        pages = math.ceil(total / page_size) 
+        current_page = 0
+
+        if total > 0:
+            for current_page in range(0, pages):
+                page_size = total if (page_size > total) else page_size
+                if(page_size > 0):
+                    offset = current_page * page_size
+                    current_page_imgs = np.array(imgs)[offset : offset + page_size]
+                else:
+                    current_page_imgs = imgs 
+
+                test_gene = Data.test_generator(
+                                current_page_imgs,
+                                self.test_folder + self.image_folder + "/",
+                                flag_multi_class = args.flag_multi_class,
+                                target_size = self.input_shape,
+                                as_gray = False
+                            )
+
+                _, acc = model.evaluate(test_gene, verbose=1)
+            print('Evaluate data - acc: %.3f - and plotting...', acc)
+            
+            # plot training history
+            plt.plot(history.history['loss'], label='train')
+            plt.plot(history.history['val_binary_accuracy'], label='test')
+            plt.legend()
+            plt.show()
+        
+        else:
+            print("nenhum arquivo encontrado") 
 
     def compare_result(self,):
         qtd, imgs = self.get_files_count(self.test_folder + self.image_folder, target_size=self.target_size)
@@ -433,7 +466,7 @@ class UnetHelper:
     def test(self, args, steps_to_test = 0, cnn_type = 0):
 
         if not args.n:
-            args.n = "train_weights/20210701_191701_unet.hdf5"
+            args.n = "train_weights/20210705_150316_unet.hdf5"
         else:
             args.n = "train_weights/" + args.n
 
