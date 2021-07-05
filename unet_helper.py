@@ -294,13 +294,13 @@ class UnetHelper:
         if(self.use_augmentation):
             data_gen_args = dict(
                                     zoom_range=0.1,  # alterar
-                                    brightness_range=[0.25,0.25], # alterar
+                                    brightness_range=[0.1,0.7], # alterar
                                     #width_shift_range=0.0, # remover
                                     #height_shift_range=0.0, # remover
                                     #shear_range=1.0, # remover
                                     #rotation_range=90,  # remover
-                                    #horizontal_flip=True, # remover
-                                    #vertical_flip=True, # remover            
+                                    horizontal_flip=True, # remover
+                                    vertical_flip=True, # remover            
                                     #fill_mode="wrap"# remover        
                                 )
         else:
@@ -346,10 +346,6 @@ class UnetHelper:
 
         # define TensorBoard directory and TensorBoard callback
         tb_cb = self.create_tensor_board_callback()
-
-        # to improve speed for some gpus
-        # policy = tf.keras.mixed_precision.experimental.Policy('mixed_float16')
-        # tf.keras.mixed_precision.experimental.set_policy(policy) 
 
         try:
             self.show_execution_time(original_msg="Starting now...", write_in_file=True)
