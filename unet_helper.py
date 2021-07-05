@@ -368,7 +368,7 @@ class UnetHelper:
                 mode=self.model_monitor_mode,
                 verbose=1,
                 save_best_only=True,
-                save_weights_only=True
+                save_weights_only=False
             )
 
             # classe desbalanceada
@@ -447,7 +447,7 @@ class UnetHelper:
                                 as_gray = False
                             )
 
-                _, acc = model.evaluate(test_gene, verbose=1)
+            acc = model.evaluate(test_gene, verbose=1)
             print('Evaluate data - acc: %.3f - and plotting...', acc)
             
             # plot training history
