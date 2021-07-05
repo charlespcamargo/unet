@@ -426,7 +426,7 @@ class UnetHelper:
         plt.legend()
         plt.show()
 
-    def compare_result(self, args):
+    def compare_result(self,):
         qtd, imgs = self.get_files_count(self.test_folder + self.image_folder, target_size=self.target_size)
         Data.compare_result(self.test_folder, imgs)
 

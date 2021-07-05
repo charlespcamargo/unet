@@ -228,7 +228,7 @@ class Data():
         
         save_path = base_path + "diff/"    
         Path(save_path).mkdir(parents=True, exist_ok=True)
-        font = ImageFont.truetype("assets/arial-unicode.ttf", 18)
+        font = ImageFont.truetype("/assets/arial-unicode.ttf", 18)
         gsd = 1.73 # 1.73cm/px
 
         for i, file_name in enumerate(imgs):            
