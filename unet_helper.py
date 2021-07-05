@@ -28,7 +28,7 @@ class UnetHelper:
     input_shape = (416, 416, 3)  # (1280, 1792, 3) #
 
     # paths
-    base_folder = "/Users/charles/Downloads/hedychium_coronarium/"
+    base_folder = "/Users/charles/Downloads/hedychium_coronarium/imagenzona/"
     train_folder = base_folder + "train/"
     augmentation_folder = train_folder + "aug/"
     validation_folder = base_folder + "val/"
@@ -293,7 +293,7 @@ class UnetHelper:
         
         if(self.use_augmentation):
             data_gen_args = dict(
-                                    zoom_range=0.1,  # alterar
+                                    #zoom_range=0.1,  # alterar
                                     brightness_range=[0.1,0.7], # alterar
                                     #width_shift_range=0.0, # remover
                                     #height_shift_range=0.0, # remover
