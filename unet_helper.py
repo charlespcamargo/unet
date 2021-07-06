@@ -293,15 +293,12 @@ class UnetHelper:
         
         if(self.use_augmentation):
             data_gen_args = dict(
-                                    #zoom_range=0.1,  # alterar
-                                    brightness_range=[0.1,0.7], # alterar
-                                    #width_shift_range=0.0, # remover
-                                    #height_shift_range=0.0, # remover
-                                    #shear_range=1.0, # remover
-                                    #rotation_range=90,  # remover
+                                    zoom_range = [0.1, 0.3],  # alterar
+                                    brightness_range=[0.2, 0.9], # alterar
+                                    shear_range= 25.0,
                                     horizontal_flip=True, # remover
                                     vertical_flip=True, # remover            
-                                    #fill_mode="wrap"# remover        
+                                    fill_mode="wrap"# remover        
                                 )
         else:
             print('without augmentation')
