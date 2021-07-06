@@ -6,7 +6,7 @@ if __name__ == "__main__":
     myhelper = UnetHelper()
 
     args = easydict.EasyDict({
-        't': 8, # "Informe o tipo  
+        't': 6, # "Informe o tipo  
          # '--t -1' parametros, '--t 0' treino, '--t 1' teste, '--t 2' sumario', '--t 3' avaliacao, '--t 4' f-beta-score, '--t 5' crop_images", 
          # '--t 5' crop_images_in_tiles", '--t 6' crop_all_images_in_tiles", '--t 7' get_train_class_weights", '--t 8' compare_result"
         'g': 1, # Gerar arquivos '--g 0' para nao gerar arquivos ou '--g 1' para gerar
@@ -19,8 +19,8 @@ if __name__ == "__main__":
         'batch_size': 1, 
         'steps_per_epoch': 20, 
         'epochs': 5, 
-        'target_size': (416, 416), 
-        'input_shape': (416, 416, 3),
+        'target_size': (256, 256), 
+        'input_shape': (256, 256, 3),
         'base_folder': '/Users/charles/Downloads/hedychium_coronarium/', 
         'image_folder': 'images', 
         'label_folder': 'masks', 

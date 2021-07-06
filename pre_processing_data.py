@@ -17,7 +17,7 @@ class PreProcessingData():
             PreProcessingData.move_all_ignored_folders_to_test(data_path)
 
     @staticmethod
-    def crop_all_image(data_path, image_folder="images", mask_folder="masks", w=416, h=416, threshold = 5, force_delete = False, validate_class_to_discard = False):
+    def crop_all_image(data_path, image_folder="images", mask_folder="masks", w=256, h=256, threshold = 5, force_delete = False, validate_class_to_discard = False):
         image_path = os.path.join(data_path, image_folder)
         mask_path = os.path.join(data_path, image_folder)
         image_name_arr = glob.glob(os.path.join(image_path, "*.JPG"))
@@ -66,7 +66,7 @@ class PreProcessingData():
                     croped_mask = mask.crop((col_i, row_i, col_i + w, row_i + h))
                     
                     if(validate_class_to_discard):
-                        discard_folder, (blackpercent, whitepercent)  = PreProcessingData.should_I_discard(croped_mask, threshold)
+                        discard_folder, (blackpercent, whitepercent)  = PreProcessingData.should_discard(croped_mask, threshold)
                     
                         if(not discard_folder):
                             arr_weigths.append((blackpercent, whitepercent))
@@ -99,7 +99,7 @@ class PreProcessingData():
             PreProcessingData.move_all_ignored_folders_to_test(data_path)
 
     @staticmethod
-    def crop_image(data_path, data_folder, image_folder="images", mask_folder="masks", w=416, h=416, threshold = 20, force_delete = False, validate_class_to_discard = False):
+    def crop_image(data_path, data_folder, image_folder="images", mask_folder="masks", w=256, h=256, threshold = 20, force_delete = False, validate_class_to_discard = False):
         image_path = os.path.join(data_path, data_folder, image_folder)
         mask_path = os.path.join(data_path, data_folder, image_folder)
         image_name_arr = glob.glob(os.path.join(image_path, "*.JPG"))

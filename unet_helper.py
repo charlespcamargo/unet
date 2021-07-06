@@ -24,8 +24,8 @@ class UnetHelper:
     epochs = 1
 
     # image sizes
-    target_size = (416, 416)  # (1280, 1792) #
-    input_shape = (416, 416, 3)  # (1280, 1792, 3) #
+    target_size = (256, 256)   
+    input_shape = (256, 256, 3)  
 
     # paths
     base_folder = "/Users/charles/Downloads/hedychium_coronarium/"
@@ -84,8 +84,8 @@ class UnetHelper:
                                       'test',
                                       "images", 
                                       "masks", 
-                                      416,
-                                      416,
+                                      256,
+                                      256,
                                       threshold = 20,
                                       force_delete = False)
 
@@ -93,9 +93,9 @@ class UnetHelper:
             PreProcessingData.crop_all_images_in_tiles('/Users/charles/Downloads/hedychium_coronarium/all', 
                                       "images", 
                                       "masks", 
-                                      416,
-                                      416,
-                                      threshold = 40,
+                                      256,
+                                      256,
+                                      threshold = 25,
                                       force_delete = False,
                                       validate_class_to_discard = True,
                                       move_ignored_to_test = False)
@@ -142,8 +142,8 @@ class UnetHelper:
         batch_size=2,
         steps_per_epoch=50,
         epochs=15,
-        target_size=(416, 416),
-        input_shape=(416, 416, 3),
+        target_size=(256, 256),
+        input_shape=(256, 256, 3),
         base_folder="../hedychium_coronarium/",
         image_folder="images",
         label_folder="masks",
@@ -293,8 +293,8 @@ class UnetHelper:
         
         if(self.use_augmentation):
             data_gen_args = dict(
-                                    zoom_range = [0.1, 0.3],  # alterar
-                                    brightness_range=[0.2, 0.9], # alterar
+                                    zoom_range = [0.01, 0.1],  # alterar
+                                    brightness_range=[0.3, 1.0], # alterar
                                     shear_range= 25.0,
                                     horizontal_flip=True, # remover
                                     vertical_flip=True, # remover            
