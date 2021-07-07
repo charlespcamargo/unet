@@ -81,7 +81,7 @@ class Unet():
         ##Defining Model
         model = Model(inputs=inputs, outputs=output_layer)
         opt = Adam(learning_rate = learning_rate)
-        loss = BinaryCrossentropy(name='binary_crossentropy')
+        loss = 'binary_crossentropy' #BinaryCrossentropy(name='binary_crossentropy')
 
         if(use_sgd == True):
             opt = SGD(learning_rate = learning_rate, momentum = momentum)            
@@ -91,8 +91,8 @@ class Unet():
 
         ##Compiling Model 
         model.compile(optimizer = opt, 
-                     loss = loss,
-                     metrics = [
+                      loss = loss,
+                      metrics = [
                                 Precision(name="precision"),
                                 Recall(name="recall"),
                                 AUC(name="auc"),

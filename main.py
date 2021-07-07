@@ -6,7 +6,7 @@ if __name__ == "__main__":
     myhelper = UnetHelper()
 
     args = easydict.EasyDict({
-        't': 6, # "Informe o tipo  
+        't': 0, # "Informe o tipo  
          # '--t -1' parametros, '--t 0' treino, '--t 1' teste, '--t 2' sumario', '--t 3' avaliacao, '--t 4' f-beta-score, '--t 5' crop_images", 
          # '--t 5' crop_images_in_tiles", '--t 6' crop_all_images_in_tiles", '--t 7' get_train_class_weights", '--t 8' compare_result"
         'g': 1, # Gerar arquivos '--g 0' para nao gerar arquivos ou '--g 1' para gerar

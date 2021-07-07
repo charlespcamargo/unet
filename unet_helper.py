@@ -28,7 +28,7 @@ class UnetHelper:
     input_shape = (256, 256, 3)  
 
     # paths
-    base_folder = "/Users/charles/Downloads/hedychium_coronarium/"
+    base_folder = "/Users/charles/Downloads/hedychium_coronarium/versions/v2/hedychium_coronarium/"
     train_folder = base_folder + "train/"
     augmentation_folder = train_folder + "aug/"
     validation_folder = base_folder + "val/"
