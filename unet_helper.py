@@ -410,7 +410,8 @@ class UnetHelper:
     def get_model(self, pretrained_weights = None, cnn_type = 0):
         unet = Unet()
 
-        return unet.create_model(pretrained_weights=pretrained_weights, input_size=self.input_shape, num_class=2, learning_rate = self.learning_rate, momentum = self.momentum, use_sgd = self.use_sgd, self.use_euclidean)
+        return unet.create_model(pretrained_weights=pretrained_weights, input_size=self.input_shape, num_class=2, 
+                                  learning_rate = self.learning_rate, momentum = self.momentum, use_sgd = self.use_sgd, use_euclidean = self.use_euclidean)
 
     def evaluate(self, args, model: Model, history, steps_to_test = 100):
 
