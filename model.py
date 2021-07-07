@@ -88,7 +88,7 @@ class Unet():
 
         ##Compiling Model 
         model.compile(optimizer = opt, 
-                     loss = 'binary_crossentropy',
+                     loss = CustomMetrics.euclidean_distance_loss,
                      metrics = [
                                 Precision(name="precision"),
                                 Recall(name="recall"),

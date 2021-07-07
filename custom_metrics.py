@@ -122,6 +122,10 @@ class CustomMetrics:
         return K.sqrt(K.mean(K.square(y_pred - y_true))) 
 
     @staticmethod
+    def euclidean_distance_loss(y_true, y_pred):
+        return K.sqrt(K.sum(K.square(y_pred - y_true), axis=-1))
+
+    @staticmethod
     def dice_coef(y_true, y_pred, smooth=1):
         # y_true_f = K.flatten(y_true)
         # y_pred_f = K.flatten(y_pred)
