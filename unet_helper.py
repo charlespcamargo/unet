@@ -53,6 +53,7 @@ class UnetHelper:
     learning_rate = 1e-4
     momentum = 0.90
     use_sgd = False
+    use_euclidean = False
     check_train_class_weights = False
     use_augmentation = False
     use_splits = False
@@ -132,6 +133,7 @@ class UnetHelper:
         print("learning_rate: ", self.learning_rate)
         print("momentum:", self.momentum)
         print("use_sgd:", self.use_sgd)
+        print("use_euclidean:", self.use_euclidean)
         print("check_train_class_weights", self.check_train_class_weights)
         print("use_augmentation", self.use_augmentation)
         print("use_splits", self.use_splits)
@@ -159,6 +161,7 @@ class UnetHelper:
         learning_rate = 1e-4,
         momentum = 0.90,
         use_sgd = False,
+        use_euclidean = False,
         check_train_class_weights = False,
         use_augmentation = False,
         use_splits = False,
@@ -187,6 +190,7 @@ class UnetHelper:
         self.learning_rate = learning_rate
         self.momentum = momentum
         self.use_sgd = use_sgd
+        self.use_euclidean = use_euclidean,
         self.check_train_class_weights = check_train_class_weights
         self.use_augmentation = use_augmentation
         self.use_splits = use_splits
@@ -407,7 +411,7 @@ class UnetHelper:
         unet = Unet()
 
         # if(cnn_type == 0):
-        return unet.create_model(pretrained_weights=pretrained_weights, input_size=self.input_shape, num_class=2, learning_rate = self.learning_rate, momentum = self.momentum, use_sgd = self.use_sgd)
+        return unet.create_model(pretrained_weights=pretrained_weights, input_size=self.input_shape, num_class=2, learning_rate = self.learning_rate, momentum = self.momentum, use_sgd = self.use_sgd, self.use_euclidean)
         # elif(cnn_type == 1):
         #     return unet.create_model_keras(img_size=self.input_shape, num_classes=2)        
         # else:

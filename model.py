@@ -28,7 +28,7 @@ class Unet():
 
         return (ch1, ch2), (cw1, cw2)
 
-    def create_model(self, pretrained_weights = None, input_size = (256,256, 3), num_class = 2, learning_rate = 1e-4, momentum = 0.90, use_sgd = False):
+    def create_model(self, pretrained_weights = None, input_size = (256,256, 3), num_class = 2, learning_rate = 1e-4, momentum = 0.90, use_sgd = False, use_euclidean = False):
         inputs = Input( shape=(input_size) ) 
 
         concat_axis = 3  
@@ -80,15 +80,18 @@ class Unet():
 
         ##Defining Model
         model = Model(inputs=inputs, outputs=output_layer)
+        opt = Adam(learning_rate = learning_rate)
+        loss = BinaryCrossentropy(name='binary_crossentropy')
 
         if(use_sgd == True):
-            opt = SGD(learning_rate = learning_rate, momentum = momentum)
-        else:
-            opt = Adam(learning_rate = learning_rate)
+            opt = SGD(learning_rate = learning_rate, momentum = momentum)            
+
+        if(use_euclidean == True):
+            loss = CustomMetrics.euclidean_distance_loss
 
         ##Compiling Model 
         model.compile(optimizer = opt, 
-                     loss = CustomMetrics.euclidean_distance_loss,
+                     loss = loss,
                      metrics = [
                                 Precision(name="precision"),
                                 Recall(name="recall"),
