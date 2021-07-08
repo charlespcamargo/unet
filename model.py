@@ -73,8 +73,10 @@ class Unet():
         conv9 = Conv2D(2, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(conv9)
         print("conv9 shape:", conv9.shape) 
 
+        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(conv9)
+
         ##Output Layer
-        output_layer = Conv2D(3, 1, activation = 'sigmoid', dtype=tf.float32)(conv9)
+        output_layer = Conv2D(3, 1, activation = 'sigmoid', dtype=tf.float32)(leaky_layer)
 
         print(output_layer)
 
