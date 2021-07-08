@@ -34,72 +34,50 @@ class Unet():
         concat_axis = 3  
         # pesquisar camada de processamento
         conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(inputs)    
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(conv1)
-        conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(leaky_layer)
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(conv1)
+        conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(conv1)
 
-        pool1 = MaxPooling2D(pool_size=(2, 2))(leaky_layer)
+        pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
         conv2 = Conv2D(128, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(pool1)
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(conv2)
-        conv2 = Conv2D(128, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(leaky_layer)
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(conv2)
+        conv2 = Conv2D(128, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(conv2)
 
-        pool2 = MaxPooling2D(pool_size=(2, 2))(leaky_layer)
+        pool2 = MaxPooling2D(pool_size=(2, 2))(conv2)
         conv3 = Conv2D(256, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(pool2)
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(conv3)
-        conv3 = Conv2D(256, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(leaky_layer)
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(conv3)
-        pool3 = MaxPooling2D(pool_size=(2, 2))(leaky_layer)
+        conv3 = Conv2D(256, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(conv3)
+        
+        pool3 = MaxPooling2D(pool_size=(2, 2))(conv3)
         conv4 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(pool3)
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(conv4)
-        conv4 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(leaky_layer)
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(conv4)
-        drop4 = Dropout(0.5)(leaky_layer)
+        conv4 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(conv4)
+        drop4 = Dropout(0.5)(conv4)
         pool4 = MaxPooling2D(pool_size=(2, 2))(drop4)
 
         conv5 = Conv2D(1024, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(pool4)
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(conv5)
-        conv5 = Conv2D(1024, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(leaky_layer)
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(conv5)
-        drop5 = Dropout(0.5)(leaky_layer)
+        conv5 = Conv2D(1024, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(conv5)
+        drop5 = Dropout(0.5)(conv5)
 
         up6 = Conv2D(512, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(UpSampling2D(size = (2,2))(drop5))
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(up6)
-        merge6 = concatenate([drop4,leaky_layer], axis=concat_axis)
+        merge6 = concatenate([drop4,up6], axis=concat_axis)
         conv6 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(merge6)
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(conv6)
-        conv6 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(leaky_layer)
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(conv6)
+        conv6 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(conv6)
 
-        up7 = Conv2D(256, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(UpSampling2D(size = (2,2))(leaky_layer))
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(up7)
-        merge7 = concatenate([conv3,leaky_layer], axis=concat_axis)
+        up7 = Conv2D(256, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(UpSampling2D(size = (2,2))(conv6))
+        merge7 = concatenate([conv3,up7], axis=concat_axis)
         conv7 = Conv2D(256, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(merge7)
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(conv7)
-        conv7 = Conv2D(256, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(leaky_layer)
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(conv7)
+        conv7 = Conv2D(256, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(conv7)
 
-        up8 = Conv2D(128, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(UpSampling2D(size = (2,2))(leaky_layer))
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(up8)
-        merge8 = concatenate([conv2,leaky_layer], axis=concat_axis)
+        up8 = Conv2D(128, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(UpSampling2D(size = (2,2))(conv7))
+        merge8 = concatenate([conv2,up8], axis=concat_axis)
         conv8 = Conv2D(128, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(merge8)
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(conv8)
-        conv8 = Conv2D(128, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(leaky_layer)
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(conv8)
+        conv8 = Conv2D(128, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(conv8)
 
-        up9 = Conv2D(64, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(UpSampling2D(size = (2,2))(leaky_layer))
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(up9)
-        merge9 = concatenate([conv1,leaky_layer], axis=concat_axis)
+        up9 = Conv2D(64, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(UpSampling2D(size = (2,2))(conv8))
+        merge9 = concatenate([conv1,up9], axis=concat_axis)
         conv9 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(merge9)
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(conv9)
-        conv9 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(leaky_layer)
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(conv9)
-        conv9 = Conv2D(2, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(leaky_layer)
+        conv9 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(conv9)
+        conv9 = Conv2D(2, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(conv9)
         print("conv9 shape:", conv9.shape) 
 
         ##Output Layer
-        leaky_layer = LeakyReLU(alpha=0.1, dtype=tf.float32)(conv9)
-        output_layer = Conv2D(3, 1, activation = 'sigmoid', dtype=tf.float32)(leaky_layer)
+        output_layer = Conv2D(3, 1, activation = 'sigmoid', dtype=tf.float32)(conv9)
 
         print(output_layer)
 
@@ -112,7 +90,7 @@ class Unet():
             opt = SGD(learning_rate = learning_rate, momentum = momentum)            
 
         if(use_euclidean == True):
-            loss = CustomMetricsAndLosses.surface_loss
+            loss = CustomMetricsAndLosses.weighted_bce_dice_loss
 
         model.compile(optimizer = opt, 
                       loss = loss,
@@ -124,7 +102,7 @@ class Unet():
                                     MeanIoU(num_classes=2, name="mean_iou"),
                                     Accuracy(name="accuracy"),
                                     CustomMetricsAndLosses.jacard_coef,
-                                    CustomMetricsAndLosses.dice_coefficient
+                                    CustomMetricsAndLosses.dice_loss
                                 ]
                 )
 
