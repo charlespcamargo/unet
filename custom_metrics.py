@@ -5,7 +5,10 @@ from tensorflow.keras import backend as K
 import tensorflow as tf
 from tensorflow.keras.metrics import *
 
-class CustomMetrics:
+import numpy as np
+from scipy.ndimage import distance_transform_edt as distance
+
+class CustomMetricsAndLosses:
     
     @staticmethod
     def get_recall(tp, fn):
@@ -56,7 +59,7 @@ class CustomMetrics:
         print("AUC: %.2f" % auc)
 
         fpr, tpr, thresholds = roc_curve(test_y, probs)
-        CustomMetrics.plot_roc_curve(fpr, tpr)
+        CustomMetricsAndLosses.plot_roc_curve(fpr, tpr)
 
         return auc
 
@@ -114,7 +117,7 @@ class CustomMetrics:
 
     @staticmethod
     def jacard_coef_loss(y_true, y_pred):
-        return -CustomMetrics.jacard_coef(y_true, y_pred)
+        return -CustomMetricsAndLosses.jacard_coef(y_true, y_pred)
 
 
     @staticmethod
@@ -123,7 +126,9 @@ class CustomMetrics:
 
     @staticmethod
     def euclidean_distance_loss(y_true, y_pred):
-        return K.sqrt(K.sum(K.square(y_pred - y_true), axis=-1))
+        y = K.sqrt(K.sum(K.square(y_pred - y_true), axis=-1))
+
+        return y
 
     @staticmethod
     def dice_coef(y_true, y_pred, smooth=1):
@@ -153,7 +158,7 @@ class CustomMetrics:
 
     @staticmethod
     def dice_coef_loss(y_true, y_pred):
-        return K.mean(1-CustomMetrics.dice_coef(y_true, y_pred),axis=-1)
+        return K.mean(1-CustomMetricsAndLosses.dice_coef(y_true, y_pred),axis=-1)
 
 
     @staticmethod
@@ -162,4 +167,28 @@ class CustomMetrics:
         denominator = tf.reduce_sum(y_true + y_pred)
 
         return numerator / (denominator + tf.keras.backend.epsilon())
- 
+    
+    @staticmethod
+    def calc_dist_map(seg):
+        res = np.zeros_like(seg)
+        posmask = seg.astype(np.bool)
+
+        if posmask.any():
+            negmask = ~posmask
+            res = distance(negmask) * negmask - (distance(posmask) - 1) * posmask
+
+        return res
+
+    @staticmethod
+    def calc_dist_map_batch(y_true):
+        y_true_numpy = y_true.numpy()
+        return np.array([CustomMetricsAndLosses.calc_dist_map(y)
+                        for y in y_true_numpy]).astype(np.float32)
+
+    @staticmethod
+    def surface_loss(y_true, y_pred):
+        y_true_dist_map = tf.py_function(func=CustomMetricsAndLosses.calc_dist_map_batch,
+                                        inp=[y_true],
+                                        Tout=tf.float32)
+        multipled = y_pred * y_true_dist_map
+        return K.mean(multipled)

@@ -351,7 +351,7 @@ class UnetHelper:
         try:
             self.show_execution_time(original_msg="Starting now...", write_in_file=True)
 
-            model = self.get_model()
+            model = self.get_model(pretrained_weights=args.n)
 
             if(not generator_train or not generator_val):
                 (generator_train, generator_val) = self.generate_my_gen(args)
@@ -378,10 +378,8 @@ class UnetHelper:
                 self.class_weights = { 0: white }
                 print(f"self.class_weights: {self.class_weights}")
 
-            #model.summary()
-
             history = model.fit(
-                generator_train,
+                x=generator_train,
                 steps_per_epoch=self.steps_per_epoch,
                 epochs=self.epochs,
                 validation_data=generator_val,
@@ -454,14 +452,10 @@ class UnetHelper:
         else:
             print("nenhum arquivo encontrado") 
 
-    def compare_result(self,):
-        qtd, imgs = self.get_files_count(self.test_folder + self.image_folder, target_size=self.target_size)
-        Data.compare_result(self.test_folder, imgs)
-
     def test(self, args, steps_to_test = 0, cnn_type = 0):
 
         if not args.n:
-            args.n = "train_weights/20210705_150316_unet.hdf5"
+            args.n = "train_weights/20210701_191701_unet.hdf5"
         else:
             args.n = "train_weights/" + args.n
 
@@ -528,6 +522,10 @@ class UnetHelper:
 
         else:
             print("nenhum arquivo encontrado") 
+
+    def compare_result(self,):
+        qtd, imgs = self.get_files_count(self.test_folder + self.image_folder, target_size=self.target_size)
+        Data.compare_result(self.test_folder, imgs)
 
     def show_summary(self, args):
         unet = Unet()

@@ -81,27 +81,26 @@ class Unet():
         ##Defining Model
         model = Model(inputs=inputs, outputs=output_layer)
         opt = Adam(learning_rate = learning_rate)
-        loss = 'binary_crossentropy' #BinaryCrossentropy(name='binary_crossentropy')
+        loss = 'binary_crossentropy'
 
         if(use_sgd == True):
             opt = SGD(learning_rate = learning_rate, momentum = momentum)            
 
         if(use_euclidean == True):
-            loss = CustomMetrics.euclidean_distance_loss
+            loss = CustomMetricsAndLosses.surface_loss
 
-        ##Compiling Model 
         model.compile(optimizer = opt, 
                       loss = loss,
                       metrics = [
-                                Precision(name="precision"),
-                                Recall(name="recall"),
-                                AUC(name="auc"),
-                                MeanIoU(num_classes=2, name="mean_iou"),
-                                Accuracy(name="accuracy"),
-                                BinaryAccuracy(name="binary_accuracy"),                               
-                                CustomMetrics.jacard_coef,
-                                CustomMetrics.dice_coefficient
-                            ]
+                                    AUC(name="auc"),
+                                    Precision(name="precision"),
+                                    Recall(name="recall"),
+                                    BinaryAccuracy(name="binary_accuracy"),                                
+                                    MeanIoU(num_classes=2, name="mean_iou"),
+                                    Accuracy(name="accuracy"),
+                                    CustomMetricsAndLosses.jacard_coef,
+                                    CustomMetricsAndLosses.dice_coefficient
+                                ]
                 )
 
                              
@@ -109,6 +108,6 @@ class Unet():
         model.summary()
 
         if(pretrained_weights):
-            model.load_weights(pretrained_weights)
+            model.load_weights('train_weights/' + pretrained_weights)
 
         return model
