@@ -18,7 +18,7 @@ if __name__ == "__main__":
         'flag_multi_class': False,
         'batch_size': 1, 
         'steps_per_epoch': 20, 
-        'epochs': 5, 
+        'epochs': 7, 
         'target_size': (256, 256), 
         'input_shape': (256, 256, 3),
         'base_folder': '/Users/charles/Downloads/hedychium_coronarium/', 
