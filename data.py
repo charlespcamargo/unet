@@ -81,8 +81,8 @@ class Data():
 
             mask = mask.astype('float32')
             mask = mask / 255
-            mask[mask > 0.5] = 1
-            mask[mask <= 0.5] = 0
+            mask[mask >= 0.5] = 1
+            mask[mask < 0.5] = 0
 
         return (img, mask)
 

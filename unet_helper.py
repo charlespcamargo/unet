@@ -20,8 +20,8 @@ class UnetHelper:
     # training vars
     model = None
     batch_size = 1
-    steps_per_epoch = 5
-    epochs = 1
+    steps_per_epoch = 20
+    epochs = 3
 
     # image sizes
     target_size = (256, 256)   
@@ -43,22 +43,25 @@ class UnetHelper:
     my_train_gene = None
     my_validation_gene = None
     flag_multi_class = False
-    early_stopping_monitor = "val_mean_iou"
-    early_stopping_monitor_mode = "auto"
+    early_stopping_monitor = "val_auc"
+    early_stopping_monitor_mode = "max"
     class_weight = None
-    model_monitor = "val_binary_accuracy"
-    model_monitor_mode = "auto"    
+    model_monitor = "val_auc"
+    model_monitor_mode = "max"    
     validation_steps = 10
     use_numpy = False
     learning_rate = 1e-4
     momentum = 0.90
     use_sgd = False
-    use_euclidean = False
+    use_euclidean = True
     check_train_class_weights = False
     use_augmentation = False
     use_splits = False
 
     def main(self, args):
+
+        #self.playground()
+        #return False
 
         if args.t == -1:
             self.show_arguments()
@@ -106,7 +109,56 @@ class UnetHelper:
 
         elif args.t == 8:
             self.compare_result()
-                    
+
+    def playground(self):
+        import PIL
+        from PIL import Image
+        qtd, imgs = self.get_files_count(self.train_folder + self.image_folder, target_size=self.target_size)
+        
+        for i, file_name in enumerate(imgs):            
+            img = io.imread(os.path.join(self.train_folder, "images", file_name), as_gray=False)
+            mask = io.imread(os.path.join(self.train_folder, "masks", file_name), as_gray=False)
+            
+            #y_pred_fake = self.generate_fake_predict(mask)
+            y_pred_fake = io.imread(os.path.join(self.train_folder, "masks", file_name), as_gray=False)
+
+            y_pred_fake2 = CustomMetricsAndLosses.weighted_bce_dice_loss(mask, y_pred_fake)
+            y_pred_fake2 = y_pred_fake2.numpy()           
+            
+            w = 256
+            h = 256
+            composed_img = Image.new('RGB', (w*2, h*2), color="gray")
+            composed_img.paste(Image.fromarray(img, 'RGB'), (0, 0))
+            composed_img.paste(Image.fromarray(mask, 'RGB'), (w, 0))
+            composed_img.paste(Image.fromarray(img, 'RGB'), (0, h))
+            composed_img.paste(Image.fromarray(y_pred_fake, 'RGB'), (w, h))
+            composed_img.show()            
+
+            if(i>10):
+                break
+
+            
+    def generate_fake_predict(self, mask):
+        y_pred_fake = np.random.rand(256, 256, 3) * mask
+        #y_pred_fake = y_pred_fake.astype('float32')
+        #y_pred_fake = y_pred_fake / 255
+        y_pred_fake[y_pred_fake >= 127.5] = 255
+        y_pred_fake[y_pred_fake < 127.5] = 0
+        y_pred_fake = np.abs(np.mean(y_pred_fake, axis=2) > 0.5) * 255
+        # y_pred_fake_true = int((y_pred_fake == 255).sum())
+        # y_pred_fake_false = int((y_pred_fake == 0).sum())
+
+        # total = y_pred_fake_true + y_pred_fake_false
+        # print(f'fator: {fator} - false: {y_pred_fake_false}({round(y_pred_fake_false/total*100, 2)}%) - true: {y_pred_fake_true}({round(y_pred_fake_true/total*100, 2)}%) - total: {total}')
+
+        # mask_true = int((mask == 255).sum())
+        # mask_false = int((mask == 0).sum())
+        # diff = mask.sum() + mask_true + mask_false
+        # total = mask_true + mask_false
+        # print(f'false: {mask_false}({round(mask_false/total*100, 2)}%) - true: {mask_true}({round(mask_true/total*100, 2)}%) - total: {total}')
+        
+        return y_pred_fake
+
 
     def show_arguments(self):
         print("batch_size: ", self.batch_size)
@@ -347,6 +399,9 @@ class UnetHelper:
 
         # define TensorBoard directory and TensorBoard callback
         tb_cb = self.create_tensor_board_callback()
+
+        # just for debugging
+        #tf.config.run_functions_eagerly(True)
 
         try:
             self.show_execution_time(original_msg="Starting now...", write_in_file=True)

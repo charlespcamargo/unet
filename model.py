@@ -5,8 +5,7 @@ from tensorflow.keras.layers import *
 from tensorflow.keras.optimizers import *
 from tensorflow.keras.metrics import *  
 from tensorflow.python.keras.backend import backend, sigmoid, softmax
-from custom_metrics import *
-
+from custom_metrics import * 
 
 class Unet():
 
@@ -90,7 +89,7 @@ class Unet():
             opt = SGD(learning_rate = learning_rate, momentum = momentum)            
 
         if(use_euclidean == True):
-            loss = CustomMetricsAndLosses.weighted_bce_dice_loss
+            loss = CustomMetricsAndLosses.surface_loss
 
         model.compile(optimizer = opt, 
                       loss = loss,

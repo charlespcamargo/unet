@@ -72,7 +72,7 @@ class CustomMetricsAndLosses:
         return iou
     
     @staticmethod
-    def iou(y_true, y_pred, label: int):
+    def iou(y_true, y_pred, label: int = 0):
         """
         Return the Intersection over Union (IoU) for a given label.
         Args:
@@ -118,7 +118,6 @@ class CustomMetricsAndLosses:
     @staticmethod
     def jacard_coef_loss(y_true, y_pred):
         return -CustomMetricsAndLosses.jacard_coef(y_true, y_pred)
-
 
     @staticmethod
     def root_mean_squared_error(y_true, y_pred):
@@ -182,16 +181,21 @@ class CustomMetricsAndLosses:
     @staticmethod
     def calc_dist_map_batch(y_true):
         y_true_numpy = y_true.numpy()
-        return np.array([CustomMetricsAndLosses.calc_dist_map(y)
-                        for y in y_true_numpy]).astype(np.float32)
+        return np.array([CustomMetricsAndLosses.calc_dist_map(y) for y in y_true_numpy]).astype(np.float32)
 
     @staticmethod
     def surface_loss(y_true, y_pred):
+
         y_true_dist_map = tf.py_function(func=CustomMetricsAndLosses.calc_dist_map_batch,
                                         inp=[y_true],
                                         Tout=tf.float32)
         multipled = y_pred * y_true_dist_map
-        return K.mean(multipled)
+
+        #print(f'multipled: {K.mean(multipled)}\n')
+        #print(f'sigmoid: {K.sigmoid(multipled)}\n\n')
+
+
+        return K.sigmoid(multipled) #K.mean(multipled)
 
 
     # weight: weighted tensor(same shape with mask image)
