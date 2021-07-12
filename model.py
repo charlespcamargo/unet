@@ -83,13 +83,13 @@ class Unet():
         ##Defining Model
         model = Model(inputs=inputs, outputs=output_layer)
         opt = Adam(learning_rate = learning_rate)
-        loss = 'binary_crossentropy'
+        loss = ['binary_crossentropy', CustomMetricsAndLosses.surface_loss]
 
         if(use_sgd == True):
             opt = SGD(learning_rate = learning_rate, momentum = momentum)            
 
-        if(use_euclidean == True):
-            loss = CustomMetricsAndLosses.surface_loss
+        # if(use_euclidean == True):
+        #     loss = CustomMetricsAndLosses.surface_loss
 
         model.compile(optimizer = opt, 
                       loss = loss,
@@ -110,6 +110,6 @@ class Unet():
         model.summary()
 
         if(pretrained_weights):
-            model.load_weights('train_weights/' + pretrained_weights)
+            model.load_weights('train_weights/' + pretrained_weights if "train_weights" not in pretrained_weights else  pretrained_weights)
 
         return model

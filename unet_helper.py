@@ -256,10 +256,7 @@ class UnetHelper:
     def get_files_count(
         self,
         path,
-        ext=".JPG",
-        flag_multi_class=False,
-        target_size=(256, 256),
-        as_gray=False,
+        ext=".JPG"
     ):
         parts = len(path.split("/"))
         imgs = glob.glob(path + "/*" + ext)
@@ -269,6 +266,28 @@ class UnetHelper:
 
         return len(imgs), imgs
 
+
+    def get_some_weight(
+        self,
+        path='train_weights/',
+        ext='.hdf5'
+    ):
+        files = glob.glob(path + "/*" + ext)
+        total = len(files)
+        last_file_aux = 0
+        last_file = None
+        
+        for i, item in enumerate(files):
+            print(f'{i}/{total-1} - {item}')
+            arr = item.replace('/','_').split('_')
+            file_name_date = int(arr[len(arr)-3] + arr[len(arr)-2])
+            
+            if(not last_file or file_name_date > int(last_file_aux)):
+                last_file_aux = file_name_date
+                last_file = item
+
+        return last_file
+    
     def arguments(
         self,
     ):
@@ -510,11 +529,18 @@ class UnetHelper:
     def test(self, args, steps_to_test = 0, cnn_type = 0):
 
         if not args.n:
-            args.n = "train_weights/20210701_191701_unet.hdf5"
-        else:
-            args.n = "train_weights/" + args.n
+            print('No weight was informed! trying to fetch some weight')
+            file_name = self.get_some_weight()
 
-        total, imgs = self.get_files_count(self.test_folder + self.image_folder, target_size=self.target_size)
+            if not file_name:
+                print('No weight was found!')
+                return False
+            else:
+                print(f'Using the fetched file weight found: {file_name}')
+                args.n = file_name
+    
+
+        total, imgs = self.get_files_count(self.test_folder + self.image_folder)
 
         if total > 0:
             try:
