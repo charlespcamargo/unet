@@ -113,7 +113,7 @@ class UnetHelper:
     def playground(self):
         import PIL
         from PIL import Image
-        qtd, imgs = self.get_files_count(self.train_folder + self.image_folder, target_size=self.target_size)
+        qtd, imgs = self.get_files_count(self.train_folder + self.image_folder)
         
         for i, file_name in enumerate(imgs):            
             img = io.imread(os.path.join(self.train_folder, "images", file_name), as_gray=False)
@@ -488,7 +488,7 @@ class UnetHelper:
     def evaluate(self, args, model: Model, history, steps_to_test = 100):
 
         print('Evaluating model in test DB...')
-        total, imgs = self.get_files_count(self.test_folder + self.image_folder, target_size=self.target_size)
+        total, imgs = self.get_files_count(self.test_folder + self.image_folder)
         
         steps_to_test = total if (steps_to_test <= 0) else steps_to_test
         total = total if (total < steps_to_test) else steps_to_test
@@ -605,7 +605,7 @@ class UnetHelper:
             print("nenhum arquivo encontrado") 
 
     def compare_result(self,):
-        qtd, imgs = self.get_files_count(self.test_folder + self.image_folder, target_size=self.target_size)
+        qtd, imgs = self.get_files_count(self.test_folder + self.image_folder)
         Data.compare_result(self.test_folder, imgs)
 
     def show_summary(self, args):
