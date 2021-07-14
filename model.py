@@ -83,7 +83,7 @@ class Unet():
         ##Defining Model
         model = Model(inputs=inputs, outputs=output_layer)
         opt = Adam(learning_rate = learning_rate)
-        loss = ['binary_crossentropy', CustomMetricsAndLosses.surface_loss]
+        loss = CustomMetricsAndLosses.surface_loss
 
         if(use_sgd == True):
             opt = SGD(learning_rate = learning_rate, momentum = momentum)            
