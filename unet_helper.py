@@ -118,12 +118,12 @@ class UnetHelper:
         for i, file_name in enumerate(imgs):            
             img = io.imread(os.path.join(self.train_folder, "images", file_name), as_gray=False)
             mask = io.imread(os.path.join(self.train_folder, "masks", file_name), as_gray=False)
-            
-            #y_pred_fake = self.generate_fake_predict(mask)
             y_pred_fake = io.imread(os.path.join(self.train_folder, "masks", file_name), as_gray=False)
 
-            y_pred_fake2 = CustomMetricsAndLosses.weighted_bce_dice_loss(mask, y_pred_fake)
-            y_pred_fake2 = y_pred_fake2.numpy()           
+            mask = self.norm_mask(mask)
+            y_pred_fake = self.norm_mask(y_pred_fake)
+
+            y_pred_fake2 = CustomMetricsAndLosses.surface_loss(mask, y_pred_fake)
             
             w = 256
             h = 256
@@ -131,11 +131,19 @@ class UnetHelper:
             composed_img.paste(Image.fromarray(img, 'RGB'), (0, 0))
             composed_img.paste(Image.fromarray(mask, 'RGB'), (w, 0))
             composed_img.paste(Image.fromarray(img, 'RGB'), (0, h))
-            composed_img.paste(Image.fromarray(y_pred_fake, 'RGB'), (w, h))
+            composed_img.paste(Image.fromarray(y_pred_fake2, 'RGB'), (w, h))
             composed_img.show()            
 
             if(i>10):
                 break
+
+
+    def norm_mask(self, img): 
+        norm  = img
+        norm[norm>127.5] = 255
+        norm[norm<=127.5] = 0
+
+        return norm
 
             
     def generate_fake_predict(self, mask):

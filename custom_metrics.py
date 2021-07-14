@@ -4,7 +4,7 @@ from sklearn.metrics import roc_auc_score
 from tensorflow.keras import backend as K 
 import tensorflow as tf
 from tensorflow.keras.metrics import *
-
+import math
 import numpy as np
 from scipy.ndimage import distance_transform_edt as distance
 
@@ -175,16 +175,18 @@ class CustomMetricsAndLosses:
         if posmask.any():
             negmask = ~posmask
             res = distance(negmask) * negmask - (distance(posmask) - 1) * posmask
+            #res = -(distance(posmask) - 1) * posmask
 
         return res
 
     @staticmethod
     def calc_dist_map_batch(y_true):
         y_true_numpy = y_true.numpy()
-        return np.array([CustomMetricsAndLosses.calc_dist_map(y) for y in y_true_numpy]).astype(np.float32)
+        return CustomMetricsAndLosses.calc_dist_map(y_true_numpy).astype(np.float32)
+        #return np.array([CustomMetricsAndLosses.calc_dist_map(y) for y in y_true_numpy]).astype(np.float32)
 
     @staticmethod
-    def surface_loss(y_true, y_pred):
+    def surface_loss2(y_true, y_pred):
 
         y_true_dist_map = tf.py_function(func=CustomMetricsAndLosses.calc_dist_map_batch,
                                         inp=[y_true],
@@ -192,10 +194,23 @@ class CustomMetricsAndLosses:
         multipled = y_pred * y_true_dist_map
 
         #print(f'multipled: {K.mean(multipled)}\n')
-        #print(f'sigmoid: {K.sigmoid(multipled)}\n\n')
+        #print(f'sigmoid: {K.sigmoid(multipled)}\n\n')  
 
+        return K.mean(multipled) #K.mean(multipled)
 
-        return K.sigmoid(multipled) #K.mean(multipled)
+    @staticmethod
+    def surface_loss(y_true, y_pred):        
+        #y_true_dist_map = np.zeros_like(y_true)
+        posmask = y_true.astype(np.bool)
+        smooth = 50
+
+        if posmask.any():
+            y_true_dist_map = (1 - 2 * np.arctan(distance(posmask) / smooth) / math.pi)
+            y_true_dist_map = (y_true_dist_map * posmask)
+
+            multipled = y_pred.astype('float32') * y_true_dist_map
+
+        return multipled.astype('uint8')
 
 
     # weight: weighted tensor(same shape with mask image)
