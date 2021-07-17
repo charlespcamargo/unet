@@ -10,6 +10,10 @@ from scipy.ndimage import distance_transform_edt as distance
 
 class CustomMetricsAndLosses:
     
+    alpha = 0.8
+    beta = 0.2
+    smooth = 255
+
     @staticmethod
     def get_recall(tp, fn):
         recall = tp / (tp + fn)
@@ -199,18 +203,77 @@ class CustomMetricsAndLosses:
         return K.mean(multipled) #K.mean(multipled)
 
     @staticmethod
-    def surface_loss(y_true, y_pred):        
-        #y_true_dist_map = np.zeros_like(y_true)
+    def transformada_distancia_invertida_loss(y_true, y_pred):
+        
+
+        # import PIL
+        # from PIL import Image
+
+        # x_y_true = (y_true.numpy()[0] * 255).astype('uint8')
+        # print(f'x_y_true - {x_y_true}')
+        
+        # y = Image.fromarray(x_y_true, 'RGB')
+        # y.show()
+
+        # x_y_pred = y_pred.numpy()[0]
+        # x_y_pred = (np.abs(np.mean(x_y_pred, axis=2) > 0.5) * 255).astype('uint8')
+        # print(f'y_pred - {x_y_pred}')
+        # p = Image.fromarray(x_y_pred, 'L')
+        # p.show()
+
+        #mse = K.mean(K.square(K.constant(y_pred) - K.constant(y_true)), axis=-1).numpy().astype('float32')
+        # mse = tf.keras.losses.mean_squared_error(y_true, y_pred)
+        # tdi = K.mean(K.constant(CustomMetricsAndLosses.transformada_distancia_invertida(y_true, y_pred)), axis=-1)
+        #tdi = np.mean(tdi, axis=(-1))
+        #print(f'tdi - min:{np.min(tdi)} - max:{np.max(tdi)}\n\n{tdi}')
+        
+        #print(f'0: mse: {mse.shape} - tdi: {tdi.shape}')
+        # loss = mse * tdi
+                
+        #print(f'1: tf.mse.shape: {tf.keras.losses.mean_squared_error(y_true, y_pred).shape}')
+        #print(f'2: mse.to_tensor: {tf.convert_to_tensor(mse, dtype=tf.float32).shape}')
+        #print(f'3: loss.shape: {loss.shape}')
+
+        # count = tf.where(y_pred==0., tf.ones_like(y_pred), tf.zeros_like(y_pred))
+        # bp = tf.math.reduce_sum(count)
+        #print(f'4: count:{count} - bp:{bp}')
+
+        #xpto = (CustomMetricsAndLosses.alpha * mse + CustomMetricsAndLosses.beta * bp)
+        #print(f'5: new loss/old loss - shape: {xpto.shape} \n {xpto}')
+        
+        #xpto2 = (CustomMetricsAndLosses.alpha * mse + CustomMetricsAndLosses.beta * bp)
+        #print(f'6: new loss - shape: {xpto2.shape} \n {xpto2}\n\n')
+        #xpto3 = xpto - xpto2
+        #print(f'xpto3: min/max: {np.min(xpto3)}/{np.max(xpto3)}\n')
+        
+        #print(f'7: loss:{loss}')
+        #print(f'8: mse.shape:{loss.shape}\n\n\n')
+
+        mse = tf.keras.losses.mean_squared_error(y_true, y_pred)
+        tdi = K.mean(K.constant(CustomMetricsAndLosses.transformada_distancia_invertida(y_true, y_pred)), axis=-1)
+        loss = mse * tdi
+        
+        return CustomMetricsAndLosses.alpha * loss + CustomMetricsAndLosses.beta #* bp
+
+
+    @staticmethod
+    def transformada_distancia_invertida(y_true, y_pred):    
+        
+        if(not type(y_true) is np.ndarray):
+            y_true = y_true.numpy()
+
+        if(not type(y_pred) is np.ndarray):
+            y_pred = y_pred.numpy()
+        
         posmask = y_true.astype(np.bool)
-        smooth = 50
 
         if posmask.any():
-            y_true_dist_map = (1 - 2 * np.arctan(distance(posmask) / smooth) / math.pi)
+            y_true_dist_map = (1 - 2 * np.arctan(distance(posmask) / CustomMetricsAndLosses.smooth) / math.pi)
             y_true_dist_map = (y_true_dist_map * posmask)
 
-            multipled = y_pred.astype('float32') * y_true_dist_map
+            tdi = y_pred.astype('float32') * y_true_dist_map.astype('float32') 
 
-        return multipled.astype('uint8')
+        return tdi
 
 
     # weight: weighted tensor(same shape with mask image)

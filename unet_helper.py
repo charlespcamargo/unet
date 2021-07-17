@@ -1,3 +1,4 @@
+from numpy import random
 from model import *
 from data import *
 from custom_metrics import *
@@ -20,7 +21,7 @@ class UnetHelper:
     # training vars
     model = None
     batch_size = 1
-    steps_per_epoch = 20
+    steps_per_epoch = 10
     epochs = 3
 
     # image sizes
@@ -60,8 +61,8 @@ class UnetHelper:
 
     def main(self, args):
 
-        #self.playground()
-        #return False
+        if args.t == -2:
+            self.playground()
 
         if args.t == -1:
             self.show_arguments()
@@ -113,57 +114,94 @@ class UnetHelper:
     def playground(self):
         import PIL
         from PIL import Image
+
         qtd, imgs = self.get_files_count(self.train_folder + self.image_folder)
         
         for i, file_name in enumerate(imgs):            
-            img = io.imread(os.path.join(self.train_folder, "images", file_name), as_gray=False)
-            mask = io.imread(os.path.join(self.train_folder, "masks", file_name), as_gray=False)
-            y_pred_fake = io.imread(os.path.join(self.train_folder, "masks", file_name), as_gray=False)
+            img = self.load_img("images", file_name, False)
+            y_true = self.load_img("masks", file_name)
+            y_pred_fake = self.generate_fake_img(self.load_img("masks", file_name))
 
-            mask = self.norm_mask(mask)
-            y_pred_fake = self.norm_mask(y_pred_fake)
-
-            y_pred_fake2 = CustomMetricsAndLosses.surface_loss(mask, y_pred_fake)
+            tdi = CustomMetricsAndLosses.transformada_distancia_invertida(y_true, y_pred_fake)
+            tdi_img = tdi
+            tdi = (tdi / 255).astype('float32') 
             
+            mse = np.mean(np.square(y_pred_fake - y_true), axis=-1).astype('float32')
+            tdi = np.mean(tdi[:,:], axis=-1)
+            loss = mse + (CustomMetricsAndLosses.alpha * tdi)
+            print(f'loss: {loss}')
+
+            tdi[tdi>0.5] = 255
+            tdi[tdi<=0.5] = 0
+            tdi = tdi.astype('uint8')
+
+            loss2 = np.zeros( loss.shape + (3,) )
+            loss2[:,:,0] = loss
+            loss2[:,:,1] = loss
+            loss2[:,:,2] = loss 
+            loss2[loss2>0.5] = 255
+            loss2[loss2<=0.5] = 0
+            loss2 = loss2.astype('uint8')
+
             w = 256
             h = 256
-            composed_img = Image.new('RGB', (w*2, h*2), color="gray")
+            composed_img = Image.new('RGB', (w*3, h*3), color="gray")
+            
             composed_img.paste(Image.fromarray(img, 'RGB'), (0, 0))
-            composed_img.paste(Image.fromarray(mask, 'RGB'), (w, 0))
-            composed_img.paste(Image.fromarray(img, 'RGB'), (0, h))
-            composed_img.paste(Image.fromarray(y_pred_fake2, 'RGB'), (w, h))
+            composed_img.paste(Image.fromarray(y_true, 'RGB'), (w, 0))
+            composed_img.paste(Image.fromarray(y_pred_fake, 'RGB'), (w*2, 0))
+            
+            composed_img.paste(Image.fromarray(self.norm_img_in_black_white(tdi_img), 'RGB'), (0, h))
+            composed_img.paste(Image.fromarray(self.norm_img_in_black_white(tdi), 'L'), (w, h))
+            composed_img.paste(Image.fromarray(self.norm_img_in_black_white(loss), 'L'), (w*2, h))
+            
+            composed_img.paste(Image.fromarray(self.norm_img_in_black_white(loss2), 'RGB'), (0, h*2))
             composed_img.show()            
 
             if(i>10):
                 break
+    
+    def load_img(self, file_type, file_name, norm_img_bw = True):
+        img = io.imread(os.path.join(self.train_folder, file_type, file_name), as_gray=False)
 
+        if(norm_img_bw):
+            img = self.norm_img_in_black_white(img)
 
-    def norm_mask(self, img): 
+        return img
+
+    def norm_img_in_black_white(self, img, rgb=True):
         norm  = img
         norm[norm>127.5] = 255
         norm[norm<=127.5] = 0
 
-        return norm
+        if(rgb):
+            return norm.astype('uint8')
+        else:
+            return norm[:,:,0].astype('uint8') # 2 dims
+    
+    def generate_fake_img(self, img): 
+        from random import randrange
+        
+        # change some pixels (5%)
+        for i in range(0, 3250):
+            x = randrange(256) # 256x256px
+            y = randrange(256) # 256x256px
+            color = randrange(255) # 0 - 255
+
+            img[x][y] = color
+            img[x][y] = color
+            img[x][y] = color
+        
+        return img
 
             
     def generate_fake_predict(self, mask):
         y_pred_fake = np.random.rand(256, 256, 3) * mask
-        #y_pred_fake = y_pred_fake.astype('float32')
-        #y_pred_fake = y_pred_fake / 255
+        
         y_pred_fake[y_pred_fake >= 127.5] = 255
         y_pred_fake[y_pred_fake < 127.5] = 0
         y_pred_fake = np.abs(np.mean(y_pred_fake, axis=2) > 0.5) * 255
-        # y_pred_fake_true = int((y_pred_fake == 255).sum())
-        # y_pred_fake_false = int((y_pred_fake == 0).sum())
-
-        # total = y_pred_fake_true + y_pred_fake_false
-        # print(f'fator: {fator} - false: {y_pred_fake_false}({round(y_pred_fake_false/total*100, 2)}%) - true: {y_pred_fake_true}({round(y_pred_fake_true/total*100, 2)}%) - total: {total}')
-
-        # mask_true = int((mask == 255).sum())
-        # mask_false = int((mask == 0).sum())
-        # diff = mask.sum() + mask_true + mask_false
-        # total = mask_true + mask_false
-        # print(f'false: {mask_false}({round(mask_false/total*100, 2)}%) - true: {mask_true}({round(mask_true/total*100, 2)}%) - total: {total}')
+         
         
         return y_pred_fake
 

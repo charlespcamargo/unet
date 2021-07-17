@@ -28,11 +28,11 @@ class Unet():
         return (ch1, ch2), (cw1, cw2)
 
     def create_model(self, pretrained_weights = None, input_size = (256,256, 3), num_class = 2, learning_rate = 1e-4, momentum = 0.90, use_sgd = False, use_euclidean = False):
-        inputs = Input( shape=(input_size) ) 
+        input_layer = Input( shape=(input_size) ) 
 
         concat_axis = 3  
         # pesquisar camada de processamento
-        conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(inputs)    
+        conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(input_layer)    
         conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(conv1)
 
         pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
@@ -81,10 +81,9 @@ class Unet():
         print(output_layer)
 
         ##Defining Model
-        model = Model(inputs=inputs, outputs=output_layer)
+        model = Model(inputs=input_layer, outputs=output_layer)
         opt = Adam(learning_rate = learning_rate)
-        loss = CustomMetricsAndLosses.surface_loss
-
+        
         if(use_sgd == True):
             opt = SGD(learning_rate = learning_rate, momentum = momentum)            
 
@@ -92,7 +91,9 @@ class Unet():
         #     loss = CustomMetricsAndLosses.surface_loss
 
         model.compile(optimizer = opt, 
-                      loss = loss,
+                      loss = CustomMetricsAndLosses.transformada_distancia_invertida_loss,
+                      #loss_weights = loss_weights,
+                    #   custom_objects = custom_objects,
                       metrics = [
                                     AUC(name="auc"),
                                     Precision(name="precision"),
@@ -102,7 +103,8 @@ class Unet():
                                     Accuracy(name="accuracy"),
                                     CustomMetricsAndLosses.jacard_coef,
                                     CustomMetricsAndLosses.dice_loss
-                                ]
+                                ],
+                      run_eagerly=True
                 )
 
                              
