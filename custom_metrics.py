@@ -10,9 +10,8 @@ from scipy.ndimage import distance_transform_edt as distance
 
 class CustomMetricsAndLosses:
     
-    alpha = 0.8
-    beta = 0.2
-    smooth = 255
+    alpha = 0.75 
+    smooth = 100
 
     @staticmethod
     def get_recall(tp, fn):
@@ -220,41 +219,27 @@ class CustomMetricsAndLosses:
         # print(f'y_pred - {x_y_pred}')
         # p = Image.fromarray(x_y_pred, 'L')
         # p.show()
-
-        #mse = K.mean(K.square(K.constant(y_pred) - K.constant(y_true)), axis=-1).numpy().astype('float32')
-        # mse = tf.keras.losses.mean_squared_error(y_true, y_pred)
-        # tdi = K.mean(K.constant(CustomMetricsAndLosses.transformada_distancia_invertida(y_true, y_pred)), axis=-1)
-        #tdi = np.mean(tdi, axis=(-1))
-        #print(f'tdi - min:{np.min(tdi)} - max:{np.max(tdi)}\n\n{tdi}')
         
-        #print(f'0: mse: {mse.shape} - tdi: {tdi.shape}')
-        # loss = mse * tdi
-                
-        #print(f'1: tf.mse.shape: {tf.keras.losses.mean_squared_error(y_true, y_pred).shape}')
-        #print(f'2: mse.to_tensor: {tf.convert_to_tensor(mse, dtype=tf.float32).shape}')
-        #print(f'3: loss.shape: {loss.shape}')
+        #print(f'tdi - shape: {tdi.shape} \n')        
+        #print(f'mse - shape: {mse.shape} \n')
 
-        # count = tf.where(y_pred==0., tf.ones_like(y_pred), tf.zeros_like(y_pred))
-        # bp = tf.math.reduce_sum(count)
-        #print(f'4: count:{count} - bp:{bp}')
+        # mse_rgb = np.zeros( mse.shape + (3,) )
+        # mse = mse.numpy()
+        # mse_rgb[:,:,:,0] = mse
+        # mse_rgb[:,:,:,1] = mse
+        # mse_rgb[:,:,:,2] = mse
+        #mse_rgb = mse_rgb
+        #print(f'mse_rgb - shape: {mse_rgb.shape} \n')
 
-        #xpto = (CustomMetricsAndLosses.alpha * mse + CustomMetricsAndLosses.beta * bp)
-        #print(f'5: new loss/old loss - shape: {xpto.shape} \n {xpto}')
-        
-        #xpto2 = (CustomMetricsAndLosses.alpha * mse + CustomMetricsAndLosses.beta * bp)
-        #print(f'6: new loss - shape: {xpto2.shape} \n {xpto2}\n\n')
-        #xpto3 = xpto - xpto2
-        #print(f'xpto3: min/max: {np.min(xpto3)}/{np.max(xpto3)}\n')
-        
-        #print(f'7: loss:{loss}')
-        #print(f'8: mse.shape:{loss.shape}\n\n\n')
 
-        mse = tf.keras.losses.mean_squared_error(y_true, y_pred)
+        mse = tf.keras.losses.mean_squared_error(y_true, y_pred)        
         tdi = K.mean(K.constant(CustomMetricsAndLosses.transformada_distancia_invertida(y_true, y_pred)), axis=-1)
-        loss = mse * tdi
         
-        return CustomMetricsAndLosses.alpha * loss + CustomMetricsAndLosses.beta #* bp
-
+        #binary = tf.keras.losses.binary_crossentropy(y_true, y_pred)
+        #loss = binary * tdi
+        #loss = mse * tdi
+        
+        return mse * (CustomMetricsAndLosses.alpha + tdi)
 
     @staticmethod
     def transformada_distancia_invertida(y_true, y_pred):    

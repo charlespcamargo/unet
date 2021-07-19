@@ -91,9 +91,7 @@ class Unet():
         #     loss = CustomMetricsAndLosses.surface_loss
 
         model.compile(optimizer = opt, 
-                      loss = CustomMetricsAndLosses.transformada_distancia_invertida_loss,
-                      #loss_weights = loss_weights,
-                    #   custom_objects = custom_objects,
+                      loss = CustomMetricsAndLosses.transformada_distancia_invertida_loss, 
                       metrics = [
                                     AUC(name="auc"),
                                     Precision(name="precision"),

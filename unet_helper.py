@@ -21,8 +21,8 @@ class UnetHelper:
     # training vars
     model = None
     batch_size = 1
-    steps_per_epoch = 10
-    epochs = 3
+    steps_per_epoch = 25
+    epochs = 5
 
     # image sizes
     target_size = (256, 256)   
@@ -561,7 +561,7 @@ class UnetHelper:
                             )
 
             acc = model.evaluate(test_gene, verbose=1)
-            print('Evaluate data - acc: %.3f - and plotting...', acc)
+            print(f'Evaluate data - {acc}% - and plotting...')
             
             # plot training history
             plt.plot(history.history['loss'], label='train')
