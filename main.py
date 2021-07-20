@@ -6,7 +6,7 @@ if __name__ == "__main__":
     myhelper = UnetHelper()
 
     args = easydict.EasyDict({
-        't': 0, # "Informe o tipo  
+        't': 1, # "Informe o tipo  
          # '--t -1' parametros, '--t 0' treino, '--t 1' teste, '--t 2' sumario', '--t 3' avaliacao, '--t 4' f-beta-score, '--t 5' crop_images", 
          # '--t 5' crop_images_in_tiles", '--t 6' crop_all_images_in_tiles", '--t 7' get_train_class_weights", '--t 8' compare_result"
         'g': 1, # Gerar arquivos '--g 0' para nao gerar arquivos ou '--g 1' para gerar
@@ -25,11 +25,11 @@ if __name__ == "__main__":
         'image_folder': 'images', 
         'label_folder': 'masks', 
         'patience': 10,
-        'early_stopping_monitor': 'val_weighted_bce_dice_loss', 
-        'early_stopping_monitor_mode': 'min', 
+        'early_stopping_monitor': 'val_auc', 
+        'early_stopping_monitor_mode': 'max', 
         'class_weights': None,
-        'model_monitor': 'val_weighted_bce_dice_loss', 
-        'model_monitor_mode': 'min', 
+        'model_monitor': 'val_auc', 
+        'model_monitor_mode': 'max', 
         'validation_steps': 100, 
         'use_numpy': False,
         'learning_rate': 1e-4,
