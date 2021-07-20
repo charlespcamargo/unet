@@ -257,6 +257,9 @@ class CustomMetricsAndLosses:
             y_true_dist_map = (y_true_dist_map * posmask)
 
             tdi = y_pred.astype('float32') * y_true_dist_map.astype('float32') 
+        else:
+            # avoiding undefined var
+            tdi = y_pred.astype('float32')
 
         return tdi
 
