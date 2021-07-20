@@ -415,7 +415,7 @@ class UnetHelper:
         if(self.use_augmentation):
             data_gen_args = dict(
                                     zoom_range = [-0.01, 0.01],  # alterar
-                                    brightness_range=[-0.5, 0.5], # alterar
+                                    brightness_range=[-0.10, 0.15], # alterar
                                     shear_range = 10.0,
                                     horizontal_flip=True, # remover
                                     vertical_flip=True, # remover            
