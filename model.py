@@ -85,10 +85,7 @@ class Unet():
         opt = Adam(learning_rate = learning_rate)
         
         if(use_sgd == True):
-            opt = SGD(learning_rate = learning_rate, momentum = momentum)            
-
-        # if(use_euclidean == True):
-        #     loss = CustomMetricsAndLosses.surface_loss
+            opt = SGD(learning_rate = learning_rate, momentum = momentum)
 
         model.compile(optimizer = opt, 
                       loss = CustomMetricsAndLosses.transformada_distancia_invertida_loss, 

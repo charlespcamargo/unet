@@ -333,7 +333,7 @@ class Data():
         elif (column_type == 3):
             return f'predict{Data.get_size(mask_size, gsd)}'
         else:
-            return f'diff ground-truth and predict{Data.get_size(mask_size, gsd)}'
+            return f'diff gt/predict{Data.get_size(mask_size, gsd)}'
 
     @staticmethod
     def get_size(mask_size, gsd):

@@ -10,8 +10,8 @@ from scipy.ndimage import distance_transform_edt as distance
 
 class CustomMetricsAndLosses:
     
-    alpha = 0.9
-    smooth = 100
+    alpha = 1
+    smooth = 150
 
     @staticmethod
     def get_recall(tp, fn):
