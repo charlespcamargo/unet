@@ -10,7 +10,7 @@ from scipy.ndimage import distance_transform_edt as distance
 
 class CustomMetricsAndLosses:
     
-    alpha = 0.5
+    alpha = 0.25
     smooth = 50
 
     @staticmethod
