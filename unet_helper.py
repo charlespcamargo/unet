@@ -29,7 +29,7 @@ class UnetHelper:
     input_shape = (256, 256, 3)  
 
     # paths
-    base_folder = "/Users/charles/Downloads/hedychium_coronarium/versions/v2/hedychium_coronarium/"
+    base_folder = '/Users/charles/Downloads/hedychium_coronarium/all/' 
     train_folder = base_folder + "train/"
     augmentation_folder = train_folder + "aug/"
     validation_folder = base_folder + "val/"
@@ -83,24 +83,24 @@ class UnetHelper:
             self.get_fbetaScore(args.b, args.p, args.r)
 
         elif args.t == 5:
-            PreProcessingData.crop_images_in_tiles('../../datasets/hedychium_coronarium/', 
-                                      'train',
-                                      'val',
-                                      'test',
-                                      "images", 
-                                      "masks", 
+            PreProcessingData.crop_images_in_tiles(self.base_folder, 
+                                      self.train_folder,
+                                      self.validation_folder,
+                                      self.test_folder,
+                                      self.image_folder, 
+                                      self.label_folder,
                                       256,
                                       256,
                                       threshold = 20,
                                       force_delete = False)
 
         elif args.t == 6:
-            PreProcessingData.crop_all_images_in_tiles('/Users/charles/Downloads/hedychium_coronarium/all', 
-                                      "images", 
-                                      "masks", 
+            PreProcessingData.crop_all_images_in_tiles(self.base_folder,
+                                      self.image_folder, 
+                                      self.label_folder, 
                                       256,
                                       256,
-                                      threshold = 25,
+                                      threshold = 20,
                                       force_delete = False,
                                       validate_class_to_discard = True,
                                       move_ignored_to_test = False)
@@ -110,6 +110,9 @@ class UnetHelper:
 
         elif args.t == 8:
             self.compare_result()
+
+        elif args.t == 9:
+            PreProcessingData.copy_exif_from_image_to_mask(self.base_folder, self.image_folder, self.label_folder)
 
     def playground(self):
         import PIL

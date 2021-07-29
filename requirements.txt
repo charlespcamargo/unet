@@ -9,3 +9,4 @@ tensorflow-addons
 easydict
 segmentation_models
 opencv-python
+exif
