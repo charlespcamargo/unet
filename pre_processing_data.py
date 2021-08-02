@@ -54,10 +54,11 @@ class PreProcessingData():
         #rounding
         qty_train += qty_files-(qty_train+qty_val+qty_test)
         
-        # 10% classless for all bases
-        qty_classless_train = round(qty_train * 0.10)
-        qty_classless_val = round(qty_val * 0.10) if qty_val > 0 else 0
-        qty_classless_test = round(qty_test * 0.10) if qty_test > 0 else 0
+        # 3% classless for all bases
+        classless = 0.03
+        qty_classless_train = round(qty_train * classless)
+        qty_classless_val = round(qty_val * classless) if qty_val > 0 else 0
+        qty_classless_test = round(qty_test * classless) if qty_test > 0 else 0
 
         if(not os.path.exists(data_path + 'train/')):
             os.makedirs(data_path + 'train/')

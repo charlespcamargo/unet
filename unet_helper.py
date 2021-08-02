@@ -100,7 +100,7 @@ class UnetHelper:
                                       self.label_folder, 
                                       256,
                                       256,
-                                      threshold = 20,
+                                      threshold = 18,
                                       force_delete = False,
                                       validate_class_to_discard = True,
                                       move_ignored_to_test = False)
