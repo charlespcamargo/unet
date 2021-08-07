@@ -495,7 +495,7 @@ class UnetHelper:
                 save_weights_only=False
             )
 
-            scheduler = LearningRateScheduler(self.scheduler)
+            #scheduler = LearningRateScheduler(self.scheduler)
 
             # classe desbalanceada
             if(self.check_train_class_weights):
@@ -509,7 +509,11 @@ class UnetHelper:
                 epochs=self.epochs,
                 validation_data=generator_val,
                 validation_steps=self.validation_steps,
-                callbacks=[earlystopper, model_checkpoint, scheduler, tb_cb],
+                callbacks=[
+                            earlystopper, 
+                            model_checkpoint, 
+                            #scheduler, 
+                            tb_cb],
                 verbose=1,
                 class_weight=self.class_weight
             )

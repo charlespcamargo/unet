@@ -28,11 +28,27 @@ class Unet():
         return (ch1, ch2), (cw1, cw2)
 
     def create_model(self, pretrained_weights = None, input_size = (256,256, 3), num_class = 2, learning_rate = 1e-4, momentum = 0.90, use_sgd = False, use_euclidean = False):
+        
         input_layer = Input( shape=(input_size) ) 
+
+        
+        
+        # create the base pre-trained model
+        base_model = tf.keras.applications.inception_v3.InceptionV3(weights='imagenet', include_top=False, input_tensor=input_layer)
+
+        # add a global spatial average pooling layer
+        x = base_model.output
+        x = GlobalAveragePooling2D()(x)
+        # let's add a fully-connected layer
+        x = Dense(1024, activation='relu')(x)
+        # and a logistic layer -- let's say we have 2 classes
+        # predictions = Dense(2, activation='sigmoid')(x)
+        # create the base pre-trained model
+
 
         concat_axis = 3  
         # pesquisar camada de processamento
-        conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(input_layer)    
+        conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(base_model.input)    
         conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', dtype=tf.float32)(conv1)
 
         pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
@@ -76,7 +92,13 @@ class Unet():
         print("conv9 shape:", conv9.shape) 
 
         ##Output Layer
-        output_layer = Conv2D(3, 1, activation = 'sigmoid', dtype=tf.float32)(conv9)
+        #output_layer = Conv2D(3, 1, activation = 'sigmoid', dtype=tf.float32)(conv9)
+
+
+        # create the base pre-trained model
+        # and a logistic layer -- let's say we have 2 classes
+        output_layer = Dense(3, activation='sigmoid', dtype=tf.float32)(conv9)
+        # create the base pre-trained model
 
         print(output_layer)
 
