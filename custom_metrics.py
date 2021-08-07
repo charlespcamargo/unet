@@ -218,28 +218,12 @@ class CustomMetricsAndLosses:
         # x_y_pred = (np.abs(np.mean(x_y_pred, axis=2) > 0.5) * 255).astype('uint8')
         # print(f'y_pred - {x_y_pred}')
         # p = Image.fromarray(x_y_pred, 'L')
-        # p.show()
-        
-        #print(f'tdi - shape: {tdi.shape} \n')        
-        #print(f'mse - shape: {mse.shape} \n')
-
-        # mse_rgb = np.zeros( mse.shape + (3,) )
-        # mse = mse.numpy()
-        # mse_rgb[:,:,:,0] = mse
-        # mse_rgb[:,:,:,1] = mse
-        # mse_rgb[:,:,:,2] = mse
-        #mse_rgb = mse_rgb
-        #print(f'mse_rgb - shape: {mse_rgb.shape} \n')
-
+        # p.show()         
 
         mse = tf.keras.losses.mean_squared_error(y_true, y_pred)        
         tdi = K.mean(K.constant(CustomMetricsAndLosses.transformada_distancia_invertida(y_true, y_pred)), axis=-1)
-        
-        #binary = tf.keras.losses.binary_crossentropy(y_true, y_pred)
-        #loss = binary * tdi
-        #loss = mse * tdi
-        
-        return mse * (CustomMetricsAndLosses.alpha + tdi)
+
+        return mse * K.clip((CustomMetricsAndLosses.alpha + tdi), 0, 1)
 
     @staticmethod
     def transformada_distancia_invertida(y_true, y_pred):    

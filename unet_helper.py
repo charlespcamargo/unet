@@ -29,7 +29,7 @@ class UnetHelper:
     input_shape = (256, 256, 3)  
 
     # paths
-    base_folder = '/Users/charles/Downloads/hedychium_coronarium/all/' 
+    base_folder = '/Users/charles/Downloads/mestrado/hedychium_coronarium/all_splits/hedychium_coronarium/'
     train_folder = base_folder + "train/"
     augmentation_folder = train_folder + "aug/"
     validation_folder = base_folder + "val/"
@@ -495,6 +495,8 @@ class UnetHelper:
                 save_weights_only=False
             )
 
+            scheduler = LearningRateScheduler(self.scheduler)
+
             # classe desbalanceada
             if(self.check_train_class_weights):
                 (black, white) = PreProcessingData.get_train_class_weights(self.base_folder)
@@ -507,7 +509,7 @@ class UnetHelper:
                 epochs=self.epochs,
                 validation_data=generator_val,
                 validation_steps=self.validation_steps,
-                callbacks=[earlystopper, model_checkpoint, tb_cb],
+                callbacks=[earlystopper, model_checkpoint, scheduler, tb_cb],
                 verbose=1,
                 class_weight=self.class_weight
             )
@@ -705,3 +707,13 @@ class UnetHelper:
 
         return tb_cb
 
+    def scheduler(self, epoch, lr):
+        new_lr = 0
+        if epoch < 10:
+            new_lr = lr
+        else:
+            new_lr = lr * tf.math.exp(-0.1)
+        
+        print(f"epoch: {epoch} - old lr: {lr} - new lr: {new_lr}")
+
+        return new_lr
