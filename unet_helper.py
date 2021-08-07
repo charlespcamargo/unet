@@ -417,8 +417,8 @@ class UnetHelper:
         
         if(self.use_augmentation):
             data_gen_args = dict(
-                                    zoom_range = [0.90, 1.10],  # alterar
-                                    brightness_range=[0.90, 1.10], # alterar
+                                    zoom_range = 0.1,  # alterar
+                                    brightness_range=[0.80, 1.20], # alterar
                                     shear_range = 0.05,
                                     horizontal_flip=True, # remover
                                     vertical_flip=True, # remover            
@@ -712,8 +712,10 @@ class UnetHelper:
         if epoch < 10:
             new_lr = lr
         else:
-            new_lr = lr * tf.math.exp(-0.1)
+            if (epoch % 10 == 0):
+                print(f"--- DECRESING ---")
+                new_lr = lr * tf.math.exp(-0.1)
         
-        print(f"epoch: {epoch} - old lr: {lr} - new lr: {new_lr}")
+        print(f"Epoch: {epoch} - old lr: {lr} - new lr: {new_lr}")
 
         return new_lr
