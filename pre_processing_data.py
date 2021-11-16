@@ -54,8 +54,8 @@ class PreProcessingData():
         #rounding
         qty_train += qty_files-(qty_train+qty_val+qty_test)
         
-        # 3% classless for all bases
-        classless = 0.03
+        # 10% classless for all bases
+        classless = 0.10
         qty_classless_train = round(qty_train * classless)
         qty_classless_val = round(qty_val * classless) if qty_val > 0 else 0
         qty_classless_test = round(qty_test * classless) if qty_test > 0 else 0

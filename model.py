@@ -37,10 +37,10 @@ class Unet():
         base_model = tf.keras.applications.inception_v3.InceptionV3(weights='imagenet', include_top=False, input_tensor=input_layer)
 
         # add a global spatial average pooling layer
-        x = base_model.output
-        x = GlobalAveragePooling2D()(x)
+        #x = base_model.output
+        #x = GlobalAveragePooling2D()(x)
         # let's add a fully-connected layer
-        x = Dense(1024, activation='relu')(x)
+        #x = Dense(1024, activation='relu')(x)
         # and a logistic layer -- let's say we have 2 classes
         # predictions = Dense(2, activation='sigmoid')(x)
         # create the base pre-trained model

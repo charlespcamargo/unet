@@ -56,7 +56,7 @@ class UnetHelper:
     use_sgd = False
     use_euclidean = True
     check_train_class_weights = False
-    use_augmentation = False
+    use_augmentation = True
     use_splits = False
 
     def main(self, args):
@@ -98,9 +98,9 @@ class UnetHelper:
             PreProcessingData.crop_all_images_in_tiles(self.base_folder,
                                       self.image_folder, 
                                       self.label_folder, 
-                                      256,
-                                      256,
-                                      threshold = 18,
+                                      512,
+                                      512,
+                                      threshold = 10,
                                       force_delete = False,
                                       validate_class_to_discard = True,
                                       move_ignored_to_test = False)
@@ -420,9 +420,11 @@ class UnetHelper:
                                     zoom_range = 0.1,  # alterar
                                     brightness_range=[0.80, 1.20], # alterar
                                     shear_range = 0.05,
+                                    width_shift_range=[-0.2, 0.2],
+                                    height_shift_range=[-0.2, 0.2],
                                     horizontal_flip=True, # remover
                                     vertical_flip=True, # remover            
-                                    fill_mode="wrap"# remover        
+                                    fill_mode="nearest"# remover        
                                 )
         else:
             print('without augmentation')
