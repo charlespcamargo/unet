@@ -92,12 +92,12 @@ class Unet():
         print("conv9 shape:", conv9.shape) 
 
         ##Output Layer
-        #output_layer = Conv2D(3, 1, activation = 'sigmoid', dtype=tf.float32)(conv9)
+        output_layer = Conv2D(3, 1, activation = 'sigmoid', dtype=tf.float32)(conv9)
 
 
         # create the base pre-trained model
         # and a logistic layer -- let's say we have 2 classes
-        output_layer = Dense(3, activation='sigmoid', dtype=tf.float32)(conv9)
+        #output_layer = Dense(3, activation='sigmoid', dtype=tf.float32)(conv9)
         # create the base pre-trained model
 
         print(output_layer)
@@ -106,8 +106,8 @@ class Unet():
         model = Model(inputs=input_layer, outputs=output_layer)
         opt = Adam(learning_rate = learning_rate)
         
-        if(use_sgd == True):
-            opt = SGD(learning_rate = learning_rate, momentum = momentum)
+        #if(use_sgd == True):
+        #    opt = SGD(learning_rate = learning_rate, momentum = momentum)
 
         model.compile(optimizer = opt, 
                       loss = CustomMetricsAndLosses.transformada_distancia_invertida_loss, 

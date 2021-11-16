@@ -10,8 +10,8 @@ from scipy.ndimage import distance_transform_edt as distance
 
 class CustomMetricsAndLosses:
     
-    alpha = 0.70
-    smooth = 150
+    alpha = 0.90
+    smooth = 100
 
     @staticmethod
     def get_recall(tp, fn):
@@ -223,7 +223,8 @@ class CustomMetricsAndLosses:
         mse = tf.keras.losses.mean_squared_error(y_true, y_pred)        
         tdi = K.mean(K.constant(CustomMetricsAndLosses.transformada_distancia_invertida(y_true, y_pred)), axis=-1)
 
-        return mse * K.clip((CustomMetricsAndLosses.alpha + tdi), 0, 1)
+        #return mse * K.clip((CustomMetricsAndLosses.alpha + tdi), 0, 1)
+        return mse * (CustomMetricsAndLosses.alpha + tdi)
 
     @staticmethod
     def transformada_distancia_invertida(y_true, y_pred):    
