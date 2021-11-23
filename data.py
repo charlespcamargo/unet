@@ -209,6 +209,9 @@ class Data():
 
     @staticmethod
     def save_result(save_path, npyfile, imgs, flag_multi_class=False, num_class=2):
+        
+        img_path = save_path + "images"
+        save_path = save_path + "results"
 
         Path(save_path).mkdir(parents=True, exist_ok=True) 
 
@@ -221,7 +224,35 @@ class Data():
                 img = item[:, :, :]
                 prediction_binary = np.abs(np.mean(img, axis=2) > 0.5) * 255
                 prediction_binary = prediction_binary.astype(np.uint8)
-                io.imsave(os.path.join(save_path, imgs[i] + Data.predict_suffix), prediction_binary)
+                # gerando só a imagem original com a mascara sobre ela logo abaixo.
+                #io.imsave(os.path.join(save_path, imgs[i] + Data.predict_suffix), prediction_binary) 
+            
+
+
+            original_img = io.imread(os.path.join(img_path, imgs[i]), as_gray=False)
+            original_img = Image.fromarray(original_img).convert("RGBA")
+            original_img = original_img.resize((1008,752), Image.ANTIALIAS)
+            
+            prediction_img = Image.fromarray(prediction_binary).convert("RGBA")
+            prediction_arr = np.array(prediction_img)
+
+            white_mask = (prediction_arr[:, :, 0:3] == [255,255,255]).all(2)
+            black_mask = (prediction_arr[:, :, 0:3] == [0,0,0]).all(2)            
+            
+            # Make all pixels matched by mask into transparent ones (0, 0, 0, 0)
+            prediction_arr[black_mask] = (124, 252, 0, 70) # green with 30 opacity
+
+            # Make all pixels matched by mask into "filter" purple color with transparency
+            alpha = 127 
+            color = (255, 215, 0, alpha)  # yellow
+            prediction_arr[white_mask] = color
+            prediction_img = Image.fromarray(prediction_arr)
+
+            composed_image = Image.new('RGBA', original_img.size, color="gray")
+            composed_image.paste(original_img, (0,0), original_img)
+            composed_image.paste(prediction_img, (0,0), mask=prediction_img)
+            #composed_image.show()
+            composed_image.save(os.path.join(save_path, imgs[i] + "_original" + Data.predict_suffix))
     
     @staticmethod
     def compare_result(base_path, imgs, font_path = 'assets/arial-unicode.ttf'):

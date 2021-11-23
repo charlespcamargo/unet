@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "main.py",
             "console": "integratedTerminal",
-            "args" : ["--t", "6"]
+            "args" : ["--t", "1"]
         }
     ]
 }

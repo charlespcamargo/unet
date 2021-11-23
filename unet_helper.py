@@ -25,8 +25,8 @@ class UnetHelper:
     epochs = 5
 
     # image sizes
-    target_size = (256, 256)   
-    input_shape = (256, 256, 3)  
+    target_size = (752, 1008)   
+    input_shape = (752, 1008, 3)  
 
     # paths
     base_folder = '/Users/charles/Downloads/mestrado/hedychium_coronarium/all_splits/hedychium_coronarium/'
@@ -98,9 +98,9 @@ class UnetHelper:
             PreProcessingData.crop_all_images_in_tiles(self.base_folder,
                                       self.image_folder, 
                                       self.label_folder, 
-                                      512,
-                                      512,
-                                      threshold = 10,
+                                      2000,
+                                      1500,
+                                      threshold = 5,
                                       force_delete = False,
                                       validate_class_to_discard = True,
                                       move_ignored_to_test = False)
@@ -636,7 +636,7 @@ class UnetHelper:
                     results = model.predict(test_gene, steps=len(current_page_imgs), batch_size=self.batch_size, max_queue_size=10, callbacks=[tb_cb], verbose=1,use_multiprocessing=False)
                     
                     Data.save_result(
-                        save_path=self.test_folder + "results",
+                        save_path=self.test_folder,
                         npyfile=results,
                         imgs=current_page_imgs,
                         flag_multi_class=False,
